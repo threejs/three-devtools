@@ -1,0 +1,22 @@
+{
+  "name": "three-devtools",
+  "version": "0.0.1",
+  "description": "three.js developer tools web extension",
+  "scripts": {
+    "zip": "npm run build && cp -r extension three-devtools && zip -r three-devtools.zip three-devtools && rm -r three-devtools",
+    "build": "rollup -c",
+    "watch": "rollup -c -w"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jsantell/three-devtools.git"
+  },
+  "author": "Jordan Santell <jordan@jsantell.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jsantell/three-devtools/issues"
+  },
+  "homepage": "https://github.com/jsantell/three-devtools#readme",
+  "dependencies": {},
+  "devDependencies": {}
+}

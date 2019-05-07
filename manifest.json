@@ -1,0 +1,32 @@
+{
+  "name": "three-devtools",
+  "version": "0.1",
+  "description": "",
+  "devtools_page": "src/extension/devtools.html",
+  "background": {
+    "scripts": [
+      "src/extension/background.js"
+    ]
+  },
+  "icons": {
+    "128": "assets/icon_128.png",
+    "256": "assets/icon_256.png"
+  },
+  "content_scripts": [{
+    "matches": ["http://*/*", "https://*/*"],
+    "js": [
+      "src/extension/contentScript.js"
+    ],
+    "run_at": "document_end"
+  }],
+  "permissions": [
+    "storage",
+    "tabs", 
+    "http://*/*",
+    "https://*/*"
+  ],
+  "web_accessible_resources":[
+    "src/content/*.js"
+  ],
+  "manifest_version": 2
+}
