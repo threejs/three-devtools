@@ -6,7 +6,7 @@ export default class ThreeDevtoolsBaseElement extends LitElement {
 
   static get properties() {
     return {
-      uuid: {type: String}
+      uuid: {type: String, reflect: true}
     }
   }
 

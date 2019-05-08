@@ -1,10 +1,14 @@
-import { html } from '../../../web_modules/lit-element.js'
-import ThreeDevtoolsBaseElement from './ThreeDevtoolsBaseElement.js';
+import { LitElement, html } from '../../../web_modules/lit-element.js'
 
-export default class TreeItemElement extends ThreeDevtoolsBaseElement {
+const $onVisibilityToggle = Symbol('onVisibilityToggle');
+
+export default class TreeItemElement extends LitElement {
   static get properties() {
     return {
-      ...ThreeDevtoolsBaseElement.properties,
+      open: {type: Boolean, reflect: true},
+      // @TODO can `show-arrow` be baked in by checking if there
+      // are children?
+      showArrow: {type: Boolean, reflect: true, attribute: 'show-arrow'},
     }
   }
 
@@ -12,12 +16,15 @@ export default class TreeItemElement extends ThreeDevtoolsBaseElement {
     super();
   }
 
-  render() {
-    const object = this.app.getObject(this.uuid);
+  connectedCallback() {
+    super.connectedCallback();
+  }
 
-    console.log('render',object);
-    const name = object ? (object.name || object.type) : '';
-    const children = object && object.children ? object.children : [];
+  disconnectedCallback() {
+    super.disconnectedCallback();
+  }
+
+  render() {
     return html`
 <style>
   :host {
@@ -25,11 +32,54 @@ export default class TreeItemElement extends ThreeDevtoolsBaseElement {
     width: 100%;
     display: block;
   }
+
+  .arrow {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background-color: transparent;
+    border: 0;
+    position: relative;
+    pointer-events: none;
+  }
+
+  .arrow::after {
+    content: '>';
+    font-size: 120%;
+    display: none;
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+  :host([show-arrow]) .arrow::after {
+    display: block;
+    pointer-events: auto;
+  }
+  :host([open]) .arrow::after {
+    transform: rotate(90deg);
+  }
+
+  slot[name=content] {
+    display: inline-block;
+  }
+
+  #children {
+    display: none;
+  }
+
+  :host([open]) #children {
+    display: block;
+  }
 </style>
-<div>${name}</div>
-<div id="children">
-  ${children.map(child => html`<tree-item uuid=${child.uuid}></tree-item>`)}
-</div>
+<button class="arrow" @click="${this[$onVisibilityToggle]}"></button>
+<slot name="content"></slot>
+<slot id="children"></slot>
 `;
+  }
+
+  [$onVisibilityToggle](e) {
+    console.log('stopping propagation');
+    e.stopPropagation();
+    this.open = !this.open;
   }
 }

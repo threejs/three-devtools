@@ -3,6 +3,7 @@ window.__THREE_DEVTOOLS__ = new class ThreeDevtools {
   constructor() {
     this.objects = new Map();
     this.renderer = null;
+    console.log('new __THREE_DEVTOOLS__()');
   }
 
   setRenderer(renderer) {
@@ -13,6 +14,7 @@ window.__THREE_DEVTOOLS__ = new class ThreeDevtools {
     for (let object of objects) {
       const id = object.id;
       this.objects.set(id, object);
+      this.send('data', object.toJSON());
     }
     console.info('Observing', ...objects);
   }
