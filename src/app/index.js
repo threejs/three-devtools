@@ -1,20 +1,9 @@
-console.log('in a panel', chrome.devtools);
+import ThreeDevtoolsAppElement from './elements/ThreeDevtoolsAppElement.js';
+import SceneViewElement from './elements/SceneViewElement.js';
+import ObjectViewElement from './elements/ObjectViewElement.js';
+import TreeItemElement from './elements/TreeItemElement.js';
 
-const port = chrome.runtime.connect({
-  name: 'three-devtools',
-});
-
-port.postMessage({
-  name: 'connect',
-  tabId: chrome.devtools.inspectedWindow.tabId,
-});
-
-port.onDisconnect.addListener(request => {
-  console.log('disconnected from background');
-});
-
-port.onMessage.addListener(request => {
-  console.log('panel request receive', request);
-});
-
-chrome.devtools.inspectedWindow.eval('__THREE_DEVTOOLS__.updateScenes()');
+window.customElements.define('three-devtools-app', ThreeDevtoolsAppElement);
+window.customElements.define('scene-view', SceneViewElement);
+window.customElements.define('object-view', ObjectViewElement);
+window.customElements.define('tree-item', TreeItemElement);

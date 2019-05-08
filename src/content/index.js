@@ -20,6 +20,14 @@ window.__THREE_DEVTOOLS__ = new class ThreeDevtools {
   /**
    * Private API?
    */
+
+  flush() {
+    for (let [id, object] of this.objects) {
+      this.send('data', object.toJSON());
+    }
+    this.log(`flush ${this.objects.size} items`);
+  }
+
   updateScenes() {
     for (let [id, object] of this.objects) {
       if (object.isScene) {
@@ -43,5 +51,9 @@ window.__THREE_DEVTOOLS__ = new class ThreeDevtools {
       data,
     }, '*');
     console.log('post message', type, data);
+  }
+
+  log(message) {
+    console.info(`__THREE_DEVTOOLS__: ${message}`);
   }
 };
