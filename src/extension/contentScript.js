@@ -8,7 +8,7 @@ const inject = () => {
   script.type = 'module';
   return new Promise(resolve => {
     script.onload = () => {
-      script.parentNode.removeChild(script);'
+      script.parentNode.removeChild(script);
       resolve();
     }
     (document.head || document.documentElement).appendChild(script);

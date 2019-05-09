@@ -3,8 +3,9 @@ const $findByUUID = Symbol('findByUUID');
 
 window.ThreeDevTools = new class ThreeDevTools {
   constructor() {
-    this.objects = new Map();
+    this.scene = null;
     this.renderer = null;
+    this.connected = false;
   }
 
   setRenderer(renderer) {
@@ -19,14 +20,18 @@ window.ThreeDevTools = new class ThreeDevTools {
    * API for extension, should not be called by content
    */
 
-  flush(uuid, type='object') {
-    if (!uuid && this.scene) {
+  // Called when the panel first opens
+  __connect() {
+    this.connected = true;
+    if (this.scene) {
       this[$send]('data', this.scene.toJSON());
-    } else {
-      const item = this[$findByUUID](uuid, type):
-      if (item) {
-        this[$send]('data', item.toJSON());
-      }
+    }
+  }
+
+  __refresh(uuid, type='object') {
+    const item = this[$findByUUID](uuid, type);
+    if (item) {
+      this[$send]('data', item.toJSON());
     }
   }
 

@@ -35,13 +35,24 @@ export default class BaseElement extends LitElement {
     }
 
     this.app = app;
-    this.app.addEventListener('store-update', this[$onStoreUpdate]);
+    this.app.store.addEventListener('update', this[$onStoreUpdate]);
   }
 
   disconnectedCallback() {
     super.disconnectedCallback && super.disconnectedCallback();
-    this.app.removeEventListener('store-update', this[$onStoreUpdate]);
+    this.app.store.removeEventListener('update', this[$onStoreUpdate]);
     this.app = null;
+  }
+
+  /**
+   * If the UUID has changed, request the content for the latest
+   * data.
+   */
+  shouldUpdate(changedProperties) {
+    if (changedProperties.has('uuid')) {
+      this.app.refresh(this.uuid, this.constructor.typeHint);
+    }
+    return true;
   }
 
   [$onStoreUpdate](e) {

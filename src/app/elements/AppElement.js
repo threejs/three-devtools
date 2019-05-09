@@ -1,14 +1,14 @@
 import { LitElement, html } from '../../../web_modules/lit-element.js'
-import { getObjectByUUID } from '../utils.js';
+import Store from '../Store.js';
 
 const $onSelectObject = Symbol('onSelectObject');
+const $onStoreUpdate = Symbol('onStoreUpdate');
 
 export default class AppElement extends LitElement {
   static get properties() {
     return {
       activeScene: { type: String, reflect: true, attribute: 'active-scene' },
       activeObject: { type: String, reflect: true, attribute: 'active-object' },
-      activeObjectType: { type: String, reflect: true, attribute: 'active-object-type' },
     }
   }
 
@@ -17,63 +17,14 @@ export default class AppElement extends LitElement {
     super();
 
     this[$onSelectObject] = this[$onSelectObject].bind(this);
-    this.store = new Map();
+    this[$onStoreUpdate] = this[$onStoreUpdate].bind(this);
+    this.store = new Store();
 
-    this.port = chrome.runtime.connect({
-      name: 'three-devtools',
-    });
-
-    this.port.postMessage({
-      name: 'connect',
-      tabId: chrome.devtools.inspectedWindow.tabId,
-    });
-
-    this.port.onDisconnect.addListener(request => {
-      console.log('disconnected from background');
-    });
-
-    this.port.onMessage.addListener(request => {
-      const { id, type, data } = request;
-
-      switch (type) {
-        case 'data':
-            console.log('received from client', data);
-          const uuid = data.object.uuid;
-          const object = data.object;
-
-          if (object.type === 'Scene') {
-            if (!this.activeScene) {
-              this.activeScene = object.uuid;
-            }
-
-            // Also store all geometries, materials
-            // @TODO Need to think more about the syncing story...
-            data.geometries.forEach(geo => this.store.set(geo.uuid, geo));
-            data.materials.forEach(mat => this.store.set(mat.uuid, mat));
-          }
-
-          this.store.set(uuid, object);
-
-          this.dispatchEvent(new CustomEvent('store-update', {
-            detail: {
-              object,
-              uuid,
-            },
-          }));
-          break;
-      }
-    });
+    this.store.addEventListener('update', this[$onStoreUpdate]);
   }
 
-  getObject(uuid) {
-    let object = this.store.get(uuid);
-
-    if (!object && this.activeScene) {
-      // If no object, check current scene
-      // @TODO should the children's be observables as well?
-      object = getObjectByUUID(this.store.get(this.activeScene), uuid);
-    }
-    return object;
+  refresh(uuid, typeHint) {
+    this.store.refresh(uuid, typeHint);
   }
 
   /**
@@ -87,7 +38,7 @@ export default class AppElement extends LitElement {
     super.connectedCallback && super.connectedCallback();
     this.addEventListener('select-object', this[$onSelectObject]);
     // Flush all observed objects on initialization
-    chrome.devtools.inspectedWindow.eval('__THREE_DEVTOOLS__.flush()');
+    chrome.devtools.inspectedWindow.eval('ThreeDevTools.__connect()');
   }
 
   disconnectedCallback() {
@@ -95,16 +46,14 @@ export default class AppElement extends LitElement {
     super.disconnectedCallback && super.disconnectedCallback();
   }
 
-  update(changedProperties) {
-    super.update(changedProperties);
-  }
-
   render() {
 
     let inspected;
 
     if (this.activeObject) {
-      switch (this.activeObjectType) {
+      const object = this.store.get(this.activeObject);
+
+      switch (object.typeHint) {
         case 'material':
           inspected = html`<material-view uuid=${this.activeObject}></material-view>`;
           break;
@@ -134,6 +83,12 @@ ${inspected}
 
   [$onSelectObject](e) {
     this.activeObject = e.detail.uuid;
-    this.activeObjectType = e.detail.type;
+  }
+
+  [$onStoreUpdate](e) {
+    // If this is the initial scene, set it as active
+    if (!this.activeScene && e.detail.typeHint === 'scene') {
+      this.activeScene = e.detail.uuid;
+    }
   }
 }

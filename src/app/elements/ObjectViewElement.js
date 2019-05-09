@@ -2,15 +2,12 @@ import { html } from '../../../web_modules/lit-element.js'
 import BaseElement from './BaseElement.js';
 
 export default class ObjectViewElement extends BaseElement {
+  static get uuidType() { return 'object'; }
+
   static get properties() {
     return {
       ...BaseElement.properties,
     }
-  }
-
-  constructor() {
-    super();
-
   }
 
   render() {
