@@ -13,8 +13,6 @@ export default class MaterialValueElement extends BaseElement {
   render() {
     const material = this.app.getObject(this.uuid);
 
-    console.log("MATERIAL TO RENDER VALUE", material);
-
     if (!material) {
       return null;
     }
@@ -38,7 +36,6 @@ export default class MaterialValueElement extends BaseElement {
     overflow: hidden;
     padding-left: var(--key-value-padding-left, 10px);
   }
-
 </style>
 <div class="wrapper" @dblclick="${this[$onActivate]}">
   <div id="icon">icon</div>

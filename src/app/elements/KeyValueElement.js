@@ -46,10 +46,12 @@ export default class KeyValueElement extends LitElement {
 
   #key {
     flex: 0 0 var(--key-value-divider-position, 20%);
-    padding-left: var(--key-value-padding-left, 10px);
   }
   #value {
     flex: 1;
+  }
+
+  #key, #value {
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;

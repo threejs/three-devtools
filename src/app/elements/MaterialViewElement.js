@@ -28,7 +28,7 @@ export default class MaterialViewElement extends BaseElement {
     height: 100%;
   }
 </style>
-<title-bar>Material View</title-bar>
+<title-bar title="Material View"></title-bar>
 <div class="properties">
   <key-value key-name="Type" value="${object.type}" type="string"></key-value>
   <key-value key-name="UUID" value="${object.uuid}" type="string"></key-value>

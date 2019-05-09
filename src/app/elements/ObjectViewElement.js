@@ -29,7 +29,7 @@ export default class ObjectViewElement extends BaseElement {
     height: 100%;
   }
 </style>
-<title-bar>Object View</title-bar>
+<title-bar title="Object View"></title-bar>
 <div class="properties">
   <key-value key-name="Type" value="${object.type}" type="string"></key-value>
   <key-value key-name="UUID" value="${object.uuid}" type="string"></key-value>
