@@ -1,4 +1,5 @@
-import { LitElement, html } from '../../../web_modules/lit-element.js'
+import { LitElement, html } from '../../../../web_modules/lit-element.js'
+import { hexNumberToCSSString } from '../../utils.js';
 
 export default class KeyValueElement extends LitElement {
   static get properties() {
@@ -16,14 +17,23 @@ export default class KeyValueElement extends LitElement {
     let valueElement;
 
     switch (this.type) {
-      case 'string':
-        valueElement = this.value;
-        break;
       case 'vec3':
         valueElement = this.value;
         break;
       case 'material':
         valueElement = html`<material-value uuid=${this.value}></material-value>`;
+        break;
+      case 'color':
+        valueElement = html`<input type="color" value=${hexNumberToCSSString(this.value)}/>`;
+        break;
+      case 'boolean':
+        valueElement = html`<input type="checkbox" ?checked=${this.value} />`;
+        break;
+      case 'number':
+        valueElement = html`<input type="type" value=${this.value} />`;
+        break;
+      case 'string':
+        valueElement = this.value;
         break;
       default:
         valueElement = this.value;
@@ -34,18 +44,20 @@ export default class KeyValueElement extends LitElement {
   /**
    * Current CSS API:
    *
-   * --key-value-divider-position: 20%;
+   * --key-value-height: auto; // Yes can be styled by parent, but this ensures
+   *                           // that all views use the same height
+   * --key-value-divider-position: 30%;
    * --key-value-padding-left: 10px;
    */
 
   :host {
-    height: auto;
+    height: var(--key-value-height, auto);
     width: 100%;
     display: flex;
   }
 
   #key {
-    flex: 0 0 var(--key-value-divider-position, 20%);
+    flex: 0 0 var(--key-value-divider-position, 30%);
   }
   #value {
     flex: 1;

@@ -1,6 +1,8 @@
-import { LitElement } from '../../../web_modules/lit-element.js'
+import { LitElement, html } from '../../../web_modules/lit-element.js'
 
 const $onStoreUpdate = Symbol('onStoreUpdate');
+
+export { html };
 
 export default class BaseElement extends LitElement {
 
