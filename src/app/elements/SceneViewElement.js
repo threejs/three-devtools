@@ -41,16 +41,17 @@ export default class SceneViewElement extends ThreeDevtoolsBaseElement {
       return;
     }
 
-    const createNode = obj => {
+    const createNode = (obj, depth=0) => {
       console.log("creating obj", obj); 
       return html`
       <tree-item
         ?open="${obj.type === 'Scene'}"
         ?show-arrow="${obj.children ? obj.children.length > 0 : false}"
+        depth="${depth++}"
         uuid="${obj.uuid}"
         >
         <div slot="content">${obj.name || obj.type}</div>
-        ${obj.children ? obj.children.map(createNode) : null}
+        ${obj.children ? obj.children.map(c => createNode(c, depth)) : null}
       </tree-item>
     `;
     }
@@ -58,11 +59,9 @@ export default class SceneViewElement extends ThreeDevtoolsBaseElement {
     return html`
 <style>
   :host {
-    background-color: #ffeeee;
     display: block;
     width: 100%;
     height: 100%;
-    flex: 1;
   }
 </style>
 <div>
@@ -72,14 +71,10 @@ export default class SceneViewElement extends ThreeDevtoolsBaseElement {
   }
 
   [$onSelectScene](e) {
-    console.log('on scene select', e);
     this.uuid = e.detail.uuid;
-    this.setAttribute('uuid', e.detail.uuid);
-    console.log(this.uuid, e.detail.uuid, SceneViewElement.properties);
   }
 
   [$onClick](e) {
-    console.log('sceneview:onClick',e.composedPath());
     for (let target of e.composedPath()) {
       console.log(target);
       if (!target.hasAttribute) {

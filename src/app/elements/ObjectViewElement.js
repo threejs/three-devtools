@@ -44,11 +44,9 @@ export default class ObjectViewElement extends ThreeDevtoolsBaseElement {
     return html`
 <style>
   :host {
-    background-color: #ffeeee;
     display: block;
     width: 100%;
     height: 100%;
-    flex: 1;
   }
 </style>
 <ul class="properties">
@@ -71,35 +69,3 @@ export default class ObjectViewElement extends ThreeDevtoolsBaseElement {
     this.uuid = e.detail.uuid;
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
