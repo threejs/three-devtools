@@ -1,7 +1,7 @@
-import { html } from '../../../web_modules/lit-element.js'
-import BaseElement from './BaseElement.js';
+import BaseElement, { html } from './BaseElement.js';
 
 export default class MaterialViewElement extends BaseElement {
+  static get typeHint() { return 'material'; }
   static get properties() {
     return {
       ...BaseElement.properties,
@@ -14,9 +14,9 @@ export default class MaterialViewElement extends BaseElement {
   }
 
   render() {
-    const object = this.app.getObject(this.uuid);
+    const material = this.getEntity();
 
-    if (!object) {
+    if (!material) {
       return html`<div>no material</div>`;
     }
 
@@ -30,17 +30,17 @@ export default class MaterialViewElement extends BaseElement {
 </style>
 <title-bar title="Material View"></title-bar>
 <div class="properties">
-  <key-value key-name="Type" value="${object.type}" type="string"></key-value>
-  <key-value key-name="UUID" value="${object.uuid}" type="string"></key-value>
-  <key-value editable key-name="Color" value="${object.color}" type="color"></key-value>
-  <key-value editable key-name="Depth Func" value="${object.depthFunc}" type="number"></key-value>
-  <key-value editable key-name="Depth Test" value="${object.depthTest}" type="boolean"></key-value>
-  <key-value editable key-name="Depth Write" value="${object.depthWrite}" type="boolean"></key-value>
-  <key-value editable key-name="Emissive" value="${object.emissive}" type="color"></key-value>
-  <key-value editable key-name="Environment Map" value="${object.envMap}" type="texture"></key-value>
-  <key-value editable key-name="Environment Intensity" value="${object.envMapIntensity}" type="number"></key-value>
-  <key-value editable key-name="Metalness" value="${object.metalness}" type="number"></key-value>
-  <key-value editable key-name="Roughness" value="${object.roughness}" type="number"></key-value>
+  <key-value key-name="Type" value="${material.type}" type="string"></key-value>
+  <key-value key-name="UUID" value="${material.uuid}" type="string"></key-value>
+  <key-value editable key-name="Color" value="${material.color}" type="color"></key-value>
+  <key-value editable key-name="Depth Func" value="${material.depthFunc}" type="number"></key-value>
+  <key-value editable key-name="Depth Test" value="${material.depthTest}" type="boolean"></key-value>
+  <key-value editable key-name="Depth Write" value="${material.depthWrite}" type="boolean"></key-value>
+  <key-value editable key-name="Emissive" value="${material.emissive}" type="color"></key-value>
+  <key-value editable key-name="Environment Map" value="${material.envMap}" type="texture"></key-value>
+  <key-value editable key-name="Environment Intensity" value="${material.envMapIntensity}" type="number"></key-value>
+  <key-value editable key-name="Metalness" value="${material.metalness}" type="number"></key-value>
+  <key-value editable key-name="Roughness" value="${material.roughness}" type="number"></key-value>
 </div>
 `;
   }

@@ -4,6 +4,8 @@ import { hexNumberToCSSString } from '../../utils.js';
 const $onActivate = Symbol('onActivate');
 
 export default class MaterialValueElement extends BaseElement {
+  static get typeHint() { return 'material'; }
+
   static get properties() {
     return {
       ...BaseElement.properties,
@@ -11,7 +13,7 @@ export default class MaterialValueElement extends BaseElement {
   }
 
   render() {
-    const material = this.app.getObject(this.uuid);
+    const material = this.getEntity();
 
     if (!material) {
       return null;
@@ -55,7 +57,7 @@ export default class MaterialValueElement extends BaseElement {
   [$onActivate](e) {
     this.app.dispatchEvent(new CustomEvent('select-object', { detail: {
       uuid: this.uuid,
-      type: 'material',
+      typeHint: 'material',
     }}));
   }
 }

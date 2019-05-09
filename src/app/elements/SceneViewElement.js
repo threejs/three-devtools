@@ -5,6 +5,8 @@ const $onSelectScene = Symbol('onSelectScene');
 const $onClick = Symbol('onClick');
 
 export default class SceneViewElement extends BaseElement {
+  static get typeHint() { return 'scene'; }
+
   static get properties() {
     return {
       ...BaseElement.properties,
@@ -21,18 +23,17 @@ export default class SceneViewElement extends BaseElement {
     super.connectedCallback();
     this.addEventListener('click', this[$onClick]);
   }
-  
+
   disconnectedCallback() {
     super.disconnectedCallback();
     this.removeEventListener('click', this[$onClick]);
   }
 
   render() {
-    const scene = this.app.getObject(this.uuid);
+    const scene = this.getEntity();
 
     if (!scene) {
-      console.log('bailing, no scene');
-      return;
+      return html`<div>no scene registered</div>`;
     }
 
     const createNode = (obj, depth=0) => {

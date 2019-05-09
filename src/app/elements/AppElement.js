@@ -3,6 +3,7 @@ import Store from '../Store.js';
 
 const $onSelectObject = Symbol('onSelectObject');
 const $onStoreUpdate = Symbol('onStoreUpdate');
+const $onStoreReset = Symbol('onStoreReset');
 
 export default class AppElement extends LitElement {
   static get properties() {
@@ -18,9 +19,11 @@ export default class AppElement extends LitElement {
 
     this[$onSelectObject] = this[$onSelectObject].bind(this);
     this[$onStoreUpdate] = this[$onStoreUpdate].bind(this);
+    this[$onStoreReset] = this[$onStoreReset].bind(this);
     this.store = new Store();
 
     this.store.addEventListener('update', this[$onStoreUpdate]);
+    this.store.addEventListener('reset', this[$onStoreReset]);
   }
 
   refresh(uuid, typeHint) {
@@ -89,6 +92,12 @@ ${inspected}
     // If this is the initial scene, set it as active
     if (!this.activeScene && e.detail.typeHint === 'scene') {
       this.activeScene = e.detail.uuid;
+      debugger;
     }
+  }
+
+  [$onStoreReset](e) {
+    // Ping the content this.activeObject = e.detail.uuid;
+    chrome.devtools.inspectedWindow.eval('ThreeDevTools.__connect()');
   }
 }

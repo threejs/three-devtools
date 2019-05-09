@@ -2,7 +2,7 @@ import { html } from '../../../web_modules/lit-element.js'
 import BaseElement from './BaseElement.js';
 
 export default class ObjectViewElement extends BaseElement {
-  static get uuidType() { return 'object'; }
+  static get typeHint() { return 'object'; }
 
   static get properties() {
     return {
@@ -11,7 +11,7 @@ export default class ObjectViewElement extends BaseElement {
   }
 
   render() {
-    const object = this.app.getObject(this.uuid);
+    const object = this.getEntity();
 
     if (!object) {
       return html`<div>no object selected</div>`;

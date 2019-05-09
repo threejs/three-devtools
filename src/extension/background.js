@@ -23,6 +23,7 @@ chrome.runtime.onMessage.addListener((request, sender) => {
   if (sender.tab) {
     const tabId = sender.tab.id;
     if (connections.has(tabId)) {
+      console.log('posted');
       connections.get(tabId).postMessage(request);
     }
   }

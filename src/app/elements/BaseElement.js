@@ -17,6 +17,10 @@ export default class BaseElement extends LitElement {
     this[$onStoreUpdate] = this[$onStoreUpdate].bind(this);
   }
 
+  getEntity() {
+    return this.app.store.get(this.uuid, this.constructor.typeHint);
+  }
+
   connectedCallback() {
     super.connectedCallback && super.connectedCallback();
     let app = this.closest('three-devtools-app');

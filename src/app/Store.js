@@ -44,6 +44,10 @@ export default class Store extends EventTarget {
     const { id, type, data } = request;
 
     switch (type) {
+      case 'init':
+        this[$db] = new Map();
+        this.dispatchEvent(new CustomEvent('reset'));
+        break;
       case 'data':
         if (data.geometries) {
           data.geometries.forEach(o => this[$update](o, 'geometry'));
@@ -83,6 +87,7 @@ export default class Store extends EventTarget {
       changed = true;
     }
 
+    console.log('onupdate', changed, object);
     if (changed) {
       this[$db].set(uuid, object);
       this.dispatchEvent(new CustomEvent('update', {
