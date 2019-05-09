@@ -1,9 +1,8 @@
 
-// via https://github.com/jeromeetienne/threejs-inspector
-
 if (chrome.devtools.inspectedWindow.tabId) {
+  // As of now, only inspect content windows, not when
+  // debugging a devtools panel for example.
   chrome.devtools.inspectedWindow.eval(`window.DevToolsAPI`, (result) => {
-    console.log('result!',result);
     if (!result) {
       createPanel();
     }
@@ -13,6 +12,6 @@ if (chrome.devtools.inspectedWindow.tabId) {
 
 function createPanel() {
   chrome.devtools.panels.create(`three`, `assets/icon_256.png`, `src/app/index.html`, panel => {
-
+    console.log('three-devtools panel created');
   });
 }

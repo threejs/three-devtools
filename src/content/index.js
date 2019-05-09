@@ -1,58 +1,86 @@
+const $send = Symbol('send');
+const $findByUUID = Symbol('findByUUID');
 
-window.__THREE_DEVTOOLS__ = new class ThreeDevtools {
+window.ThreeDevTools = new class ThreeDevTools {
   constructor() {
     this.objects = new Map();
     this.renderer = null;
-    console.log('new __THREE_DEVTOOLS__()');
   }
 
   setRenderer(renderer) {
     this.renderer = renderer;
   }
 
-  observe(...objects) {
-    for (let object of objects) {
-      const id = object.id;
-      this.objects.set(id, object);
-      this.send('data', object.toJSON());
-    }
-    console.info('Observing', ...objects);
+  setScene(scene) {
+    this.scene = scene;
   }
-
+  
   /**
-   * Private API?
+   * API for extension, should not be called by content
    */
 
-  flush() {
-    for (let [id, object] of this.objects) {
-      this.send('data', object.toJSON());
-    }
-    this.log(`flush ${this.objects.size} items`);
-  }
-
-  updateScenes() {
-    for (let [id, object] of this.objects) {
-      if (object.isScene) {
-        this.send('data', object.toJSON());
-        return;
+  flush(uuid, type='object') {
+    if (!uuid && this.scene) {
+      this[$send]('data', this.scene.toJSON());
+    } else {
+      const item = this[$findByUUID](uuid, type):
+      if (item) {
+        this[$send]('data', item.toJSON());
       }
     }
   }
 
-  update(id) {
-    const object = this.scene.getObjectById(id);
-    if (object) {
-      this.send('data', object.toJSON());
-    }
-  }
-  
-  send(type, data) {
+  /**
+   * Private
+   */
+
+  [$send](type, data) {
     window.postMessage({
       id: 'three-devtools',
       type: type,
       data,
     }, '*');
     console.log('post message', type, data);
+  }
+
+  [$findByUUID](uuid, type) {
+    if (!this.scene) {
+      return;
+    }
+
+    let objects = [this.scene];
+    while (objects) {
+      let object = objects.shift();
+
+      switch (type) {
+        case 'object':
+          if (object.uuid === uuid) {
+            return object;
+          }
+          break;
+        case 'material':
+          if (Array.isArray(object.material)) {
+            let result = object.materials.find(m => m.uuid === uuid);
+            if (result) {
+              return result;
+            }
+          } else if (object.material && object.material.uuid === uuid) {
+            return object.material;
+          }
+          break;
+        case 'geometry':
+          if (object.geometry && object.geometry.uuid === uuid) {
+            return object.geometrt;
+          }
+          break;
+        default:
+          break;
+      }
+
+      if (object.children) {
+        objects.push(...object.children);
+      }
+    }
   }
 
   log(message) {
