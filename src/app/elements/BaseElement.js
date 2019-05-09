@@ -2,7 +2,7 @@ import { LitElement } from '../../../web_modules/lit-element.js'
 
 const $onStoreUpdate = Symbol('onStoreUpdate');
 
-export default class ThreeDevtoolsBaseElement extends LitElement {
+export default class BaseElement extends LitElement {
 
   static get properties() {
     return {
@@ -29,7 +29,7 @@ export default class ThreeDevtoolsBaseElement extends LitElement {
     }
 
     if (!app) {
-      throw new Error('ThreeDevtoolsBaseElement must be a child of <three-devtools-app>');
+      throw new Error('BaseElement must be a child of <three-devtools-app>');
     }
 
     this.app = app;

@@ -26,7 +26,3 @@ three-devtools-app {
     flex-direction: row;
   }
 }
-
-three-devtools-app > * {
-  flex: 1;
-}

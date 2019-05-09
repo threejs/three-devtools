@@ -1,48 +1,41 @@
 import { html } from '../../../web_modules/lit-element.js'
-import ThreeDevtoolsBaseElement from './ThreeDevtoolsBaseElement.js';
+import BaseElement from './BaseElement.js';
 
 const $onSelectScene = Symbol('onSelectScene');
 const $onClick = Symbol('onClick');
 
-export default class SceneViewElement extends ThreeDevtoolsBaseElement {
+export default class SceneViewElement extends BaseElement {
   static get properties() {
     return {
-      ...ThreeDevtoolsBaseElement.properties,
+      ...BaseElement.properties,
     }
   }
 
   constructor() {
     super();
-    this[$onSelectScene] = this[$onSelectScene].bind(this);
     this[$onClick] = this[$onClick].bind(this);
 
   }
 
   connectedCallback() {
     super.connectedCallback();
-            console.log('listening to select-scene');
-    this.app.addEventListener('select-scene', this[$onSelectScene]);
     this.addEventListener('click', this[$onClick]);
-    console.log('scene view connected');
   }
   
   disconnectedCallback() {
     super.disconnectedCallback();
-    this.app.removeEventListener('select-scene', this[$onSelectScene]);
     this.removeEventListener('click', this[$onClick]);
   }
 
   render() {
     const scene = this.app.getObject(this.uuid);
-    console.log('render sceneview', scene);
 
     if (!scene) {
-      console.error('bailing, no scene');
+      console.log('bailing, no scene');
       return;
     }
 
     const createNode = (obj, depth=0) => {
-      console.log("creating obj", obj); 
       return html`
       <tree-item
         ?open="${obj.type === 'Scene'}"
@@ -70,20 +63,18 @@ export default class SceneViewElement extends ThreeDevtoolsBaseElement {
 `;
   }
 
-  [$onSelectScene](e) {
-    this.uuid = e.detail.uuid;
-  }
-
   [$onClick](e) {
     for (let target of e.composedPath()) {
-      console.log(target);
       if (!target.hasAttribute) {
         // Shadow roots don't have attributes
         continue;
       }
       if (target.hasAttribute('uuid')) {
         const uuid = target.getAttribute('uuid');
-        this.app.dispatchEvent(new CustomEvent('select-object', { detail: { uuid }}));
+        this.app.dispatchEvent(new CustomEvent('select-object', { detail: {
+          uuid,
+          type: 'object',
+        }}));
         return;
       }
     }

@@ -1,36 +1,16 @@
 import { html } from '../../../web_modules/lit-element.js'
-import ThreeDevtoolsBaseElement from './ThreeDevtoolsBaseElement.js';
+import BaseElement from './BaseElement.js';
 
-const $onSelectObject = Symbol('onSelectObject');
-const $onClick = Symbol('onClick');
-
-const PROPS = [
-  { name: 'Type', property: 'type' },
-  { name: 'UUID', property: 'uuid' },
-  { name: 'Name', property: 'name' },
-];
-
-export default class ObjectViewElement extends ThreeDevtoolsBaseElement {
+export default class ObjectViewElement extends BaseElement {
   static get properties() {
     return {
-      ...ThreeDevtoolsBaseElement.properties,
+      ...BaseElement.properties,
     }
   }
 
   constructor() {
     super();
-    this[$onSelectObject] = this[$onSelectObject].bind(this);
 
-  }
-
-  connectedCallback() {
-    super.connectedCallback();
-    this.app.addEventListener('select-object', this[$onSelectObject]);
-  }
-  
-  disconnectedCallback() {
-    super.disconnectedCallback();
-    this.app.removeEventListener('select-object', this[$onSelectObject]);
   }
 
   render() {
@@ -49,23 +29,14 @@ export default class ObjectViewElement extends ThreeDevtoolsBaseElement {
     height: 100%;
   }
 </style>
-<ul class="properties">
-  <li>
-    <span>Type</span><span>${object.type}</span>
-  </li>
-  <li>
-    <span>UUID</span><span>${object.uuid}</span>
-  </li>
-  <li>
-    <span>Name</span><span>${object.name}</span>
-  </li>
-</ul>
-<geometry-view uuid="${object.geometry}">${object.geometry}</geometry-view>
-<material-view uuid="${object.material}">${object.material}</material-view>
+<title-bar>Object View</title-bar>
+<div class="properties">
+  <key-value key-name="Type" value="${object.type}" type="string"></key-value>
+  <key-value key-name="UUID" value="${object.uuid}" type="string"></key-value>
+  <key-value key-name="Name" value="${object.name}" type="string"></key-value>
+  <key-value key-name="Material" value="${object.material}" type="material"></key-value>
+  <key-value key-name="Geometry" value="${object.geometry}" type="geometry"></key-value>
+</div>
 `;
-  }
-
-  [$onSelectObject](e) {
-    this.uuid = e.detail.uuid;
   }
 }
