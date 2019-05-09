@@ -1,3 +1,6 @@
+export const hexNumberToCSSString = hex =>
+  `#${("000000" + (hex).toString(16)).slice(-6)}`;
+
 /**
  * Operates on a serialized THREE object,
  * recursively searching through the objects for a

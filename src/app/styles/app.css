@@ -9,6 +9,7 @@
   --tree-item-indent-per-level: 10px;
   --tree-item-row-height: 20px;
   --tree-item-border-color: #ccc;
+  --key-value-height: 20px;
 }
 
 body {
