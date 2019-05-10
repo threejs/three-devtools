@@ -78,6 +78,11 @@ export default class AppElement extends LitElement {
   :host > * {
     flex: 1;
   }
+
+  scene-view {
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
 </style>
 <scene-view uuid="${this.activeScene}"></scene-view>
 ${inspected}
@@ -92,12 +97,13 @@ ${inspected}
     // If this is the initial scene, set it as active
     if (!this.activeScene && e.detail.typeHint === 'scene') {
       this.activeScene = e.detail.uuid;
-      debugger;
     }
   }
 
   [$onStoreReset](e) {
     // Ping the content this.activeObject = e.detail.uuid;
+    this.activeScene = null;
+    this.activeObject = null;
     chrome.devtools.inspectedWindow.eval('ThreeDevTools.__connect()');
   }
 }

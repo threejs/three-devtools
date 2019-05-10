@@ -1,6 +1,7 @@
 const $db = Symbol('db');
 const $update = Symbol('update');
 const $onMessage = Symbol('onMessage');
+const $processSceneData = Symbol('processSceneData');
 
 export default class Store extends EventTarget {
   constructor() {
@@ -25,6 +26,8 @@ export default class Store extends EventTarget {
   }
 
   get(uuid) {
+    const obj = this[$db].get(uuid);
+    
     return this[$db].get(uuid);
   }
 
@@ -49,25 +52,35 @@ export default class Store extends EventTarget {
         this.dispatchEvent(new CustomEvent('reset'));
         break;
       case 'data':
-        if (data.geometries) {
-          data.geometries.forEach(o => this[$update](o, 'geometry'));
-        }
-        if (data.materials) {
-          data.materials.forEach(o => this[$update](o, 'material'));
-        }
-        if (data.textures) {
-          data.textures.forEach(o => this[$update](o, 'texture'));
-        }
-        if (data.images) {
-          data.images.forEach(o => this[$update](o, 'image'));
-        }
-        if (data.shapes) {
-          data.shapes.forEach(o => this[$update](o, 'shape'));
-        }
-        if (data.object) {
-          // In this app, "Scene" is a special case of object.
-          this[$update](data.object, data.object.type === 'Scene' ? 'scene' : 'object');
-        }
+        this[$processSceneData](data);
+        break;
+    }
+  }
+
+  [$processSceneData](data) {
+    if (data.geometries) {
+      data.geometries.forEach(o => this[$update](o, 'geometry'));
+    }
+    if (data.materials) {
+      data.materials.forEach(o => this[$update](o, 'material'));
+    }
+    if (data.textures) {
+      data.textures.forEach(o => this[$update](o, 'texture'));
+    }
+    if (data.images) {
+      data.images.forEach(o => this[$update](o, 'image'));
+    }
+    if (data.shapes) {
+      data.shapes.forEach(o => this[$update](o, 'shape'));
+    }
+    if (data.type || data.object) {
+      let object = data.type ? data : data.object;
+      
+      // In this app, "Scene" is a special case of object.
+      this[$update](object, object.type === 'Scene' ? 'scene' : 'object');
+      if (object.children) {
+        object.children.forEach(o => this[$processSceneData](o));
+      }
     }
   }
 
@@ -87,7 +100,6 @@ export default class Store extends EventTarget {
       changed = true;
     }
 
-    console.log('onupdate', changed, object);
     if (changed) {
       this[$db].set(uuid, object);
       this.dispatchEvent(new CustomEvent('update', {

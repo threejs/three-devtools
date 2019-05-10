@@ -58,9 +58,8 @@ export default class SceneViewElement extends BaseElement {
     height: 100%;
   }
 </style>
-<div>
-  ${createNode(scene)}
-</div>
+<title-bar title="Scene"></title-bar>
+${createNode(scene)}
 `;
   }
 

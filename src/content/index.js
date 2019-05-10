@@ -34,6 +34,7 @@ window.ThreeDevTools = new class ThreeDevTools {
     this.__refresh();
   }
 
+  // TODO only fire once per frame
   __refresh(uuid, typeHint) {
     if (!this.connected) {
       return;
@@ -55,6 +56,7 @@ window.ThreeDevTools = new class ThreeDevTools {
    */
 
   [$send](type, data) {
+    console.log('sending data', data);
     window.postMessage({
       id: 'three-devtools',
       type: type,

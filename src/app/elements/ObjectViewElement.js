@@ -17,7 +17,6 @@ export default class ObjectViewElement extends BaseElement {
       return html`<div>no object selected</div>`;
     }
 
-    console.log(object);
     return html`
 <style>
   :host {

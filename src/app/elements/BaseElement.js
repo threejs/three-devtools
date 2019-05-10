@@ -40,6 +40,10 @@ export default class BaseElement extends LitElement {
 
     this.app = app;
     this.app.store.addEventListener('update', this[$onStoreUpdate]);
+
+    if (this.uuid) {
+      this.app.refresh(this.uuid, this.constructor.typeHint);
+    }
   }
 
   disconnectedCallback() {
@@ -53,7 +57,7 @@ export default class BaseElement extends LitElement {
    * data.
    */
   shouldUpdate(changedProperties) {
-    if (changedProperties.has('uuid')) {
+    if (this.app && changedProperties.has('uuid')) {
       this.app.refresh(this.uuid, this.constructor.typeHint);
     }
     return true;
