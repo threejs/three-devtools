@@ -19,15 +19,13 @@ export default class Store extends EventTarget {
     });
 
     this.port.onDisconnect.addListener(request => {
-      console.log('disconnected from background');
+      console.error('disconnected from background', request);
     });
 
     this.port.onMessage.addListener(e => this[$onMessage](e));
   }
 
   get(uuid) {
-    const obj = this[$db].get(uuid);
-    
     return this[$db].get(uuid);
   }
 
@@ -37,10 +35,14 @@ export default class Store extends EventTarget {
    */
   refresh(uuid, typeHint) {
     if (typeHint) {
-      chrome.devtools.inspectedWindow.eval(`ThreeDevTools.refresh(${uuid||''}, ${typeHint})`);
+      chrome.devtools.inspectedWindow.eval(`ThreeDevTools.__refresh("${uuid||''}", "${typeHint}")`);
     } else {
-      chrome.devtools.inspectedWindow.eval(`ThreeDevTools.refresh(${uuid||''})`);
+      chrome.devtools.inspectedWindow.eval(`ThreeDevTools.__refresh("${uuid||''}")`);
     }
+  }
+
+  reset() {
+    chrome.devtools.inspectedWindow.eval('ThreeDevTools.__connect()');
   }
 
   [$onMessage](request) {

@@ -41,7 +41,7 @@ export default class AppElement extends LitElement {
     super.connectedCallback && super.connectedCallback();
     this.addEventListener('select-object', this[$onSelectObject]);
     // Flush all observed objects on initialization
-    chrome.devtools.inspectedWindow.eval('ThreeDevTools.__connect()');
+    this.store.reset();
   }
 
   disconnectedCallback() {
