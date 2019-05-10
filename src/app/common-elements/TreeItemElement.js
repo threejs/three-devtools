@@ -70,10 +70,15 @@ export default class TreeItemElement extends LitElement {
     background-color: var(--tree-item-hover-background-color);
   }
 
-  :host([selected]) {
+  :host([selected]) .row {
     color: var(--tree-item-selected-color);
     background-color: var(--tree-item-selected-background-color);
   }
+
+  :host([selected]) .row:hover {
+    color: var(--tree-item-hover-selected-color);
+    background-color: var(--tree-item-hover-selected-background-color);
+   }
 
   .arrow {
     flex: 0 1 24px;

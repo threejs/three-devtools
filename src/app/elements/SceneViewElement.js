@@ -9,6 +9,7 @@ export default class SceneViewElement extends BaseElement {
 
   static get properties() {
     return {
+      selected: { type: String, reflect: true },
       ...BaseElement.properties,
     }
   }
@@ -39,6 +40,7 @@ export default class SceneViewElement extends BaseElement {
     const createNode = (obj, depth=0) => {
       return html`
       <tree-item
+        ?selected="${obj.uuid && this.selected && this.selected === obj.uuid}"
         ?open="${obj.type === 'Scene'}"
         ?show-arrow="${obj.children ? obj.children.length > 0 : false}"
         depth="${depth++}"

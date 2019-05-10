@@ -5,7 +5,9 @@
   --tree-item-hover-color: inherit;
   --tree-item-hover-background-color: rgb(240, 240, 240);
   --tree-item-selected-color: white;
-  --tree-item-selected-background-color: rgb(0,0,255);
+  --tree-item-selected-background-color: rgb(0,140,250);
+  --tree-item-hover-selected-color: white;
+  --tree-item-hover-selected-background-color: rgb(0,180,255);
   --tree-item-indent-per-level: 10px;
   --tree-item-row-height: 20px;
   --tree-item-border-color: #ccc;

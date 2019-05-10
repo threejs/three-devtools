@@ -84,7 +84,8 @@ export default class AppElement extends LitElement {
     overflow-x: hidden;
   }
 </style>
-<scene-view uuid="${this.activeScene}"></scene-view>
+<scene-view uuid="${this.activeScene}" selected="${this.activeObject||''}"
+    ></scene-view>
 ${inspected}
 `;
   }
