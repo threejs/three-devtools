@@ -56,14 +56,18 @@ export default class AppElement extends LitElement {
     if (this.activeObject) {
       const object = this.store.get(this.activeObject);
 
-      switch (object.typeHint) {
-        case 'material':
-          inspected = html`<material-view uuid=${this.activeObject}></material-view>`;
-          break;
-        case 'object':
-        default:
-          inspected = html`<object-view uuid=${this.activeObject}></object-view>`;
-          break;
+      if (object) {
+        switch (object.typeHint) {
+          case 'material':
+            inspected = html`<material-view uuid=${this.activeObject}></material-view>`;
+            break;
+          case 'object':
+          default:
+            inspected = html`<object-view uuid=${this.activeObject}></object-view>`;
+            break;
+        }
+      } else {
+        console.log('could not find activeObject', this.activeObject);
       }
     }
 
@@ -84,14 +88,14 @@ export default class AppElement extends LitElement {
     overflow-x: hidden;
   }
 </style>
-<scene-view uuid="${this.activeScene}" selected="${this.activeObject||''}"
+<scene-view uuid="${this.activeScene}" .selected="${this.activeObject}"
     ></scene-view>
 ${inspected}
 `;
   }
 
   [$onSelectObject](e) {
-    this.activeObject = e.detail.uuid;
+    this.activeObject = e.detail.uuid || null;
   }
 
   [$onStoreUpdate](e) {
