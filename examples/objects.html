@@ -1,0 +1,67 @@
+<html>
+    <head></head>
+    <body style="margin:0">
+<script type="module">
+import * as THREE from '../web_modules/three.js';
+import RGBELoader from './modules/RGBELoader.js';
+import generateEnvironment from './modules/TextureUtils.js';
+
+window.app = new class App {
+  constructor() {
+    this.render = this.render.bind(this);
+    this.updateSize = this.updateSize.bind(this);
+
+    this.textureLoader = new THREE.TextureLoader();
+    this.renderer = new THREE.WebGLRenderer({
+      antialias: true,
+    });
+    this.renderer.setPixelRatio(window.devicePixelRatio);
+
+    this.scene = new THREE.Scene();
+    this.camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 100);
+    this.camera.position.z = 5;
+    this.updateSize();
+
+    for (let x = 0; x < 5; x++) {
+      const mesh = new THREE.Mesh(new THREE.SphereBufferGeometry(0.5, 64, 64), new THREE.MeshBasicMaterial({
+          color: new THREE.Color(`hsl(${x/5*360},100%,50%)`),
+        }));
+      mesh.position.x = x - 2;
+      mesh.name = `Mesh #${x+1}`;
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      mesh.renderOrder = x;
+      this.scene.add(mesh);
+    }
+
+    this.dLight = new THREE.DirectionalLight(0xffffff,0.7);
+    this.dLight.position.y = 5;
+    this.scene.add(this.dLight);
+    this.light = new THREE.AmbientLight(0xffffff, 0.3);
+    this.scene.add(this.light);
+
+    this.renderer.setAnimationLoop(this.render);
+    document.body.appendChild(this.renderer.domElement);
+    window.addEventListener('resize', this.updateSize);
+
+    if (window.ThreeDevTools) {
+        window.ThreeDevTools.setScene(this.scene);
+    }
+  }
+
+  render() {
+    this.renderer.render(this.scene, this.camera);
+  }
+
+  updateSize() {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    this.camera.aspect = w/h;
+    this.camera.updateProjectionMatrix();
+    this.renderer.setSize(w, h);
+  }
+}
+
+</script>
+    </body>
+</html>
