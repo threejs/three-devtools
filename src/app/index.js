@@ -9,6 +9,7 @@ import TitleBarElement from './elements/TitleBarElement.js';
 
 import KeyValueElement from './elements/values/KeyValueElement.js';
 import MaterialValueElement from './elements/values/MaterialValueElement.js';
+import EnumValueElement from './elements/values/EnumValueElement.js';
 import TreeItemElement from './common-elements/TreeItemElement.js';
 
 //////
@@ -24,4 +25,5 @@ window.customElements.define('title-bar', TitleBarElement);
 
 window.customElements.define('key-value', KeyValueElement);
 window.customElements.define('material-value', MaterialValueElement);
+window.customElements.define('enum-value', EnumValueElement);
 window.customElements.define('tree-item', TreeItemElement);

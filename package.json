@@ -24,6 +24,7 @@
     "webDependencies": [
       "lit-element",
       "three",
+      "three/src/constants.js",
       "three/examples/jsm/loaders/GLTFLoader.js",
       "three/examples/jsm/pmrem/PMREMGenerator.js",
       "three/examples/jsm/pmrem/PMREMCubeUVPacker.js"

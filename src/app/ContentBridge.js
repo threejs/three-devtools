@@ -2,6 +2,8 @@ const $db = Symbol('db');
 const $update = Symbol('update');
 const $onMessage = Symbol('onMessage');
 const $processSceneData = Symbol('processSceneData');
+const $log = Symbol('log');
+const $eval = Symbol('eval');
 
 export default class ContentBridge extends EventTarget {
   /**
@@ -40,28 +42,31 @@ export default class ContentBridge extends EventTarget {
    */
   refresh(uuid, typeHint) {
     if (typeHint) {
-      chrome.devtools.inspectedWindow.eval(`ThreeDevTools.__refresh("${uuid||''}", "${typeHint}")`);
+      this[$eval](`ThreeDevTools.__refresh("${uuid||''}", "${typeHint}")`);
     } else {
-      chrome.devtools.inspectedWindow.eval(`ThreeDevTools.__refresh("${uuid||''}")`);
+      this[$eval](`ThreeDevTools.__refresh("${uuid||''}")`);
     }
   }
 
   connect() {
-    chrome.devtools.inspectedWindow.eval('ThreeDevTools.__connect()');
+    this[$eval]('ThreeDevTools.__connect()');
   }
 
   select(uuid) {
     const param = uuid ? JSON.stringify(uuid) : null;
-    chrome.devtools.inspectedWindow.eval(`ThreeDevTools.__select(${param})`);
+    const typeHint = this.get(uuid).typeHint;
+    this[$eval](`ThreeDevTools.__select(${param}, '${typeHint}')`);
   }
 
   [$onMessage](request) {
     const { id, type, data } = request;
 
+    this[$log]('>>', type);
     switch (type) {
       case 'load':
         this[$db] = new Map();
-        this.dispatchEvent(new CustomEvent('load'));
+        this.connect();
+        this.dispatchEvent(new CustomEvent('connect'));
         break;
       case 'data':
         this[$processSceneData](data);
@@ -122,5 +127,14 @@ export default class ContentBridge extends EventTarget {
         },
       }));
     }
+  }
+
+  [$eval](string) {
+    this[$log]('EVAL', string);
+    chrome.devtools.inspectedWindow.eval(string);
+  }
+
+  [$log](...message) {
+    console.log('%c ContentBridge:', 'color:red', ...message);
   }
 }

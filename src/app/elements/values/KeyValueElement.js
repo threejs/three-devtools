@@ -9,6 +9,7 @@ export default class KeyValueElement extends LitElement {
       keyName: { type: String, reflect: true, attribute: 'key-name'},
       value: { type: String, reflect: true },
       type: { type: String, reflect: true },
+      property: { type: String, reflect: true },
     }
   }
 
@@ -17,6 +18,9 @@ export default class KeyValueElement extends LitElement {
     let valueElement;
 
     switch (this.type) {
+      case 'enum':
+        valueElement = html`<enum-value value="${this.value}" type="${this.property}"></enum-value>`;
+        break;
       case 'vec3':
         valueElement = this.value;
         break;

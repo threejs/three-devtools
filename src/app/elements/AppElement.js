@@ -3,7 +3,7 @@ import ContentBridge from '../ContentBridge.js';
 
 const $onSelectObject = Symbol('onSelectObject');
 const $onContentUpdate = Symbol('onContentUpdate');
-const $onContentLoad = Symbol('onContentLoad');
+const $onContentConnect = Symbol('onContentConnect');
 
 export default class AppElement extends LitElement {
   static get properties() {
@@ -19,11 +19,11 @@ export default class AppElement extends LitElement {
 
     this[$onSelectObject] = this[$onSelectObject].bind(this);
     this[$onContentUpdate] = this[$onContentUpdate].bind(this);
-    this[$onContentLoad] = this[$onContentLoad].bind(this);
+    this[$onContentConnect] = this[$onContentConnect].bind(this);
     this.content = new ContentBridge();
 
     this.content.addEventListener('update', this[$onContentUpdate]);
-    this.content.addEventListener('load', this[$onContentLoad]);
+    this.content.addEventListener('connect', this[$onContentConnect]);
   }
 
   refresh(uuid, typeHint) {
@@ -40,7 +40,6 @@ export default class AppElement extends LitElement {
   async connectedCallback() {
     super.connectedCallback && super.connectedCallback();
     this.addEventListener('select-object', this[$onSelectObject]);
-    // Flush all observed objects on initialization
     this.content.connect();
   }
 
@@ -118,8 +117,8 @@ ${inspected}
     }
   }
 
-  [$onContentLoad](e) {
-    // Ping the content this.activeObject = e.detail.uuid;
+  // Fired when content is initially loaded
+  [$onContentConnect](e) {
     this.activeScene = null;
     this.activeObject = null;
   }

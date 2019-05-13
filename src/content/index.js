@@ -41,9 +41,10 @@ window.ThreeDevTools = new class ThreeDevTools {
   /**
    * This is the active object in the devtools viewer.
    */
-  __select(uuid) {
+  __select(uuid, typeHint) {
     this[$log]('__select(' + uuid + ')');
-    const selected = this[$findByUUID](uuid);
+    const selected = this[$findByUUID](uuid, typeHint);
+    console.log('selected', selected);
     if (selected) {
       this.selected = window.$t = selected;
     }
