@@ -58,6 +58,9 @@ export default class AppElement extends LitElement {
 
       if (object) {
         switch (object.typeHint) {
+          case 'texture':
+            inspected = html`<texture-view uuid=${this.activeObject}></texture-view>`;
+            break;
           case 'material':
             inspected = html`<material-view uuid=${this.activeObject}></material-view>`;
             break;

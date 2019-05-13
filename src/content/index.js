@@ -1,4 +1,4 @@
-var SRC_CONTENT_INDEX = `
+window.SRC_CONTENT_INDEX = `
 const $send = Symbol('send');
 const $findByUUID = Symbol('findByUUID');
 
@@ -66,7 +66,7 @@ window.ThreeDevTools = new class ThreeDevTools {
     } catch(e) {
       // If this throws, it could be because of user data not being
       // able to be cloned. This will be much slower, but it will work.
-      console.error('Data could not be cloned; ensure `userData` is serializable.', e);
+      console.error('Data could not be cloned; ensure "userData" is serializable.', e);
       window.postMessage({
         id: 'three-devtools',
         type,

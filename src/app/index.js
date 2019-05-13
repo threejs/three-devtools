@@ -3,6 +3,7 @@ import AppElement from './elements/AppElement.js';
 import SceneViewElement from './elements/SceneViewElement.js';
 import ObjectViewElement from './elements/ObjectViewElement.js';
 import MaterialViewElement from './elements/MaterialViewElement.js';
+import TextureViewElement from './elements/TextureViewElement.js';
 
 import TitleBarElement from './elements/TitleBarElement.js';
 
@@ -17,6 +18,7 @@ window.customElements.define('three-devtools-app', AppElement);
 window.customElements.define('scene-view', SceneViewElement);
 window.customElements.define('object-view', ObjectViewElement);
 window.customElements.define('material-view', MaterialViewElement);
+window.customElements.define('texture-view', TextureViewElement);
 
 window.customElements.define('title-bar', TitleBarElement);
 
