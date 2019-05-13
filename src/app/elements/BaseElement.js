@@ -1,6 +1,6 @@
 import { LitElement, html } from '../../../web_modules/lit-element.js'
 
-const $onStoreUpdate = Symbol('onStoreUpdate');
+const $onContentUpdate = Symbol('onContentUpdate');
 
 export { html };
 
@@ -14,11 +14,11 @@ export default class BaseElement extends LitElement {
 
   constructor() {
     super();
-    this[$onStoreUpdate] = this[$onStoreUpdate].bind(this);
+    this[$onContentUpdate] = this[$onContentUpdate].bind(this);
   }
 
   getEntity() {
-    return this.app.store.get(this.uuid, this.constructor.typeHint);
+    return this.app.content.get(this.uuid, this.constructor.typeHint);
   }
 
   connectedCallback() {
@@ -39,7 +39,7 @@ export default class BaseElement extends LitElement {
     }
 
     this.app = app;
-    this.app.store.addEventListener('update', this[$onStoreUpdate]);
+    this.app.content.addEventListener('update', this[$onContentUpdate]);
 
     if (this.uuid) {
       this.app.refresh(this.uuid, this.constructor.typeHint);
@@ -48,7 +48,7 @@ export default class BaseElement extends LitElement {
 
   disconnectedCallback() {
     super.disconnectedCallback && super.disconnectedCallback();
-    this.app.store.removeEventListener('update', this[$onStoreUpdate]);
+    this.app.content.removeEventListener('update', this[$onContentUpdate]);
     this.app = null;
   }
 
@@ -63,7 +63,7 @@ export default class BaseElement extends LitElement {
     return true;
   }
 
-  [$onStoreUpdate](e) {
+  [$onContentUpdate](e) {
     // If the tracked object has been updated in
     // storage, force a rerender
     if (e.detail.uuid === this.uuid) {

@@ -1,9 +1,9 @@
 import { LitElement, html } from '../../../web_modules/lit-element.js'
-import Store from '../Store.js';
+import ContentBridge from '../ContentBridge.js';
 
 const $onSelectObject = Symbol('onSelectObject');
-const $onStoreUpdate = Symbol('onStoreUpdate');
-const $onStoreReset = Symbol('onStoreReset');
+const $onContentUpdate = Symbol('onContentUpdate');
+const $onContentLoad = Symbol('onContentLoad');
 
 export default class AppElement extends LitElement {
   static get properties() {
@@ -18,16 +18,16 @@ export default class AppElement extends LitElement {
     super();
 
     this[$onSelectObject] = this[$onSelectObject].bind(this);
-    this[$onStoreUpdate] = this[$onStoreUpdate].bind(this);
-    this[$onStoreReset] = this[$onStoreReset].bind(this);
-    this.store = new Store();
+    this[$onContentUpdate] = this[$onContentUpdate].bind(this);
+    this[$onContentLoad] = this[$onContentLoad].bind(this);
+    this.content = new ContentBridge();
 
-    this.store.addEventListener('update', this[$onStoreUpdate]);
-    this.store.addEventListener('reset', this[$onStoreReset]);
+    this.content.addEventListener('update', this[$onContentUpdate]);
+    this.content.addEventListener('load', this[$onContentLoad]);
   }
 
   refresh(uuid, typeHint) {
-    this.store.refresh(uuid, typeHint);
+    this.content.refresh(uuid, typeHint);
   }
 
   /**
@@ -41,7 +41,7 @@ export default class AppElement extends LitElement {
     super.connectedCallback && super.connectedCallback();
     this.addEventListener('select-object', this[$onSelectObject]);
     // Flush all observed objects on initialization
-    this.store.reset();
+    this.content.connect();
   }
 
   disconnectedCallback() {
@@ -49,12 +49,21 @@ export default class AppElement extends LitElement {
     super.disconnectedCallback && super.disconnectedCallback();
   }
 
+  shouldUpdate(changedProps) {
+    console.log(changedProps);
+    if (changedProps.has('activeObject')) {
+      this.content.select(this.activeObject);
+    }
+
+    return true;
+  }
+
   render() {
 
     let inspected;
 
     if (this.activeObject) {
-      const object = this.store.get(this.activeObject);
+      const object = this.content.get(this.activeObject);
 
       if (object) {
         switch (object.typeHint) {
@@ -74,6 +83,7 @@ export default class AppElement extends LitElement {
       }
     }
 
+    console.log("RENDER AppElement");
     return html`
 <style>
   :host {
@@ -99,20 +109,18 @@ ${inspected}
 
   [$onSelectObject](e) {
     this.activeObject = e.detail.uuid || null;
-    chrome.devtools.inspectedWindow.eval(`ThreeDevTools.__select('${this.activeOvject}')`);
   }
 
-  [$onStoreUpdate](e) {
+  [$onContentUpdate](e) {
     // If this is the initial scene, set it as active
     if (!this.activeScene && e.detail.typeHint === 'scene') {
       this.activeScene = e.detail.uuid;
     }
   }
 
-  [$onStoreReset](e) {
+  [$onContentLoad](e) {
     // Ping the content this.activeObject = e.detail.uuid;
     this.activeScene = null;
     this.activeObject = null;
-    chrome.devtools.inspectedWindow.eval('ThreeDevTools.__connect()');
   }
 }

@@ -1,6 +1,7 @@
 window.SRC_CONTENT_INDEX = `
 const $send = Symbol('send');
 const $findByUUID = Symbol('findByUUID');
+const $log = Symbol('log');
 
 window.ThreeDevTools = new class ThreeDevTools {
   constructor() {
@@ -10,7 +11,7 @@ window.ThreeDevTools = new class ThreeDevTools {
 
     this.selected = window.$t = null;
 
-    this[$send]('init');
+    this[$send]('load');
   }
 
   setRenderer(renderer) {
@@ -22,7 +23,7 @@ window.ThreeDevTools = new class ThreeDevTools {
     this.scene = scene;
     this.__refresh();
   }
-  
+
   /**
    * API for extension, should not be called by content
    */
@@ -32,6 +33,7 @@ window.ThreeDevTools = new class ThreeDevTools {
    * page load.
    */
   __connect() {
+    this[$log]('__connect()');
     this.connected = true;
     this.__refresh();
   }
@@ -40,8 +42,8 @@ window.ThreeDevTools = new class ThreeDevTools {
    * This is the active object in the devtools viewer.
    */
   __select(uuid) {
+    this[$log]('__select(' + uuid + ')');
     const selected = this[$findByUUID](uuid);
-    console.log('__select', uuid, selected);
     if (selected) {
       this.selected = window.$t = selected;
     }
@@ -49,6 +51,7 @@ window.ThreeDevTools = new class ThreeDevTools {
 
   // TODO only fire once per frame
   __refresh(uuid, typeHint) {
+    this[$log]('__refresh(' + uuid + ', ' + typeHint + ')');
     if (!this.connected) {
       return;
     }
@@ -69,7 +72,7 @@ window.ThreeDevTools = new class ThreeDevTools {
    */
 
   [$send](type, data) {
-    console.log('sending data', data);
+    this[$log]('EMIT', type, data);
     try{
       window.postMessage({
         id: 'three-devtools',
@@ -130,6 +133,10 @@ window.ThreeDevTools = new class ThreeDevTools {
         objects.push(...object.children);
       }
     }
+  }
+
+  [$log](...message) {
+    console.log('%c ThreeDevTools:', 'color:red', ...message);
   }
 };
 `;

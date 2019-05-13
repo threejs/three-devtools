@@ -3,7 +3,12 @@ const $update = Symbol('update');
 const $onMessage = Symbol('onMessage');
 const $processSceneData = Symbol('processSceneData');
 
-export default class Store extends EventTarget {
+export default class ContentBridge extends EventTarget {
+  /**
+   * Events:
+   * 'load'
+   * 'update'
+   */
   constructor() {
     super();
 
@@ -41,17 +46,22 @@ export default class Store extends EventTarget {
     }
   }
 
-  reset() {
+  connect() {
     chrome.devtools.inspectedWindow.eval('ThreeDevTools.__connect()');
+  }
+
+  select(uuid) {
+    const param = uuid ? JSON.stringify(uuid) : null;
+    chrome.devtools.inspectedWindow.eval(`ThreeDevTools.__select(${param})`);
   }
 
   [$onMessage](request) {
     const { id, type, data } = request;
 
     switch (type) {
-      case 'init':
+      case 'load':
         this[$db] = new Map();
-        this.dispatchEvent(new CustomEvent('reset'));
+        this.dispatchEvent(new CustomEvent('load'));
         break;
       case 'data':
         this[$processSceneData](data);
@@ -77,7 +87,7 @@ export default class Store extends EventTarget {
     }
     if (data.type || data.object) {
       let object = data.type ? data : data.object;
-      
+
       // In this app, "Scene" is a special case of object.
       this[$update](object, object.type === 'Scene' ? 'scene' : 'object');
       if (object.children) {
