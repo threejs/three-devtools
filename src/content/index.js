@@ -8,6 +8,8 @@ window.ThreeDevTools = new class ThreeDevTools {
     this.renderer = null;
     this.connected = false;
 
+    this.selected = window.$t = null;
+
     this[$send]('init');
   }
 
@@ -32,6 +34,17 @@ window.ThreeDevTools = new class ThreeDevTools {
   __connect() {
     this.connected = true;
     this.__refresh();
+  }
+
+  /**
+   * This is the active object in the devtools viewer.
+   */
+  __select(uuid) {
+    const selected = this[$findByUUID](uuid);
+    console.log('__select', uuid, selected);
+    if (selected) {
+      this.selected = window.$t = selected;
+    }
   }
 
   // TODO only fire once per frame

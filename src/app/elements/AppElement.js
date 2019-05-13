@@ -99,6 +99,7 @@ ${inspected}
 
   [$onSelectObject](e) {
     this.activeObject = e.detail.uuid || null;
+    chrome.devtools.inspectedWindow.eval(`ThreeDevTools.__select('${this.activeOvject}')`);
   }
 
   [$onStoreUpdate](e) {

@@ -23,7 +23,10 @@
   "@pika/web": {
     "webDependencies": [
       "lit-element",
-      "three"
+      "three",
+      "three/examples/jsm/loaders/GLTFLoader.js",
+      "three/examples/jsm/pmrem/PMREMGenerator.js",
+      "three/examples/jsm/pmrem/PMREMCubeUVPacker.js"
     ]
   }
 }
