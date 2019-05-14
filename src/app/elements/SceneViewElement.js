@@ -46,7 +46,7 @@ export default class SceneViewElement extends BaseElement {
         depth="${depth++}"
         uuid="${obj.uuid}"
         >
-        <div slot="content">${obj.name || obj.type}</div>
+        <div slot="content"><font-awesome name="user"></font-awesome>${obj.name || obj.type}</div>
         ${obj.children ? obj.children.map(c => createNode(c, depth)) : null}
       </tree-item>
     `;

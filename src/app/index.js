@@ -16,6 +16,7 @@ import EnumValueElement from './elements/values/EnumValueElement.js';
 
 import TreeItemElement from './common-elements/TreeItemElement.js';
 import AccordionViewElement from './common-elements/AccordionViewElement.js';
+import FontAwesomeElement from './common-elements/FontAwesomeElement.js';
 
 //////
 
@@ -36,6 +37,7 @@ window.customElements.define('enum-value', EnumValueElement);
 
 window.customElements.define('tree-item', TreeItemElement);
 window.customElements.define('accordion-view', AccordionViewElement);
+window.customElements.define('font-awesome', FontAwesomeElement);
 
 const agent = getAgent(window.navigator.userAgent);
 console.log('Parsed agent:', agent);

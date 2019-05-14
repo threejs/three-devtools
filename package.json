@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "three.js developer tools web extension",
   "scripts": {
-    "build": "npx @pika/web --dest web_modules/"
+    "build": "npx @pika/web --dest web_modules/ && scripts/copydeps.sh"
   },
   "repository": {
     "type": "git",
@@ -17,6 +17,7 @@
   "homepage": "https://github.com/jsantell/three-devtools#readme",
   "dependencies": {
     "@egjs/agent": "^2.1.5",
+    "@fortawesome/fontawesome-free": "^5.8.2",
     "lit-element": "^2.1.0",
     "three": "^0.104.0"
   },
