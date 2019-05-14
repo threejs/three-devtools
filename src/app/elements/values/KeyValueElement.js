@@ -32,22 +32,23 @@ export default class KeyValueElement extends LitElement {
 
     switch (this.type) {
       case 'enum':
-        valueElement = html`<enum-value uuid="${this.uuid}" property="${this.property}" value="${this.value}" type="${this.property}"></enum-value>`;
+        valueElement = html`<enum-value .uuid="${this.uuid}" .property="${this.property}" .value="${this.value}"></enum-value>`;
         break;
       case 'vec3':
         valueElement = this.value;
         break;
       case 'material':
-        valueElement = html`<material-value uuid=${this.value}></material-value>`;
+        valueElement = html`<material-value .uuid="${this.value}"></material-value>`;
         break;
       case 'color':
-        valueElement = html`<input type="color" value=${hexNumberToCSSString(this.value)}/>`;
+        valueElement = html`<input type="color" .value=${hexNumberToCSSString(this.value)}/>`;
         break;
       case 'boolean':
-        valueElement = html`<input type="checkbox" ?checked=${this.value} />`;
+        valueElement = html`<input type="checkbox" .checked="${this.value}" />`;
+        console.log('setting boolean', this.uuid, this.property, this.value, valueElement);
         break;
       case 'number':
-        valueElement = html`<input type="type" value=${this.value} />`;
+        valueElement = html`<input type="type" value="${this.value}" />`;
         break;
       case 'string':
         valueElement = this.value;

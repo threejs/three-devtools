@@ -30,17 +30,17 @@ export default class MaterialViewElement extends BaseElement {
 </style>
 <title-bar title="Material View"></title-bar>
 <div class="properties">
-  <key-value key-name="Type" value="${material.type}" type="string"></key-value>
-  <key-value key-name="UUID" value="${material.uuid}" type="string"></key-value>
-  <key-value editable key-name="Color" value="${material.color}" type="color"></key-value>
-  <key-value editable key-name="Depth Func" value="${material.depthFunc}" type="number"></key-value>
-  <key-value editable key-name="Depth Test" value="${material.depthTest}" type="boolean"></key-value>
-  <key-value editable key-name="Depth Write" value="${material.depthWrite}" type="boolean"></key-value>
-  <key-value editable key-name="Emissive" value="${material.emissive}" type="color"></key-value>
-  <key-value editable key-name="Environment Map" value="${material.envMap}" type="texture"></key-value>
-  <key-value editable key-name="Environment Intensity" value="${material.envMapIntensity}" type="number"></key-value>
-  <key-value editable key-name="Metalness" value="${material.metalness}" type="number"></key-value>
-  <key-value editable key-name="Roughness" value="${material.roughness}" type="number"></key-value>
+  <key-value uuid="${this.uuid}" key-name="Type" .value="${material.type}" type="string" property="type"></key-value>
+  <key-value uuid="${this.uuid}" key-name="UUID" .value="${material.uuid}" type="string" property="uuid"></key-value>
+  <key-value editable uuid="${this.uuid}" key-name="Color" value="${material.color}" type="color" property="color"></key-value>
+  <key-value editable uuid="${this.uuid}" key-name="Depth Func" value="${material.depthFunc}" type="number" property="depthFunc"></key-value>
+  <key-value editable uuid="${this.uuid}" key-name="Depth Test" value="${material.depthTest}" type="boolean" property="depthTest"></key-value>
+  <key-value editable uuid="${this.uuid}" key-name="Depth Write" value="${material.depthWrite}" type="boolean" property="depthWrite"></key-value>
+  <key-value editable uuid="${this.uuid}" key-name="Emissive" value="${material.emissive}" type="color" property="emissive"></key-value>
+  <key-value editable uuid="${this.uuid}" key-name="Environment Map" value="${material.envMap}" type="texture" property="envMap"></key-value>
+  <key-value editable uuid="${this.uuid}" key-name="Environment Intensity" value="${material.envMapIntensity}" type="number" property="envMapIntensity"></key-value>
+  <key-value editable uuid="${this.uuid}" key-name="Metalness" value="${material.metalness}" type="number" property="metalness"></key-value>
+  <key-value editable uuid="${this.uuid}" key-name="Roughness" value="${material.roughness}" type="number" property="roughness"></key-value>
 </div>
 `;
   }

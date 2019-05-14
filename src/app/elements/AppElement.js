@@ -67,6 +67,7 @@ export default class AppElement extends LitElement {
     if (this.activeObject) {
       const object = this.content.get(this.activeObject);
 
+      console.log("!",object);
       if (object) {
         switch (object.typeHint) {
           case 'texture':

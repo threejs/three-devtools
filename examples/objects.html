@@ -28,9 +28,11 @@ window.app = new class App {
         }));
       mesh.position.x = x - 2;
       mesh.name = `Mesh #${x+1}`;
+      if (x == 4) {
       mesh.castShadow = true;
       mesh.receiveShadow = true;
       mesh.renderOrder = x;
+      }
       this.scene.add(mesh);
     }
 

@@ -1,7 +1,20 @@
-import constants from '../../web_modules/three/src/constants.js';
-
-export const drawMode = [
-  'TrianglesDrawMode',
-  'TriangleStripeDrawMode',
-  'TriangleFanDrawMode'
+export const MaterialTypes = [
+  'Material',
+  'LineBasicMaterial',
+  'LineDashedMaterial',
+  'MeshBasicMaterial',
+  'MeshDepthMaterial',
+  'MeshDistanceMaterial',
+  'MeshLambertMaterial',
+  'MeshMatcapMaterial',
+  'MeshNormalMaterial',
+  'MeshPhongMaterial',
+  'MeshPhysicalMaterial',
+  'MeshStandardMaterial',
+  'MeshToonMaterial',
+  'PointsMaterial',
+  'RawShaderMaterial',
+  'ShaderMaterial',
+  'ShadowMaterial',
+  'SpriteMaterial'
 ];

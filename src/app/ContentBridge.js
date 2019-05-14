@@ -1,9 +1,11 @@
+import { MaterialTypes } from './constants.js';
 const $db = Symbol('db');
 const $update = Symbol('update');
 const $onMessage = Symbol('onMessage');
 const $processSceneData = Symbol('processSceneData');
 const $log = Symbol('log');
 const $eval = Symbol('eval');
+const $forceUpdate = Symbol('forceUpdate');
 
 export default class ContentBridge extends EventTarget {
   /**
@@ -37,8 +39,17 @@ export default class ContentBridge extends EventTarget {
   }
 
   updateProperty(uuid, property, value) {
-    const typeHint = this.get(uuid).typeHint;
+    const object = this.get(uuid);
+    const typeHint = object.typeHint;
     this[$eval](`ThreeDevTools.__updateProperty("${uuid}", "${typeHint}", "${property}", ${JSON.stringify(value)})`);
+
+    // Updating property won't trigger a data flush, instead update
+    // the local state so that elements' values are in sync with their
+    // HTML input state, important when switching between different items
+    // with LitElement.
+
+    object[property] = value;
+    this[$forceUpdate](object);
   }
 
   /**
@@ -66,7 +77,7 @@ export default class ContentBridge extends EventTarget {
   [$onMessage](request) {
     const { id, type, data } = request;
 
-    this[$log]('>>', type);
+    this[$log]('>>', type, data);
     switch (type) {
       case 'load':
         this[$db] = new Map();
@@ -95,14 +106,20 @@ export default class ContentBridge extends EventTarget {
     if (data.shapes) {
       data.shapes.forEach(o => this[$update](o, 'shape'));
     }
-    if (data.type || data.object) {
-      let object = data.type ? data : data.object;
-
-      // In this app, "Scene" is a special case of object.
-      this[$update](object, object.type === 'Scene' ? 'scene' : 'object');
-      if (object.children) {
-        object.children.forEach(o => this[$processSceneData](o));
+    if (data.type) {
+      if (MaterialTypes.includes(data.type)) {
+        this[$update](data, 'material');
+      } else if (data.type === 'Scene') {
+        this[$update](data, 'scene');
+      } else {
+        this[$update](data, 'object');
       }
+      if (data.children) {
+        data.children.forEach(o => this[$processSceneData](o));
+      }
+    }
+    if (data.object) {
+      this[$processSceneData](data.object);
     }
   }
 
@@ -123,15 +140,19 @@ export default class ContentBridge extends EventTarget {
     }
 
     if (changed) {
-      this[$db].set(uuid, object);
-      this.dispatchEvent(new CustomEvent('update', {
-        detail: {
-          typeHint,
-          object,
-          uuid,
-        },
-      }));
+      this[$forceUpdate](object);
     }
+  }
+
+  [$forceUpdate](object) {
+    this[$db].set(object.uuid, object);
+    this.dispatchEvent(new CustomEvent('update', {
+      detail: {
+        object,
+        typeHint: object.typeHint,
+        uuid: object.uuid,
+      },
+    }));
   }
 
   [$eval](string) {

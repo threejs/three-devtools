@@ -1,7 +1,18 @@
 window.SRC_CONTENT_INDEX = `
 const $send = Symbol('send');
+const $toJSON = Symbol('toJSON');
 const $findByUUID = Symbol('findByUUID');
 const $log = Symbol('log');
+
+function objectToJSON (object, output) {
+  // 'output' already contains 'toJSON()' content
+  object = data.type ? data : data.object;
+
+  output.renderOrder = object.renderOrder;
+  if (object.children) {
+    object.children.forEach(function(){});
+  }
+}
 
 window.ThreeDevTools = new class ThreeDevTools {
   constructor() {
@@ -66,13 +77,13 @@ window.ThreeDevTools = new class ThreeDevTools {
     }
     if (!uuid) {
       if (this.scene) {
-        this[$send]('data', this.scene.toJSON());
+        this[$send]('data', this.scene);
       }
       return;
     }
-    const item = this[$findByUUID](uuid, type);
+    const item = this[$findByUUID](uuid, typeHint);
     if (item) {
-      this[$send]('data', item.toJSON());
+      this[$send]('data', item);
     }
   }
 
@@ -83,6 +94,9 @@ window.ThreeDevTools = new class ThreeDevTools {
   [$send](type, data) {
     this[$log]('EMIT', type, data);
     try{
+      if (data) {
+        data = this[$toJSON](data);
+      }
       window.postMessage({
         id: 'three-devtools',
         type: type,
@@ -110,7 +124,9 @@ window.ThreeDevTools = new class ThreeDevTools {
     }
 
     let objects = [this.scene];
-    while (objects) {
+
+    console.log('finding uuid', uuid, type);
+    while (objects.length) {
       let object = objects.shift();
 
       switch (type) {
@@ -142,6 +158,39 @@ window.ThreeDevTools = new class ThreeDevTools {
         objects.push(...object.children);
       }
     }
+  }
+
+  /**
+   * This turns the Three object into something serializable. Uses
+   * the built in 'toJSON()' methods, but adds a few more properties,
+   * and lazily computes others.
+   * Is there a better way to do this?
+   */
+  [$toJSON](item) {
+    // Okay, this doesn't do anything yet.
+    return item.toJSON();
+    /*
+    const data = item.toJSON();
+    if (data.geometries) {
+    }
+    if (data.materials) {
+    }
+    if (data.textures) {
+    }
+    if (data.images) {
+    }
+    if (data.shapes) {
+    }
+    if (data.type || data.object) {
+      let object = data.type ? data : data.object;
+
+      // In this app, "Scene" is a special case of object.
+      this[$update](object, object.type === 'Scene' ? 'scene' : 'object');
+      if (object.children) {
+        object.children.forEach(o => this[$processSceneData](o));
+      }
+    }
+    */
   }
 
   [$log](...message) {
