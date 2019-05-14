@@ -3,6 +3,8 @@ import { hexNumberToCSSString } from '../../utils.js';
 
 const $onChange = Symbol('onChange');
 
+let kvIterator = 0;
+
 export default class KeyValueElement extends LitElement {
   static get properties() {
     return {
@@ -14,6 +16,14 @@ export default class KeyValueElement extends LitElement {
       type: { type: String, reflect: true },
       property: { type: String, reflect: true },
     }
+  }
+
+  constructor() {
+    super();
+    // Currently no way to handle a true label/input match
+    // across shadow boundaries? Can this be handled better?
+    // https://github.com/whatwg/html/issues/3219
+    this._id = `key-value-element-${kvIterator++}`;
   }
 
   render() {
@@ -63,14 +73,14 @@ export default class KeyValueElement extends LitElement {
     display: flex;
   }
 
-  #key {
+  label {
     flex: 0 0 var(--key-value-divider-position, 30%);
   }
   #value {
     flex: 1;
   }
 
-  #key, #value {
+  label, #value {
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -78,7 +88,7 @@ export default class KeyValueElement extends LitElement {
   }
 
 </style>
-<div id="key">${this.keyName}</div>
+<label for="${this._id}">${this.keyName}</label>
 <div @change="${this[$onChange]}" id="value">${valueElement}</div>
 `;
   }
