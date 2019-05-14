@@ -21,6 +21,16 @@ export const MaterialTypes = [
 
 // Defaults go first, and applied if undefined
 const ConstantTypes = {
+  mapping: [
+    'UVMapping',
+    'CubeReflectionMapping',
+    'CubeRefractionMapping',
+    'EquirectangularReflectionMapping',
+    'EquirectangularRefractionMapping',
+    'SphericalReflectionMapping',
+    'CubeUVReflectionMapping',
+    'CubeUVRefractionMapping',
+  ],
   drawMode: [
     'TrianglesDrawMode',
     'TriangleStripDrawMode',
@@ -111,11 +121,54 @@ const ConstantTypes = {
     'BasicDepthPacking',
     'RGBADepthPacking'
   ],
+  format: [
+    'RGBAFormat',
+    'AlphaFormat',
+    'RGBFormat',
+    'LuminanceFormat',
+    'LuminanceAlphaFormat',
+    'RGBEFormat',
+    'DepthFormat',
+    'DepthStencilFormat'
+  ],
+  type: [
+    'UnsignedByteType',
+    'ByteType',
+    'ShortType',
+    'UnsignedShortType',
+    'IntType',
+    'UnsignedIntType',
+    'FloatType',
+    'HalfFloatType',
+    'UnsignedShort4444Type',
+    'UnsignedShort5551Type',
+    'UnsignedShort565Type',
+    'UnsignedInt248Type',
+  ],
+  wrapping: [
+    'ClampToEdgeWrapping',
+    'RepeatWrapping',
+    'MirroredRepeatWrapping',
+  ],
+  magFilter: [
+    'LinearFilter',
+    'NearestFilter',
+  ],
+  minFilter: [
+    'LinearMipMapLinearFilter',
+    'NearestFilter',
+    'NearestMipMapNearestFilter',
+    'NearestMipMapLinearFilter',
+    'LinearFilter',
+    'LinearMipMapNearestFilter',
+  ],
 };
 
 // Copy some over since the constant type is found
 // by property name.
 ConstantTypes.shadowSide = ConstantTypes.side;
+ConstantTypes.wrapS = ConstantTypes.wrapping;
+ConstantTypes.wrapT = ConstantTypes.wrapping;
 // Change default (first in order) when encoding is used as `depthPacking`
 ConstantTypes.depthPacking = [...ConstantTypes.encoding];
 ConstantTypes.depthPacking[ConstantTypes.depthPacking.indexOf('BasicDepthPacking')] =

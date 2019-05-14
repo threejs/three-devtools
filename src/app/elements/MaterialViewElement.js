@@ -57,7 +57,8 @@ export default class MaterialViewElement extends BaseElement {
     min-height: 20px;
   }
 
-  .basic, .depth, .distance, .lambert, .physical, .standard {
+  .basic, .depth, .distance, .lambert, .physical, .standard,
+  .toon, .linebasic, .linedashed {
     display: none;
   }
   [material-hint="basic"] .basic,

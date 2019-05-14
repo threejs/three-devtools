@@ -1,5 +1,8 @@
 import BaseElement, { html } from './BaseElement.js';
 
+const typeToTextureType = {
+};
+
 export default class TextureViewElement extends BaseElement {
   static get typeHint() { return 'texture'; }
   static get properties() {
@@ -15,6 +18,8 @@ export default class TextureViewElement extends BaseElement {
       return html`<div>no texture</div>`;
     }
 
+    const textureHint = typeToTextureType[texture.type];
+
     return html`
 <style>
   :host {
@@ -22,24 +27,44 @@ export default class TextureViewElement extends BaseElement {
     width: 100%;
     height: 100%;
   }
+  accordion-view {
+    display: flex;
+    flex-direction: column;
+    min-height: 20px;
+  }
+
+  .basic, .depth, .distance, .lambert, .physical, .standard {
+    display: none;
+  }
+  [material-hint="linedashed"] .linedashed
+  {
+    display: flex;
+  }
 </style>
 <title-bar title="Texture View"></title-bar>
-<div class="properties">
-  <key-value key-name="Type" value="${texture.type}" type="string"></key-value>
-  <key-value key-name="UUID" value="${texture.uuid}" type="string"></key-value>
-  <key-value editable key-name="Format" value="${texture.format}" type="enum"></key-value>
-  <key-value editable key-name="Encoding" value="${texture.encoding}" type="enum"></key-value>
-  <key-value key-name="Image" value="${texture.image}" type="image"></key-value>
-  <key-value editable key-name="Repeat" value="${texture.repeat}" type="vec2"></key-value>
-  <key-value editable key-name="Offset" value="${texture.offset}" type="vec2"></key-value>
-  <key-value editable key-name="Center" value="${texture.center}" type="vec2"></key-value>
-  <key-value editable key-name="Wrap" value="${texture.wrap}" type="vec2"></key-value>
-  <key-value editable key-name="MinFilter" value="${texture.minFilter}" type="enum"></key-value>
-  <key-value editable key-name="MagFilter" value="${texture.magFilter}" type="enum"></key-value>
-  <key-value editable key-name="Anisotropy" value="${texture.anisotropy}" type="number"></key-value>
-  <key-value editable key-name="Flip Y" value="${texture.flipY}" type="boolean"></key-value>
-  <key-value editable key-name="Premultiply Alpha" value="${texture.premultiplyAlpha}" type="boolean"></key-value>
-  <key-value editable key-name="Unpack Alignment" value="${texture.unpackAlignment}" type="boolean"></key-value>
+<div class="properties" texture-hint="${textureHint}">
+  <key-value uuid="${this.uuid}" key-name="Type" .value="${texture.type}" type="string" property="type"></key-value>
+  <key-value uuid="${this.uuid}" key-name="UUID" .value="${texture.uuid}" type="string" property="uuid"></key-value>
+  <key-value uuid="${this.uuid}" key-name="Version" .value="${texture.version}" type="number" property="version"></key-value>
+  <key-value uuid="${this.uuid}" key-name="Mapping" .value="${texture.mapping}" type="enum" property="mapping"></key-value>
+  <key-value uuid="${this.uuid}" key-name="Wrap S" .value="${texture.wrapS}" type="enum" property="wrapS"></key-value>
+  <key-value uuid="${this.uuid}" key-name="Wrap T" .value="${texture.wrapT}" type="enum" property="wrapT"></key-value>
+  <key-value uuid="${this.uuid}" key-name="Mag Filter" .value="${texture.magFilter}" type="enum" property="magFilter"></key-value>
+  <key-value uuid="${this.uuid}" key-name="Min Filter" .value="${texture.minFilter}" type="enum" property="minFilter"></key-value>
+  <key-value uuid="${this.uuid}" key-name="Anisotropy" .value="${texture.anisotropy}" type="number" property="anisotropy"></key-value>
+  <key-value uuid="${this.uuid}" key-name="Format" .value="${texture.format}" type="enum" property="format"></key-value>
+  <key-value uuid="${this.uuid}" key-name="Byte Type" .value="${texture.type}" type="enum" property="type"></key-value>
+  <key-value uuid="${this.uuid}" key-name="Encoding" .value="${texture.encoding}" type="enum" property="encoding"></key-value>
+  <key-value uuid="${this.uuid}" key-name="Flip Y" .value="${!(texture.flipY === false)}" type="boolean" property="flipY"></key-value>
+  <key-value uuid="${this.uuid}" key-name="Generate Mipmaps" .value="${!(texture.generateMipmaps === false)}" type="boolean" property="generateMipmaps"></key-value>
+  <key-value uuid="${this.uuid}" key-name="Premultiply Alpha" .value="${texture.premultiplyAlpha || false}" type="boolean" property="premultiplyAlpha"></key-value>
+  <key-value uuid="${this.uuid}" key-name="Unpack Alignment" .value="${texture.unpackAlignment || 4}" type="number" property="unpackAlignment"></key-value>
+  <key-value uuid="${this.uuid}" key-name="Offset" .value="${texture.offset}" type="vec2" property="offset"></key-value>
+  <key-value uuid="${this.uuid}" key-name="Repeat" .value="${texture.repeat}" type="vec2" property="repeat"></key-value>
+  <key-value uuid="${this.uuid}" key-name="Rotation" .value="${texture.rotation || 0}" type="number" property="rotation"></key-value>
+  <key-value uuid="${this.uuid}" key-name="Center" .value="${texture.center}" type="vec2" property="center"></key-value>
+  <key-value uuid="${this.uuid}" key-name="Matrix Auto Update" .value="${!(texture.matrixAutoUpdate === false)}" type="boolean" property="matrixAutoUpdate"></key-value>
+  
 </div>
 `;
   }
