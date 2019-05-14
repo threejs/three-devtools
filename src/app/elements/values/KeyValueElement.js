@@ -1,5 +1,5 @@
 import { LitElement, html } from '../../../../web_modules/lit-element.js'
-import { hexNumberToCSSString } from '../../utils.js';
+import { cssStringToHexNumber, hexNumberToCSSString } from '../../utils.js';
 
 const $onChange = Symbol('onChange');
 
@@ -41,7 +41,7 @@ export default class KeyValueElement extends LitElement {
         valueElement = html`<material-value .uuid="${this.value}"></material-value>`;
         break;
       case 'color':
-        valueElement = html`<input type="color" .value=${hexNumberToCSSString(this.value)}/>`;
+        valueElement = html`<input type="color" .value=${hexNumberToCSSString(+this.value)}/>`;
         break;
       case 'boolean':
         valueElement = html`<input type="checkbox" .checked="${this.value}" />`;
@@ -99,18 +99,26 @@ export default class KeyValueElement extends LitElement {
     const target = e.composedPath()[0];
 
     let value = null;
+    let dataType = null;
     if (e.detail && e.detail.value) {
       console.log('not yet implemented');
     } else if (target.tagName === 'INPUT') {
       switch (target.getAttribute('type')) {
+        case 'color':
+          value = target.value ? cssStringToHexNumber(target.valuel) : 0; break;
+          dataType = 'color';
         case 'checkbox':
           value = !!target.checked; break;
+          dataType = 'boolean';
+        case 'number':
+          dataType = 'number';
         default:
           value = target.value;
       }
     } else if (target.tagName === 'SELECT') {
       const selected = [...target.querySelector('option')].filter(o => o.selected);
       if (selected) {
+        dataType = 'number'; // Is <select> only for enums?
         value = selected.value;
       }
     }
@@ -121,6 +129,7 @@ export default class KeyValueElement extends LitElement {
 
         uuid: this.uuid,
         property: this.property,
+        dataType,
         value,
       },
         bubbles: true,

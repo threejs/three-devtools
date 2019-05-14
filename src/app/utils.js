@@ -1,5 +1,10 @@
+
+// These color conversions should be way more robust..
+// @TODO use THREE.Color
 export const hexNumberToCSSString = hex =>
   `#${("000000" + (hex).toString(16)).slice(-6)}`;
+
+export const cssStringToHexNumber = string => +`0x${string.substr(1)}`;
 
 /**
  * Operates on a serialized THREE object,
