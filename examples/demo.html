@@ -18,7 +18,7 @@ window.app = new class App {
     this.renderer.setPixelRatio(window.devicePixelRatio);
 
     this.scene = new THREE.Scene();
-    this.camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 100);
+    this.camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 10);
     this.camera.position.z = 10;
     this.updateSize();
 
@@ -36,6 +36,7 @@ window.app = new class App {
     this.meshBasic.position.x = -3;
 
     this.meshDepth = new THREE.Mesh(geometry, new THREE.MeshDepthMaterial({
+      color: 0xffffff,
     }));
     this.meshDepth.name = 'Depth Sphere';
     this.meshDepth.position.x = -2;

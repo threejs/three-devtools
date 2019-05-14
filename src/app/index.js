@@ -1,3 +1,4 @@
+import getAgent from '../../web_modules/@egjs/agent.js';
 import AppElement from './elements/AppElement.js';
 
 import SceneViewElement from './elements/SceneViewElement.js';
@@ -35,6 +36,16 @@ window.customElements.define('enum-value', EnumValueElement);
 
 window.customElements.define('tree-item', TreeItemElement);
 window.customElements.define('accordion-view', AccordionViewElement);
+
+const agent = getAgent(window.navigator.userAgent);
+console.log('Parsed agent:', agent);
+if (agent.os.name === 'window') {
+  document.body.classList.add('platform-windows');
+} else if (agent.os.name === 'mac') {
+  document.body.classList.add('platform-mac');
+} else if (agent.os.name === 'unknown') {
+  document.body.classList.add('platform-linux');
+}
 
 window.addEventListener('error', e => {
   let error = document.querySelector('#error');

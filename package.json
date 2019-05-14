@@ -16,6 +16,7 @@
   },
   "homepage": "https://github.com/jsantell/three-devtools#readme",
   "dependencies": {
+    "@egjs/agent": "^2.1.5",
     "lit-element": "^2.1.0",
     "three": "^0.104.0"
   },
@@ -24,6 +25,7 @@
     "webDependencies": [
       "lit-element",
       "three",
+      "@egjs/agent",
       "three/src/constants.js",
       "three/examples/jsm/loaders/GLTFLoader.js",
       "three/examples/jsm/pmrem/PMREMGenerator.js",
