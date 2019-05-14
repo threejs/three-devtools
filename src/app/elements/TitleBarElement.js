@@ -14,18 +14,28 @@ export default class TitleBarElement extends LitElement {
 <style>
   /**
    * Current CSS API:
-   *
-   * --key-value-divider-position: 20%;
-   * --key-value-padding-left: 10px;
+   * var(--title-color)
+   * var(--title-background-color)
+   * var(--title-border-color)
    */
 
   :host {
-    height: auto;
+    height: 22px;
     width: 100%;
     display: flex;
+    color: var(--title-color);
+    background-color: var(--title-background-color);
+    border-bottom: 1px solid var(--title-border-color);
+
+    padding: 2px 0.8em;
+    line-height: 15px;
+    white-space: nowrap;
+    align-items: center;
   }
 
   #title {
+    text-overflow: ellipsis;
+    overflow: hidden;
   }
 
 </style>

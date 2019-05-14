@@ -98,6 +98,15 @@ export default class AppElement extends LitElement {
   :host > * {
     flex: 0 0 50%;
     overflow: hidden;
+    border-bottom: 1px solid var(--view-border-color);
+  }
+  @media (min-aspect-ratio: 1/1) {
+    :host > * {
+      border-right: 1px solid var(--view-border-color);
+    }
+  }
+  :host > *:first-child {
+    border: 0px;
   }
 </style>
 <scene-view uuid="${this.activeScene}" .selected="${this.activeObject}"

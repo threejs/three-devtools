@@ -92,7 +92,7 @@ export default class MaterialViewElement extends BaseElement {
   <key-value editable uuid="${this.uuid}" key-name="Visible" .value="${!(material.visible === false)}" type="boolean" property="visible"></key-value>
   <key-value editable uuid="${this.uuid}" key-name="Opacity" .value="${material.opacity || 0}" type="number" property="opacity"></key-value>
 
-  <key-value class="basic lambert standard linebasic linedashed" editable uuid="${this.uuid}" key-name="Color" .value="${material.color}" type="color" property="color"></key-value>
+  <key-value class="basic toon lambert standard linebasic linedashed" editable uuid="${this.uuid}" key-name="Color" .value="${material.color}" type="color" property="color"></key-value>
   <key-value class="depth" editable uuid="${this.uuid}" key-name="Depth Packing" .value="${material.depthPacking}" type="enum" property="depthPacking"></key-value>
 
   <key-value class="basic depth lambert" editable uuid="${this.uuid}" key-name="Diffuse Map" .value="${material.map}" type="texture" property="map"></key-value>
@@ -120,7 +120,7 @@ export default class MaterialViewElement extends BaseElement {
   <key-value class="basic lambert standard" editable uuid="${this.uuid}" key-name="Refraction Ratio" .value="${material.refractionRatio === undefined ? 0.98 : material.refractionRatio}" type="number" property="refractionRatio"></key-value>
   <key-value class="basic lambert standard" editable uuid="${this.uuid}" key-name="Skinning" .value="${material.skinning || false}" type="boolean" property="skinning"></key-value>
   <key-value class="basic lambert" editable uuid="${this.uuid}" key-name="Specular Map" .value="${material.specularMap}" type="texture" property="specularMap"></key-value>
-  <key-value class="basic lambert standard" editable uuid="${this.uuid}" key-name="Wireframe" .value="${material.wireframe || false}" type="boolean" property="wireframe"></key-value>
+  <key-value class="basic lambert depth standard" editable uuid="${this.uuid}" key-name="Wireframe" .value="${material.wireframe || false}" type="boolean" property="wireframe"></key-value>
 
   <key-value class="lambert standard" editable uuid="${this.uuid}" key-name="Emissive" .value="${material.emissive}" type="color" property="emissive"></key-value>
   <key-value class="lambert" editable uuid="${this.uuid}" key-name="Emissive Intensity" .value="${material.emissiveIntensity}" type="number" property="emissiveIntensity"></key-value>

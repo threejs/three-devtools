@@ -2,6 +2,55 @@
  * These are mostly pulled from devtools source code
  */
 
+:root {
+    --accent-color: #1a73e8;
+    --accent-fg-color: #1a73e8;
+    --accent-color-hover: #3b86e8;
+    --focus-bg-color: hsl(214, 40%, 92%);
+    --toolbar-bg-color: #f3f3f3;
+    --toolbar-hover-bg-color: #eaeaea;
+    --selection-fg-color: white;
+    --selection-inactive-fg-color: #5a5a5a;
+    --selection-inactive-bg-color: #dadada;
+    --tab-selected-fg-color: #333;
+    --tab-selected-bg-color: var(--toolbar-bg-color);
+    --drop-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05),
+                   0 2px 4px rgba(0, 0, 0, 0.2),
+                   0 2px 6px rgba(0, 0, 0, 0.1);
+    --divider-color: #d0d0d0;
+    --focus-ring-inactive-shadow: 0 0 0 1px #e0e0e0;
+    --editor-selection-bg-color: #cfe8fc;
+    --editor-selection-inactive-bg-color: #e0e0e0;
+}
+
+.-theme-with-dark-background {
+    --accent-color: #0e639c;
+    --accent-fg-color: #cccccc;
+    --accent-color-hover: rgb(17, 119, 187);
+    --focus-bg-color: hsl(214, 19%, 27%);
+    --toolbar-bg-color: #333333;
+    --toolbar-hover-bg-color: #202020;
+    --selection-fg-color: #cdcdcd;
+    --selection-inactive-fg-color: #cdcdcd;
+    --selection-inactive-bg-color: hsl(0, 0%, 28%);
+    --tab-selected-fg-color: #eaeaea;
+    --tab-selected-bg-color: black;
+    --drop-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2),
+                   0 2px 4px 2px rgba(0, 0, 0, 0.2),
+                   0 2px 6px 2px rgba(0, 0, 0, 0.1);
+    --divider-color: #525252;
+    --focus-ring-inactive-shadow: 0 0 0 1px #5a5a5a;
+    --editor-selection-bg-color: hsl(207, 88%, 22%);
+    --editor-selection-inactive-bg-color: #454545;
+}
+
+:root {
+    --focus-ring-active-shadow: 0 0 0 1px var(--accent-color);
+    --selection-bg-color: var(--accent-color);
+    --divider-border: 1px solid var(--divider-color);
+}
+
+
 body {
   height: 100%;
   width: 100%;

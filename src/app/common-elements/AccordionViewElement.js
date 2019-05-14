@@ -23,7 +23,7 @@ export default class AccordionViewElement extends LitElement {
     height: 20px;
     width: 100%;
     align-items: center;
-    padding-left: 10px;
+    padding-left: 4px;
   }
 
   .arrow {

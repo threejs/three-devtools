@@ -78,6 +78,7 @@ export default class KeyValueElement extends LitElement {
     height: var(--key-value-height, auto);
     width: 100%;
     display: flex;
+    align-items: center;
   }
 
   label {
