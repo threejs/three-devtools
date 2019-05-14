@@ -1,21 +1,13 @@
 import { LitElement, html } from '../../../../web_modules/lit-element.js'
+import { ConstantTypes } from '../../constants.js';
 import * as constants from '../../../../web_modules/three/src/constants.js';
 
 const $onInput = Symbol('onInput');
-
-const ConstantTypes = {
-  drawMode: [
-    'TrianglesDrawMode',
-    'TriangleStripDrawMode',
-    'TriangleFanDrawMode'
-  ],
-};
 
 export default class EnumValueElement extends LitElement {
   static get properties() {
     return {
       uuid: { type: String, reflect: true },
-      property: { type: String, reflect: true },
       // Type of enum, e.g. "drawMode", "side", "blendMode"
       type: { type: String, reflect: true },
       // Numerical value of enum.
@@ -34,12 +26,13 @@ export default class EnumValueElement extends LitElement {
       return html`<input type="number" value="${this.value}" />`;
     }
 
-    const options = ConstantTypes[this.type].map(c => {
+    const options = ConstantTypes[this.type].map((c,i) => {
       const value = constants[c];
       if (typeof value !== 'number') {
         throw new Error(`invalid constant value for ${c}`);
       }
-      return html`<option value="${value}">${c}</option>`;
+      const selected = this.value === undefined ? i === 0 : this.value === value;
+      return html`<option value="${value}" .selected="${selected}">${c}</option>`;
     });
 
     return html`
@@ -61,7 +54,8 @@ export default class EnumValueElement extends LitElement {
         type: 'update-property',
 
         uuid: this.uuid,
-        property: this.property,
+        property: this.type,
+        dataType: 'number',
         value,
       },
         bubbles: true,

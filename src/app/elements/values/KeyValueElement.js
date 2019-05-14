@@ -32,7 +32,7 @@ export default class KeyValueElement extends LitElement {
 
     switch (this.type) {
       case 'enum':
-        valueElement = html`<enum-value .uuid="${this.uuid}" .property="${this.property}" .value="${this.value}"></enum-value>`;
+        valueElement = html`<enum-value .uuid="${this.uuid}" .type="${this.property}" .value="${this.value}"></enum-value>`;
         break;
       case 'vec3':
         valueElement = this.value;
@@ -41,7 +41,7 @@ export default class KeyValueElement extends LitElement {
         valueElement = html`<material-value .uuid="${this.value}"></material-value>`;
         break;
       case 'color':
-        valueElement = html`<input type="color" .value=${hexNumberToCSSString(+this.value)}/>`;
+        valueElement = html`<input type="color" .value="${hexNumberToCSSString(+this.value)}" />`;
         break;
       case 'boolean':
         valueElement = html`<input type="checkbox" .checked="${this.value}" />`;
@@ -105,7 +105,7 @@ export default class KeyValueElement extends LitElement {
     } else if (target.tagName === 'INPUT') {
       switch (target.getAttribute('type')) {
         case 'color':
-          value = target.value ? cssStringToHexNumber(target.valuel) : 0; break;
+          value = target.value ? cssStringToHexNumber(target.value) : 0; break;
           dataType = 'color';
         case 'checkbox':
           value = !!target.checked; break;
