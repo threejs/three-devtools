@@ -97,9 +97,6 @@ export default class AppElement extends LitElement {
 
   :host > * {
     flex: 1;
-  }
-
-  scene-view {
     overflow-y: auto;
     overflow-x: hidden;
   }
