@@ -135,8 +135,8 @@ ${inspected}
 
     switch (type) {
       case 'update-property':
-        const { uuid, property, value } = e.detail;
-        this.content.updateProperty(uuid, property, value);
+        const { uuid, property, value, dataType } = e.detail;
+        this.content.updateProperty(uuid, property, value, dataType);
         break;
     }
   }

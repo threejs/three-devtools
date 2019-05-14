@@ -30,6 +30,14 @@ window.ThreeDevTools = new class ThreeDevTools {
     this.__refresh();
   }
 
+  /**
+   * Can this be inferred from other objects some how?
+   */
+  setThree(THREE) {
+    this.THREE = THREE;
+    this.__refresh();
+  }
+
   setScene(scene) {
     this.scene = scene;
     this.__refresh();
@@ -61,11 +69,23 @@ window.ThreeDevTools = new class ThreeDevTools {
     }
   }
 
-  __updateProperty(uuid, type, property, value) {
+  __updateProperty(uuid, typeHint, property, value, dataType) {
     this[$log]('__updateProperty(' + Array.prototype.join.call(arguments,',') + ')');
-    const item = this[$findByUUID](uuid, type);
+    const item = this[$findByUUID](uuid, typeHint);
     if (item) {
-      item[property] = value;
+      switch (dataType) {
+        case 'color':
+          if (item[property] && item[property].isColor) {
+            item[property].setHex(value);
+          } else if (this.THREE) {
+            // TODO is there a better way than using this.THREE??
+            item[property] = new this.THREE.Color(value);
+          }
+          break;
+        default:
+          console.log('unknown dataType', dataType);
+          item[property] = value;
+      }
     }
   }
 

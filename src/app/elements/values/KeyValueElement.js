@@ -105,11 +105,13 @@ export default class KeyValueElement extends LitElement {
     } else if (target.tagName === 'INPUT') {
       switch (target.getAttribute('type')) {
         case 'color':
-          value = target.value ? cssStringToHexNumber(target.value) : 0; break;
+          value = target.value ? cssStringToHexNumber(target.value) : 0;
           dataType = 'color';
+          break;
         case 'checkbox':
-          value = !!target.checked; break;
+          value = !!target.checked;
           dataType = 'boolean';
+          break;
         case 'number':
           dataType = 'number';
         default:

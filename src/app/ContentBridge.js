@@ -38,10 +38,10 @@ export default class ContentBridge extends EventTarget {
     return this[$db].get(uuid);
   }
 
-  updateProperty(uuid, property, value) {
+  updateProperty(uuid, property, value, dataType) {
     const object = this.get(uuid);
     const typeHint = object.typeHint;
-    this[$eval](`ThreeDevTools.__updateProperty("${uuid}", "${typeHint}", "${property}", ${JSON.stringify(value)})`);
+    this[$eval](`ThreeDevTools.__updateProperty("${uuid}", "${typeHint}", "${property}", ${JSON.stringify(value)}, "${dataType}")`);
 
     // Updating property won't trigger a data flush, instead update
     // the local state so that elements' values are in sync with their

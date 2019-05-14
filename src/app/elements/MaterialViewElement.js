@@ -58,13 +58,13 @@ export default class MaterialViewElement extends BaseElement {
 
   <key-value editable uuid="${this.uuid}" key-name="Alpha Test" .value="${material.alphaTest || 0}" type="number" property="alphaTest"></key-value>
   <key-value editable uuid="${this.uuid}" key-name="Blend Destination" .value="${material.blendDst}" type="enum" property="blendDst"></key-value>
-  <key-value editable uuid="${this.uuid}" key-name="Blend Destination Alpha" .value="${material.blendDstAlpha}" type="number" property="blendDstAlpha"></key-value>
+  <key-value editable uuid="${this.uuid}" key-name="Blend Destination Alpha" .value="${material.blendDstAlpha || 0}" type="number" property="blendDstAlpha"></key-value>
   <key-value editable uuid="${this.uuid}" key-name="Blend Equation" .value="${material.blendEquation}" type="enum" property="blendEquation"></key-value>
-  <key-value editable uuid="${this.uuid}" key-name="Blend Equation Alpha" .value="${material.blendEquationAlpha}" type="number" property="blendEquationAlpha"></key-value>
+  <key-value editable uuid="${this.uuid}" key-name="Blend Equation Alpha" .value="${material.blendEquationAlpha || 0}" type="number" property="blendEquationAlpha"></key-value>
   <key-value editable uuid="${this.uuid}" key-name="Blending" .value="${material.blending}" type="enum" property="blending"></key-value>
   <key-value editable uuid="${this.uuid}" key-name="Blending Source" .value="${material.blendSrc}" type="enum" property="blendSrc"></key-value>
-  <key-value editable uuid="${this.uuid}" key-name="Blending Source Alpha" .value="${material.blendSrcAlpha}" type="enum" property="blendSrcAlpha"></key-value>
-  <key-value editable uuid="${this.uuid}" key-name="Premultiplied Alpha" .value="${material.premultipliedAlpha || false}" type="number" property="premultipliedAlpha"></key-value>
+  <key-value editable uuid="${this.uuid}" key-name="Blending Source Alpha" .value="${material.blendSrcAlpha || 0}" type="enum" property="blendSrcAlpha"></key-value>
+  <key-value editable uuid="${this.uuid}" key-name="Premultiplied Alpha" .value="${material.premultipliedAlpha || false}" type="boolean" property="premultipliedAlpha"></key-value>
   
   <key-value editable uuid="${this.uuid}" key-name="Polygon Offset" .value="${material.polygonOffset || false}" type="boolean" property="polygonOffset"></key-value>
   <key-value editable uuid="${this.uuid}" key-name="Polygon Offset Factor" .value="${material.polygonOffsetFactor || 0}" type="number" property="polygonOffsetFactor"></key-value>
