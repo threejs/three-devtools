@@ -1,6 +1,7 @@
 import BaseElement, { html } from './BaseElement.js';
 
 const $onActivate = Symbol('onActivate');
+const $onLoad = Symbol('onLoad');
 
 export default class ImagePreviewElement extends BaseElement {
   static get typeHint() { return 'image'; }
@@ -26,7 +27,7 @@ export default class ImagePreviewElement extends BaseElement {
       return html`None`;
     }
 
-    console.log(image);
+    console.log('render imagepreview',image);
     return html`
 <style>
   :host {
@@ -42,13 +43,14 @@ export default class ImagePreviewElement extends BaseElement {
     text-align: center;
   }
 </style>
-<img @click="${this[$onActivate]}" src="${image.url}" />
+<img @load="${this[$onLoad]}" @click="${this[$onActivate]}" src="${image.url}" />
 <div class="dimensions">${this.width + ' x ' + this.height}</div>
 `;
   }
 
-  updated(changedProperties) {
-    const image = this.shadowRoot.querySelector('img');
+  [$onLoad](e) {
+      console.log("IMAGE LOAD", e);
+    const image = e.composedPath()[0];
     this.width = image.naturalWidth;
     this.height = image.naturalHeight;
   }
