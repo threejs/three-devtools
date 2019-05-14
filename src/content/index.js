@@ -50,6 +50,14 @@ window.ThreeDevTools = new class ThreeDevTools {
     }
   }
 
+  __updateProperty(uuid, type, property, value) {
+    this[$log]('__updateProperty(' + Array.prototype.join.call(arguments,',') + ')');
+    const item = this[$findByUUID](uuid, type);
+    if (item) {
+      item[property] = value;
+    }
+  }
+
   // TODO only fire once per frame
   __refresh(uuid, typeHint) {
     this[$log]('__refresh(' + uuid + ', ' + typeHint + ')');

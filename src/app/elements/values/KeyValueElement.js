@@ -1,9 +1,12 @@
 import { LitElement, html } from '../../../../web_modules/lit-element.js'
 import { hexNumberToCSSString } from '../../utils.js';
 
+const $onChange = Symbol('onChange');
+
 export default class KeyValueElement extends LitElement {
   static get properties() {
     return {
+      uuid: { type: String, reflect: true },
       // @TODO probably should use less generic/collision-y
       // attribute names.
       keyName: { type: String, reflect: true, attribute: 'key-name'},
@@ -19,7 +22,7 @@ export default class KeyValueElement extends LitElement {
 
     switch (this.type) {
       case 'enum':
-        valueElement = html`<enum-value value="${this.value}" type="${this.property}"></enum-value>`;
+        valueElement = html`<enum-value uuid="${this.uuid}" property="${this.property}" value="${this.value}" type="${this.property}"></enum-value>`;
         break;
       case 'vec3':
         valueElement = this.value;
@@ -76,7 +79,42 @@ export default class KeyValueElement extends LitElement {
 
 </style>
 <div id="key">${this.keyName}</div>
-<div id="value">${valueElement}</div>
+<div @change="${this[$onChange]}" id="value">${valueElement}</div>
 `;
+  }
+
+  [$onChange](e) {
+
+    const target = e.composedPath()[0];
+
+    let value = null;
+    if (e.detail && e.detail.value) {
+      console.log('not yet implemented');
+    } else if (target.tagName === 'INPUT') {
+      switch (target.getAttribute('type')) {
+        case 'checkbox':
+          value = !!target.checked; break;
+        default:
+          value = target.value;
+      }
+    } else if (target.tagName === 'SELECT') {
+      const selected = [...target.querySelector('option')].filter(o => o.selected);
+      if (selected) {
+        value = selected.value;
+      }
+    }
+
+    if (value !== null) {
+      this.dispatchEvent(new CustomEvent('command', { detail: {
+        type: 'update-property',
+
+        uuid: this.uuid,
+        property: this.property,
+        value,
+      },
+        bubbles: true,
+        composed: true,
+      }));
+    }
   }
 }

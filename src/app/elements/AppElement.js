@@ -4,6 +4,7 @@ import ContentBridge from '../ContentBridge.js';
 const $onSelectObject = Symbol('onSelectObject');
 const $onContentUpdate = Symbol('onContentUpdate');
 const $onContentConnect = Symbol('onContentConnect');
+const $onCommand = Symbol('onCommand');
 
 export default class AppElement extends LitElement {
   static get properties() {
@@ -20,10 +21,12 @@ export default class AppElement extends LitElement {
     this[$onSelectObject] = this[$onSelectObject].bind(this);
     this[$onContentUpdate] = this[$onContentUpdate].bind(this);
     this[$onContentConnect] = this[$onContentConnect].bind(this);
+    this[$onCommand] = this[$onCommand].bind(this);
     this.content = new ContentBridge();
 
     this.content.addEventListener('update', this[$onContentUpdate]);
     this.content.addEventListener('connect', this[$onContentConnect]);
+    this.addEventListener('command', this[$onCommand]);
   }
 
   refresh(uuid, typeHint) {
@@ -121,5 +124,19 @@ ${inspected}
   [$onContentConnect](e) {
     this.activeScene = null;
     this.activeObject = null;
+  }
+
+  /**
+   * A command from a descendant node. Process here.
+   */
+  [$onCommand](e) {
+    const { type } = e.detail;
+
+    switch (type) {
+      case 'update-property':
+        const { uuid, property, value } = e.detail;
+        this.content.updateProperty(uuid, property, value);
+        break;
+    }
   }
 }

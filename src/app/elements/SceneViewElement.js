@@ -73,10 +73,13 @@ ${createNode(scene)}
       }
       if (target.hasAttribute('uuid')) {
         const uuid = target.getAttribute('uuid');
-        this.app.dispatchEvent(new CustomEvent('select-object', { detail: {
+        this.dispatchEvent(new CustomEvent('select-object', { detail: {
           uuid,
           type: 'object',
-        }}));
+        },
+          bubbles: true,
+          composed: true,
+        }));
         return;
       }
     }

@@ -36,6 +36,11 @@ export default class ContentBridge extends EventTarget {
     return this[$db].get(uuid);
   }
 
+  updateProperty(uuid, property, value) {
+    const typeHint = this.get(uuid).typeHint;
+    this[$eval](`ThreeDevTools.__updateProperty("${uuid}", "${typeHint}", "${property}", ${JSON.stringify(value)})`);
+  }
+
   /**
    * Request latest data from content for the object
    * with UUID.
