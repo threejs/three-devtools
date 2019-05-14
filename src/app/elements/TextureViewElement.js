@@ -33,6 +33,13 @@ export default class TextureViewElement extends BaseElement {
     min-height: 20px;
   }
 
+  image-preview {
+    transform: translateX(-50%);
+    left: 50%;
+    position: relative;
+    width: 50%;
+  }
+
   .basic, .depth, .distance, .lambert, .physical, .standard {
     display: none;
   }
@@ -42,10 +49,10 @@ export default class TextureViewElement extends BaseElement {
   }
 </style>
 <title-bar title="Texture View"></title-bar>
+<image-preview uuid="${texture.image}"></image-preview>
 <div class="properties" texture-hint="${textureHint}">
-  <key-value uuid="${this.uuid}" key-name="Type" .value="${texture.type}" type="string" property="type"></key-value>
   <key-value uuid="${this.uuid}" key-name="UUID" .value="${texture.uuid}" type="string" property="uuid"></key-value>
-  <key-value uuid="${this.uuid}" key-name="Version" .value="${texture.version}" type="number" property="version"></key-value>
+  <key-value uuid="${this.uuid}" key-name="Version" .value="${texture.version || 0}" type="number" property="version"></key-value>
   <key-value uuid="${this.uuid}" key-name="Mapping" .value="${texture.mapping}" type="enum" property="mapping"></key-value>
   <key-value uuid="${this.uuid}" key-name="Wrap S" .value="${texture.wrapS}" type="enum" property="wrapS"></key-value>
   <key-value uuid="${this.uuid}" key-name="Wrap T" .value="${texture.wrapT}" type="enum" property="wrapT"></key-value>

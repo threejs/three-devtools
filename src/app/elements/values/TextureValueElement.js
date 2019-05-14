@@ -18,7 +18,6 @@ export default class TextureValueElement extends BaseElement {
       return null;
     }
 
-    console.log('texture',texture);
     return html`
 <style>
   :host {
@@ -48,7 +47,7 @@ export default class TextureValueElement extends BaseElement {
 </style>
 <div class="wrapper" @click="${this[$onActivate]}">
   <div id="icon" style="background-image:url(${texture.image})"></div>
-  <div id="name">${texture.type}</div>
+  <div id="name">${texture.name || '<Texture>'}</div>
 </div>
 `;
   }

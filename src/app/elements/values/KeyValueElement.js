@@ -37,6 +37,9 @@ export default class KeyValueElement extends LitElement {
       case 'vec3':
         valueElement = this.value;
         break;
+      case 'image':
+        valueElement = html`<image-value .uuid="${this.value}"></image-value>`;
+        break;
       case 'texture':
         valueElement = html`<texture-value .uuid="${this.value}"></texture-value>`;
         break;
