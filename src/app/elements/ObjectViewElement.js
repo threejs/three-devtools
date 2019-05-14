@@ -31,6 +31,13 @@ export default class ObjectViewElement extends BaseElement {
     height: 100%;
   }
 
+  .properties {
+    height: auto;
+    max-height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
   .mesh { display: none; }
   [object-hint="mesh"] .mesh { display: flex; }
 </style>

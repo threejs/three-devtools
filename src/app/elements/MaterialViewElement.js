@@ -51,6 +51,14 @@ export default class MaterialViewElement extends BaseElement {
     width: 100%;
     height: 100%;
   }
+
+  .properties {
+    height: auto;
+    max-height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
   accordion-view {
     display: flex;
     flex-direction: column;
@@ -83,7 +91,7 @@ export default class MaterialViewElement extends BaseElement {
   <key-value editable uuid="${this.uuid}" key-name="Transparent" .value="${material.transparent || false}" type="boolean" property="transparent"></key-value>
   <key-value editable uuid="${this.uuid}" key-name="Visible" .value="${!(material.visible === false)}" type="boolean" property="visible"></key-value>
   <key-value editable uuid="${this.uuid}" key-name="Opacity" .value="${material.opacity || 0}" type="number" property="opacity"></key-value>
-  
+
   <key-value class="basic lambert standard linebasic linedashed" editable uuid="${this.uuid}" key-name="Color" .value="${material.color}" type="color" property="color"></key-value>
   <key-value class="depth" editable uuid="${this.uuid}" key-name="Depth Packing" .value="${material.depthPacking}" type="enum" property="depthPacking"></key-value>
 
@@ -102,7 +110,7 @@ export default class MaterialViewElement extends BaseElement {
   <key-value class="standard" editable uuid="${this.uuid}" key-name="Environment Intensity" .value="${material.envMapIntensity}" type="number" property="envMapIntensity"></key-value>
   <key-value class="basic lambert standard" editable uuid="${this.uuid}" key-name="Light Map" .value="${material.lightMap}" type="texture" property="lightMap"></key-value>
   <key-value class="basic lambert standard" editable uuid="${this.uuid}" key-name="Light Map Intensity" .value="${material.lightMapIntensity}" type="texture" property="lightMapIntensity"></key-value>
-  
+
   <key-value class="standard" editable uuid="${this.uuid}" key-name="Bump Map" .value="${material.bumpMap}" type="texture" property="bumpMap"></key-value>
   <key-value class="standard" editable uuid="${this.uuid}" key-name="Bump Scale" .value="${material.bumpScale !== undefined ? 1 : material.bumpScale}" type="number" property="bumpScale"></key-value>
 
@@ -117,7 +125,7 @@ export default class MaterialViewElement extends BaseElement {
   <key-value class="lambert standard" editable uuid="${this.uuid}" key-name="Emissive" .value="${material.emissive}" type="color" property="emissive"></key-value>
   <key-value class="lambert" editable uuid="${this.uuid}" key-name="Emissive Intensity" .value="${material.emissiveIntensity}" type="number" property="emissiveIntensity"></key-value>
   <key-value class="standard" editable uuid="${this.uuid}" key-name="Emissive Map" .value="${material.emissiveMap}" type="texture" property="emissiveMap"></key-value>
-  
+
   <key-value class="physical" editable uuid="${this.uuid}" key-name="Clear Coat" .value="${material.clearCoat || 0}" type="number" property="clearCoat"></key-value>
   <key-value class="physical" editable uuid="${this.uuid}" key-name="Clear Coat Roughness" .value="${material.clearCoatRoughness || 0}" type="number" property="clearCoatRoughness"></key-value>
 
@@ -131,7 +139,7 @@ export default class MaterialViewElement extends BaseElement {
     <key-value editable uuid="${this.uuid}" key-name="Displacement Scale" .value="${material.displacementScale === undefined ? 1 : material.displacementScale}" type="number" property="displacementScale"></key-value>
     <key-value editable uuid="${this.uuid}" key-name="Displacement Bias" .value="${material.displacementBias || 0}" type="number" property="displacementBias"></key-value>
   </accordion-view>
-  
+
   <accordion-view class="standard"><div slot="content">Normal Map</div>
     <key-value editable uuid="${this.uuid}" key-name="Normal Map" .value="${material.displacementMap}" type="texture" property="displacementMap"></key-value>
     <key-value editable uuid="${this.uuid}" key-name="Normal Scale" .value="${material.normalScale || [1,1]}" type="vec2" property="normalScale"></key-value>

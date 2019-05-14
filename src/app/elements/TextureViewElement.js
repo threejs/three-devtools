@@ -27,6 +27,14 @@ export default class TextureViewElement extends BaseElement {
     width: 100%;
     height: 100%;
   }
+
+  .properties {
+    height: auto;
+    max-height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
   accordion-view {
     display: flex;
     flex-direction: column;
@@ -49,8 +57,8 @@ export default class TextureViewElement extends BaseElement {
   }
 </style>
 <title-bar title="Texture View"></title-bar>
-<image-preview uuid="${texture.image}"></image-preview>
 <div class="properties" texture-hint="${textureHint}">
+  <image-preview uuid="${texture.image}"></image-preview>
   <key-value uuid="${this.uuid}" key-name="UUID" .value="${texture.uuid}" type="string" property="uuid"></key-value>
   <key-value uuid="${this.uuid}" key-name="Version" .value="${texture.version || 0}" type="number" property="version"></key-value>
   <key-value uuid="${this.uuid}" key-name="Mapping" .value="${texture.mapping}" type="enum" property="mapping"></key-value>
@@ -71,7 +79,7 @@ export default class TextureViewElement extends BaseElement {
   <key-value uuid="${this.uuid}" key-name="Rotation" .value="${texture.rotation || 0}" type="number" property="rotation"></key-value>
   <key-value uuid="${this.uuid}" key-name="Center" .value="${texture.center}" type="vec2" property="center"></key-value>
   <key-value uuid="${this.uuid}" key-name="Matrix Auto Update" .value="${!(texture.matrixAutoUpdate === false)}" type="boolean" property="matrixAutoUpdate"></key-value>
-  
+
 </div>
 `;
   }

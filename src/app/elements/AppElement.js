@@ -96,9 +96,8 @@ export default class AppElement extends LitElement {
   }
 
   :host > * {
-    flex: 1;
-    overflow-y: auto;
-    overflow-x: hidden;
+    flex: 0 0 50%;
+    overflow: hidden;
   }
 </style>
 <scene-view uuid="${this.activeScene}" .selected="${this.activeObject}"
