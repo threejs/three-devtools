@@ -47,6 +47,7 @@ window.app = new class App {
     window.addEventListener('resize', this.updateSize);
 
     if (window.ThreeDevTools) {
+        window.ThreeDevTools.setThree(THREE);
         window.ThreeDevTools.setScene(this.scene);
     }
   }

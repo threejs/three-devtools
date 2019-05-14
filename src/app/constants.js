@@ -20,18 +20,13 @@ export const MaterialTypes = [
 ];
 
 // Defaults go first, and applied if undefined
-export const ConstantTypes = {
+const ConstantTypes = {
   drawMode: [
     'TrianglesDrawMode',
     'TriangleStripDrawMode',
     'TriangleFanDrawMode'
   ],
   side: [
-    'FrontSide',
-    'BackSide',
-    'DoubleSide'
-  ],
-  shadowSide: [
     'FrontSide',
     'BackSide',
     'DoubleSide'
@@ -90,7 +85,7 @@ export const ConstantTypes = {
     'GreaterDepth',
     'NotEqualDepth'
   ],
-  mixOperation: [
+  combine: [
     'MultiplyOperation',
     'MixOperation',
     'AddOperation',
@@ -100,4 +95,31 @@ export const ConstantTypes = {
     'VertexColors',
     'FaceColors',
   ],
+  normalMapType: [
+    'TangentSpaceNormalMap',
+    'ObjectSpaceNormalMap',
+  ],
+  encoding: [
+    'LinearEncoding',
+    'sRGBEncoding',
+    'GammaEncoding',
+    'RGBEEncoding',
+    'LogLuvEncoding',
+    'RGBM7Encoding',
+    'RGBM16Encoding',
+    'RGBDEncoding',
+    'BasicDepthPacking',
+    'RGBADepthPacking'
+  ],
 };
+
+// Copy some over since the constant type is found
+// by property name.
+ConstantTypes.shadowSide = ConstantTypes.side;
+// Change default (first in order) when encoding is used as `depthPacking`
+ConstantTypes.depthPacking = [...ConstantTypes.encoding];
+ConstantTypes.depthPacking[ConstantTypes.depthPacking.indexOf('BasicDepthPacking')] =
+  ConstantTypes.depthPacking[0];
+ConstantTypes.depthPacking[0] = 'BasicDepthPacking';
+
+export { ConstantTypes };

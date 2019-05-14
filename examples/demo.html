@@ -19,27 +19,82 @@ window.app = new class App {
 
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 100);
-    this.camera.position.z = 5;
+    this.camera.position.z = 10;
     this.updateSize();
 
-    this.mesh = new THREE.Mesh(new THREE.SphereBufferGeometry(1, 64, 64), new THREE.MeshStandardMaterial({
+    this.meshes = [];
+
+    const geometry = new THREE.SphereBufferGeometry(0.5, 64, 64);
+
+    this.meshBasic = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
+      aoMap: this.textureLoader.load('textures/marble/marble_01_AO_1k.jpg'),
+      aoMapIntensity: 0.5,
+      specularMap: this.textureLoader.load('textures/marble/marble_01_spec_1k.jpg'),
+      color: 0xaaffff,
+    }));
+    this.meshBasic.name = 'Basic Sphere';
+    this.meshBasic.position.x = -3;
+
+    this.meshDepth = new THREE.Mesh(geometry, new THREE.MeshDepthMaterial({
+    }));
+    this.meshDepth.name = 'Depth Sphere';
+    this.meshDepth.position.x = -2;
+
+    this.meshToon = new THREE.Mesh(geometry, new THREE.MeshToonMaterial({
+      color: 0xffaacc,
+    }));
+    this.meshToon.name = 'Toon Sphere';
+    this.meshToon.position.x = -1;
+
+    this.meshStandard = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({
       map: this.textureLoader.load('textures/marble/marble_01_diff_1k.jpg'),
       envMapIntensity: 0.3,
       aoMap: this.textureLoader.load('textures/marble/marble_01_AO_1k.jpg'),
       normalMap: this.textureLoader.load('textures/marble/marble_01_nor_1k.jpg'),
       displacementMap: this.textureLoader.load('textures/marble/marble_01_disp_1k.jpg'),
+      displacementScale: 0.2,
       roughnessMap: this.textureLoader.load('textures/marble/marble_01_rough_1k.jpg'),
       // Need to actually convert textures to metal/roughness flow...
       metalnessMap: this.textureLoader.load('textures/marble/marble_01_spec_1k.jpg'),
       color: 0xffffff,
     }));
-    generateEnvironment(this.renderer, 'textures/studio_small_03_1k.hdr').then(texture => {
-      this.mesh.material.envMap = texture;
-      this.mesh.material.needsUpdate = true;
-    });
-    this.mesh.name = 'My Sphere';
+    this.meshStandard.name = 'Standard Sphere';
+    this.meshStandard.position.x = 1;
 
-    this.scene.add(this.mesh);
+    this.meshPhysical = new THREE.Mesh(geometry, new THREE.MeshPhysicalMaterial({
+      clearCoat: 1,
+      map: this.textureLoader.load('textures/marble/marble_01_diff_1k.jpg'),
+      envMapIntensity: 0.3,
+      aoMap: this.textureLoader.load('textures/marble/marble_01_AO_1k.jpg'),
+      normalMap: this.textureLoader.load('textures/marble/marble_01_nor_1k.jpg'),
+      displacementMap: this.textureLoader.load('textures/marble/marble_01_disp_1k.jpg'),
+      displacementScale: 0.2,
+      roughnessMap: this.textureLoader.load('textures/marble/marble_01_rough_1k.jpg'),
+      // Need to actually convert textures to metal/roughness flow...
+      metalnessMap: this.textureLoader.load('textures/marble/marble_01_spec_1k.jpg'),
+      color: 0xffffff,
+    }));
+    this.meshPhysical.name = 'Physical Sphere';
+    this.meshPhysical.position.x = 2;
+
+    this.meshes = [
+      this.meshBasic,
+      this.meshDepth,
+      this.meshToon,
+      this.meshStandard,
+      this.meshPhysical,
+    ];
+
+    generateEnvironment(this.renderer, 'textures/studio_small_03_1k.hdr').then(texture => {
+      this.meshBasic.material.envMap = texture;
+      this.meshBasic.material.needsUpdate = true;
+      this.meshStandard.material.envMap = texture;
+      this.meshStandard.material.needsUpdate = true;
+      this.meshPhysical.material.envMap = texture;
+      this.meshPhysical.material.needsUpdate = true;
+    });
+
+    this.meshes.forEach(m => this.scene.add(m));
 
     this.dLight = new THREE.DirectionalLight(0xffffff,0.7);
     this.dLight.position.y = 5;
@@ -52,12 +107,13 @@ window.app = new class App {
     window.addEventListener('resize', this.updateSize);
 
     if (window.ThreeDevTools) {
+        window.ThreeDevTools.setThree(THREE);
         window.ThreeDevTools.setScene(this.scene);
     }
   }
 
   render() {
-    this.mesh.rotation.y += 0.01;
+    this.meshes.forEach(x => x.rotation.y += 0.01);
     this.renderer.render(this.scene, this.camera);
   }
 
