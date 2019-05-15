@@ -280,7 +280,7 @@ export default class TreeItemElement extends LitElement {
     background-color: var(--tree-item-hover-selected-background-color);
    }
 
-  .arrow {
+  .arrow-block {
     height: 100%;
     flex: 0 0 24px;
     background-color: transparent;
@@ -290,24 +290,29 @@ export default class TreeItemElement extends LitElement {
     pointer-events: none;
   }
 
-  .arrow::after {
-    content: '▸';
-    font-size: 14px;
-    color: #999;
+  .arrow {
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 3px 0 3px 6px;
+    /* @TODO this color needs to be variablized */
+    border-color: transparent transparent transparent var(--title-color);
     display: none;
-    pointer-events: auto;
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    transform-origin: left;
   }
 
-  :host([show-arrow]) .arrow::after {
-    display: block;
+  :host([show-arrow]) .arrow {
+    display: inline-block;
   }
-  :host([open]) .arrow::after {
-    transform: rotate(90deg) translate(-50%, -50%);
+  :host([open]) .arrow {
+    transform: translate(-50%, -50%) rotate(90deg);
+  }
+  :host([selected]) .arrow {
+    /* @TODO this color needs to be variablized */
+    border-color: transparent transparent transparent var(--tree-item-selected-color);
   }
 
   slot[name=content] {
@@ -326,7 +331,9 @@ export default class TreeItemElement extends LitElement {
   style="--depth:${this.depth || 0}"
   @click="${this[$onClick]}"
   @dblclick="${this[$onDoubleClick]}">
-  <div class="arrow" @click="${this[$onVisibilityToggle]}"></div>
+  <div class="arrow-block">
+      <div class="arrow" @click="${this[$onVisibilityToggle]}"></div>
+  </div>
   <slot name="content"></slot>
 </div>
 <slot id="children"></slot>
