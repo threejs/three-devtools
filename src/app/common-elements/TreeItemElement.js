@@ -265,6 +265,11 @@ export default class TreeItemElement extends LitElement {
     padding-left: calc(var(--depth, 0) * var(--tree-item-indent-per-level, 10px));
   }
 
+  /* @TODO A way to have a root element with many children rather than this... */
+  :host([depth="-1"]) .row {
+    display: none;
+  }
+
   .row:hover {
     color: var(--tree-item-hover-color);
     background-color: var(--tree-item-hover-background-color);

@@ -95,19 +95,34 @@ export default class AppElement extends LitElement {
   :host > * {
     flex: 0 0 50%;
     overflow: hidden;
-    border-bottom: 1px solid var(--view-border-color);
+    border-top: 1px solid var(--view-border-color);
   }
   @media (min-aspect-ratio: 1/1) {
     :host > * {
-      border-right: 1px solid var(--view-border-color);
+      border-left: 1px solid var(--view-border-color);
     }
   }
   :host > *:first-child {
-    border: 0px;
+    border-left-width: 0px;
+    border-top-width: 0px;
+  }
+  /* @TODO turn these into generic flex components? */
+  .wrapper {
+    display: flex;
+    flex-direction: row;
+  }
+  .wrapper > * {
+    flex: 1;
+    border-left: 1px solid var(--view-border-color);
+  }
+  .wrapper > *:first-child {
+    border-left-width: 0px;
   }
 </style>
-<scene-view uuid="${this.activeScene}" .selected="${this.activeObject}"
-    ></scene-view>
+<div class="wrapper">
+  <scene-view uuid="${this.activeScene}" .selected="${this.activeObject}"></scene-view>
+  <resources-view uuid="${this.activeScene}" .selected="${this.activeObject}"></resources-view>
+</div>
 ${inspected}
 `;
   }

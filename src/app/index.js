@@ -1,9 +1,8 @@
-import './shadowlisten.js';
-
 import getAgent from '../../web_modules/@egjs/agent.js';
 import AppElement from './elements/AppElement.js';
 
 import SceneViewElement from './elements/SceneViewElement.js';
+import ResourcesViewElement from './elements/ResourcesViewElement.js';
 import ObjectViewElement from './elements/ObjectViewElement.js';
 import MaterialViewElement from './elements/MaterialViewElement.js';
 import TextureViewElement from './elements/TextureViewElement.js';
@@ -25,6 +24,7 @@ import FontAwesomeElement from './common-elements/FontAwesomeElement.js';
 window.customElements.define('three-devtools-app', AppElement);
 
 window.customElements.define('scene-view', SceneViewElement);
+window.customElements.define('resources-view', ResourcesViewElement);
 window.customElements.define('object-view', ObjectViewElement);
 window.customElements.define('material-view', MaterialViewElement);
 window.customElements.define('texture-view', TextureViewElement);

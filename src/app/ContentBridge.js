@@ -38,6 +38,24 @@ export default class ContentBridge extends EventTarget {
     return this[$db].get(uuid);
   }
 
+  getAllResources() {
+    const output = {};
+
+    const ids = [...this[$db].keys()];
+
+    if (!ids.length) {
+      return null;
+    }
+
+    for (let id of ids) {
+      const object = this.get(id);
+      const category = output[object.typeHint] = output[object.typeHint] || [];
+      category.push(object);
+    }
+
+    return output;
+  }
+
   updateProperty(uuid, property, value, dataType) {
     const object = this.get(uuid);
     const typeHint = object.typeHint;
