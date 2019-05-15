@@ -1,5 +1,6 @@
 import { html } from '../../../web_modules/lit-element.js'
 import BaseElement from './BaseElement.js';
+import { objectTypeToCategory } from '../utils.js';
 
 const $onSelectScene = Symbol('onSelectScene');
 const $onClick = Symbol('onClick');
@@ -38,6 +39,12 @@ export default class SceneViewElement extends BaseElement {
     }
 
     const createNode = (obj, depth=0) => {
+      const category = objectTypeToCategory(obj.type);
+      const fa = category === 'light' ? { type: 'fas', name: 'lightbulb' } :
+                 category === 'mesh' ?  { type: 'fas', name: 'dice-d6' } :
+                 category === 'helper' ?  { type: 'fas', name: 'hands-helping' } :
+                 category === 'bone' ?  { type: 'fas', name: 'bone' } : {};
+
       return html`
       <tree-item
         ?selected="${obj.uuid && this.selected && this.selected === obj.uuid}"
@@ -46,7 +53,7 @@ export default class SceneViewElement extends BaseElement {
         depth="${depth++}"
         uuid="${obj.uuid}"
         >
-        <div slot="content"><font-awesome name="user"></font-awesome>${obj.name || obj.type}</div>
+        <div slot="content"><font-awesome type="${fa.type}" name="${fa.name}"></font-awesome>${obj.name || obj.type}</div>
         ${obj.children ? obj.children.map(c => createNode(c, depth)) : null}
       </tree-item>
     `;
@@ -65,6 +72,14 @@ export default class SceneViewElement extends BaseElement {
     max-height: 100%;
     overflow-y: auto;
     overflow-x: hidden;
+  }
+
+  font-awesome {
+    color: #5a5a5a;
+    padding-right: 5px;
+  }
+  [selected] font-awesome {
+    color: var(--tree-item-selected-color);
   }
 </style>
 <title-bar title="Scene"></title-bar>

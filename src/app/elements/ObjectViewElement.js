@@ -1,9 +1,6 @@
 import { html } from '../../../web_modules/lit-element.js'
 import BaseElement from './BaseElement.js';
-
-const typeToObjectType = {
-  'Mesh': 'mesh',
-};
+import { objectTypeToCategory } from '../utils.js';
 
 export default class ObjectViewElement extends BaseElement {
   static get typeHint() { return 'object'; }
@@ -21,7 +18,7 @@ export default class ObjectViewElement extends BaseElement {
       return html`<div>no object selected</div>`;
     }
 
-    const objectType = typeToObjectType[object.type];
+    const objectType = objectTypeToCategory(object.type);
 
     return html`
 <style>

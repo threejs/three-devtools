@@ -1,4 +1,41 @@
 
+export const objectTypeToCategory = type => {
+  switch (type) {
+    case 'Mesh':
+      return 'mesh';
+    case 'AmbientLight':
+    case 'DirectionalLight':
+    case 'HemisphereLight':
+    case 'PointLight':
+    case 'RectAreaLight':
+    case 'SpotLight':
+      return 'light';
+    case 'ArrowHelper':
+    case 'AxesHelper':
+    case 'BoxHelper':
+    case 'Box3Helper':
+    case 'CameraHelper':
+    case 'DirectionalLightHelper':
+    case 'FaceNormalsHelper':
+    case 'GridHelper':
+    case 'PolarGridHelper':
+    case 'PositionalAudioHelper':
+    case 'HemisphereLightHelper':
+    case 'PlaneHelper':
+    case 'PointLightHelper':
+    case 'RectAreaLightHelper':
+    case 'SkeletonHelper':
+    case 'SpotLightHelper':
+    case 'VertexNormalsHelper':
+      return 'helper';
+    default:
+      return /light/i.test(type) ? 'light' :
+             /mesh/i.test(type) ? 'mesh' :
+             /bone/i.test(type) ? 'bone' :
+             /helper/i.test(type) ? 'helper' : 'unknown';
+  }
+}
+
 // These color conversions should be way more robust..
 // @TODO use THREE.Color
 export const hexNumberToCSSString = hex =>
