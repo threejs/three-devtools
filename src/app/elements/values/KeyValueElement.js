@@ -51,7 +51,6 @@ export default class KeyValueElement extends LitElement {
         break;
       case 'boolean':
         valueElement = html`<input type="checkbox" .checked="${this.value}" />`;
-        console.log('setting boolean', this.uuid, this.property, this.value, valueElement);
         break;
       case 'number':
         valueElement = html`<input type="type" value="${this.value}" />`;
