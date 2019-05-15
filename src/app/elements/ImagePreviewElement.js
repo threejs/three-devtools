@@ -49,16 +49,19 @@ export default class ImagePreviewElement extends BaseElement {
   }
 
   [$onLoad](e) {
-      console.log("IMAGE LOAD", e);
     const image = e.composedPath()[0];
     this.width = image.naturalWidth;
     this.height = image.naturalHeight;
   }
 
   [$onActivate](e) {
-    this.app.dispatchEvent(new CustomEvent('select-object', { detail: {
-      uuid: this.uuid,
-      typeHint: 'image',
-    }}));
+    this.dispatchEvent(new CustomEvent('select-object', {
+      detail: {
+        uuid: this.uuid,
+        typeHint: 'image',
+      },
+      bubbles: true,
+      composed: true,
+    }));
   }
 }

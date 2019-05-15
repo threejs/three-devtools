@@ -52,7 +52,6 @@ export default class AppElement extends LitElement {
   }
 
   shouldUpdate(changedProps) {
-    console.log(changedProps);
     if (changedProps.has('activeObject')) {
       this.content.select(this.activeObject);
     }
@@ -67,7 +66,6 @@ export default class AppElement extends LitElement {
     if (this.activeObject) {
       const object = this.content.get(this.activeObject);
 
-      console.log("!",object);
       if (object) {
         switch (object.typeHint) {
           case 'texture':
@@ -86,7 +84,6 @@ export default class AppElement extends LitElement {
       }
     }
 
-    console.log("RENDER AppElement");
     return html`
 <style>
   :host {
