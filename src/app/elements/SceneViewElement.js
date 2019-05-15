@@ -3,7 +3,7 @@ import BaseElement from './BaseElement.js';
 import { objectTypeToCategory } from '../utils.js';
 
 const $onSelectScene = Symbol('onSelectScene');
-const $onClick = Symbol('onClick');
+const $onTreeItemSelect = Symbol('onTreeItemSelect');
 
 export default class SceneViewElement extends BaseElement {
   static get typeHint() { return 'scene'; }
@@ -17,18 +17,18 @@ export default class SceneViewElement extends BaseElement {
 
   constructor() {
     super();
-    this[$onClick] = this[$onClick].bind(this);
+    this[$onTreeItemSelect] = this[$onTreeItemSelect].bind(this);
 
   }
 
   connectedCallback() {
     super.connectedCallback();
-    this.addEventListener('click', this[$onClick]);
+    this.addEventListener('tree-item-select', this[$onTreeItemSelect]);
   }
 
   disconnectedCallback() {
     super.disconnectedCallback();
-    this.removeEventListener('click', this[$onClick]);
+    this.removeEventListener('tree-item-select', this[$onTreeItemSelect]);
   }
 
   render() {
@@ -49,14 +49,16 @@ export default class SceneViewElement extends BaseElement {
 
       return html`
       <tree-item
+        tabindex="${depth === 0 ? 0 : ''}"
+        ?root="${depth === 0}"
         ?selected="${obj.uuid && this.selected && this.selected === obj.uuid}"
         ?open="${obj.type === 'Scene'}"
         ?show-arrow="${obj.children ? obj.children.length > 0 : false}"
-        depth="${depth++}"
+        depth="${depth}"
         uuid="${obj.uuid}"
         >
         <div slot="content"><font-awesome type="${fa.type}" name="${fa.name}"></font-awesome>${obj.name || obj.type}</div>
-        ${obj.children ? obj.children.map(c => createNode(c, depth)) : null}
+        ${obj.children ? obj.children.map(c => createNode(c, depth + 1)) : null}
       </tree-item>
     `;
     }
@@ -89,24 +91,16 @@ ${createNode(scene)}
 `;
   }
 
-  [$onClick](e) {
-    for (let target of e.composedPath()) {
-      if (!target.hasAttribute) {
-        // Shadow roots don't have attributes
-        continue;
-      }
-      if (target.hasAttribute('uuid')) {
-        const uuid = target.getAttribute('uuid');
-        this.dispatchEvent(new CustomEvent('select-object', { detail: {
-          uuid,
-          type: 'object',
-        },
-          bubbles: true,
-          composed: true,
-        }));
-        return;
-      }
-    }
-    console.warn('no node with uuid found?');
+  [$onTreeItemSelect](e) {
+    e.stopPropagation();
+    const treeItem = e.composedPath()[0];
+    this.dispatchEvent(new CustomEvent('select-object', {
+      detail: {
+        uuid: treeItem.getAttribute('uuid'),
+        type: 'object',
+      },
+      bubbles: true,
+      composed: true,
+    }));
   }
 }

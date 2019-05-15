@@ -1,3 +1,5 @@
+import './shadowlisten.js';
+
 import getAgent from '../../web_modules/@egjs/agent.js';
 import AppElement from './elements/AppElement.js';
 
