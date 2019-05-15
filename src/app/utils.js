@@ -3,6 +3,10 @@ export const objectTypeToCategory = type => {
   switch (type) {
     case 'Mesh':
       return 'mesh';
+    case 'Line':
+    case 'LineLoop':
+    case 'LineSegments':
+      return 'line';
     case 'AmbientLight':
     case 'DirectionalLight':
     case 'HemisphereLight':
@@ -28,10 +32,17 @@ export const objectTypeToCategory = type => {
     case 'SpotLightHelper':
     case 'VertexNormalsHelper':
       return 'helper';
+    case 'Skeleton':
+    case 'Bone':
+      return 'bone';
+    case 'Group':
+      return 'group';
     default:
       return /light/i.test(type) ? 'light' :
              /mesh/i.test(type) ? 'mesh' :
              /bone/i.test(type) ? 'bone' :
+             /line/i.test(type) ? 'line' :
+             /group/i.test(type) ? 'group' :
              /helper/i.test(type) ? 'helper' : 'unknown';
   }
 }

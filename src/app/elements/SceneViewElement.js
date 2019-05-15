@@ -43,6 +43,8 @@ export default class SceneViewElement extends BaseElement {
       const fa = category === 'light' ? { type: 'fas', name: 'lightbulb' } :
                  category === 'mesh' ?  { type: 'fas', name: 'dice-d6' } :
                  category === 'helper' ?  { type: 'fas', name: 'hands-helping' } :
+                 category === 'line' ?  { type: 'fas', name: 'grip-lines-vertical' } :
+                 category === 'group' ?  { type: 'fas', name: 'archive' } :
                  category === 'bone' ?  { type: 'fas', name: 'bone' } : {};
 
       return html`
@@ -78,7 +80,7 @@ export default class SceneViewElement extends BaseElement {
     color: #5a5a5a;
     padding-right: 5px;
   }
-  [selected] font-awesome {
+  tree-item[selected] > [slot='content'] > font-awesome {
     color: var(--tree-item-selected-color);
   }
 </style>

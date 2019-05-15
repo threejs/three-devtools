@@ -42,7 +42,7 @@ export default class TreeItemElement extends LitElement {
    */
 
   :host {
-    height: 20px;
+    height: auto;
     width: 100%;
     display: block;
     cursor: pointer;
