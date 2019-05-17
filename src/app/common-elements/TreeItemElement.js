@@ -3,7 +3,7 @@ import { LitElement, html } from '../../../web_modules/lit-element.js'
 const $onVisibilityToggle = Symbol('onVisibilityToggle');
 const $onClick = Symbol('onClick');
 const $onDoubleClick = Symbol('onDoubleClick');
-const $onKeyUp = Symbol('onKeyUp');
+const $onKeyDown = Symbol('onKeyDown');
 const $onTreeItemSelect = Symbol('onTreeItemSelect');
 const $addListeners = Symbol('addListeners');
 const $removeListeners = Symbol('removeListeners');
@@ -29,7 +29,7 @@ export default class TreeItemElement extends LitElement {
 
   constructor() {
     super();
-    this[$onKeyUp] = this[$onKeyUp].bind(this);
+    this[$onKeyDown] = this[$onKeyDown].bind(this);
 
     this.open = false;
     this.showArrow = false;
@@ -80,9 +80,9 @@ export default class TreeItemElement extends LitElement {
   }
 
   // https://medium.com/dev-channel/focus-inside-shadow-dom-78e8a575b73
-  [$onKeyUp](e) {
+  [$onKeyDown](e) {
     if (!this.root) {
-      console.log('%c onKeyUp on non root', 'color:red');
+      console.log('%c onKeyDown on non root', 'color:red');
       // @TODO see $onTreeItemSelect
       return;
     }
@@ -158,6 +158,7 @@ export default class TreeItemElement extends LitElement {
 
     if (newSelection) {
       newSelection.selected = true;
+      e.preventDefault();
     }
   }
 
@@ -214,14 +215,14 @@ export default class TreeItemElement extends LitElement {
       // @TODO How can we be smarter about binding key events?
       // 1) Could enable as an attribute on root element e.g. "key-events"
       // 2) Could rely on having focus on the root tree element (or some object with focus)
-      this.addEventListener('keyup', this[$onKeyUp]);
+      this.addEventListener('keydown', this[$onKeyDown]);
       this.addEventListener('tree-item-select', this[$onTreeItemSelect]);
       this[$listening] = true;
     }
   }
 
   [$removeListeners]() {
-    this.removeEventListener('keyup', this[$onKeyUp]);
+    this.removeEventListener('keydown', this[$onKeyDown]);
     this.removeEventListener('tree-item-select', this[$onTreeItemSelect]);
     this[$listening] = false;
   }
