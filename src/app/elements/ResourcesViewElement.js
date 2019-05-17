@@ -63,9 +63,9 @@ export default class ResourcesViewElement extends LitElement {
       `;
     }
 
-    const geometryNodes = resources.geometry.map(createNode);
-    const materialNodes = resources.material.map(createNode);
-    const textureNodes = resources.texture.map(createNode);
+    const geometryNodes = resources.geometry ? resources.geometry.map(createNode) : [];
+    const materialNodes = resources.material ? resources.material.map(createNode) : [];
+    const textureNodes = resources.texture ? resources.texture.map(createNode): [];
 
     return html`
 <style>
@@ -98,7 +98,7 @@ export default class ResourcesViewElement extends LitElement {
   depth="-1">
 
   <tree-item depth="0"
-    ?show-arrow="${!!resources.geometry.length}">
+    ?show-arrow="${!!geometryNodes.length}">
     <div slot="content">
       <font-awesome type="fas" name="vector-square"></font-awesome>
       Geometry
@@ -107,7 +107,7 @@ export default class ResourcesViewElement extends LitElement {
   </tree-item>
 
   <tree-item depth="0"
-    ?show-arrow="${!!resources.material.length}">
+    ?show-arrow="${!!materialNodes.length}">
     <div slot="content">
       <font-awesome type="fas" name="paint-roller"></font-awesome>
       Materials
@@ -116,7 +116,7 @@ export default class ResourcesViewElement extends LitElement {
   </tree-item>
 
   <tree-item depth="0"
-    ?show-arrow="${!!resources.texture.length}">
+    ?show-arrow="${!!textureNodes.length}">
     <div slot="content">
       <font-awesome type="fas" name="image"></font-awesome>
       Textures
