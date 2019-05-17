@@ -1,8 +1,9 @@
 import { LitElement, html } from '../../../web_modules/lit-element.js'
+import { ifDefined } from '../../../web_modules/lit-html/directives/if-defined.js';
 
 const $onContentUpdate = Symbol('onContentUpdate');
 
-export { html };
+export { html, ifDefined };
 
 export default class BaseElement extends LitElement {
 

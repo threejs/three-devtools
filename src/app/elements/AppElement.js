@@ -1,9 +1,10 @@
 import { LitElement, html } from '../../../web_modules/lit-element.js'
+import { ifDefined } from '../../../web_modules/lit-html/directives/if-defined.js';
 import ContentBridge from '../ContentBridge.js';
 
 const $onSelectObject = Symbol('onSelectObject');
 const $onContentUpdate = Symbol('onContentUpdate');
-const $onContentConnect = Symbol('onContentConnect');
+const $onContentLoad = Symbol('onContentLoad');
 const $onCommand = Symbol('onCommand');
 
 export default class AppElement extends LitElement {
@@ -20,12 +21,12 @@ export default class AppElement extends LitElement {
 
     this[$onSelectObject] = this[$onSelectObject].bind(this);
     this[$onContentUpdate] = this[$onContentUpdate].bind(this);
-    this[$onContentConnect] = this[$onContentConnect].bind(this);
+    this[$onContentLoad] = this[$onContentLoad].bind(this);
     this[$onCommand] = this[$onCommand].bind(this);
     this.content = new ContentBridge();
 
     this.content.addEventListener('update', this[$onContentUpdate]);
-    this.content.addEventListener('connect', this[$onContentConnect]);
+    this.content.addEventListener('load', this[$onContentLoad]);
     this.addEventListener('command', this[$onCommand]);
   }
 
@@ -84,6 +85,7 @@ export default class AppElement extends LitElement {
       }
     }
 
+    console.log("ACTIVE SCENE", this.activeScene);
     return html`
 <style>
   :host {
@@ -120,8 +122,10 @@ export default class AppElement extends LitElement {
   }
 </style>
 <div class="wrapper">
-  <scene-view uuid="${this.activeScene}" .selected="${this.activeObject}"></scene-view>
-  <resources-view uuid="${this.activeScene}" .selected="${this.activeObject}"></resources-view>
+  <scene-view uuid="${ifDefined(this.activeScene)}"
+      selected="${ifDefined(this.activeObject)}"></scene-view>
+  <resources-view uuid="${ifDefined(this.activeScene)}"
+      selected="${ifDefined(this.activeObject)}"></resources-view>
 </div>
 ${inspected}
 <div class="wrapper">
@@ -131,7 +135,7 @@ ${inspected}
   }
 
   [$onSelectObject](e) {
-    this.activeObject = e.detail.uuid || null;
+    this.activeObject = e.detail.uuid || undefined;
   }
 
   [$onContentUpdate](e) {
@@ -142,9 +146,9 @@ ${inspected}
   }
 
   // Fired when content is initially loaded
-  [$onContentConnect](e) {
-    this.activeScene = null;
-    this.activeObject = null;
+  [$onContentLoad](e) {
+    this.activeScene = undefined;
+    this.activeObject = undefined;
   }
   
   /**

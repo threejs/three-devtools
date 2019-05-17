@@ -19,12 +19,14 @@
     "@egjs/agent": "^2.1.5",
     "@fortawesome/fontawesome-free": "^5.8.2",
     "lit-element": "^2.1.0",
+    "lit-html": "^1.0.0",
     "three": "^0.104.0"
   },
   "devDependencies": {},
   "@pika/web": {
     "webDependencies": [
       "lit-element",
+      "lit-html/directives/if-defined.js",
       "three",
       "@egjs/agent",
       "three/src/constants.js",
