@@ -93,7 +93,7 @@ export default class AppElement extends LitElement {
   }
 
   :host > * {
-    flex: 0 0 50%;
+    flex: 1;
     overflow: hidden;
     border-top: 1px solid var(--view-border-color);
   }
@@ -124,6 +124,9 @@ export default class AppElement extends LitElement {
   <resources-view uuid="${this.activeScene}" .selected="${this.activeObject}"></resources-view>
 </div>
 ${inspected}
+<div class="wrapper">
+  <renderer-view></renderer-view>
+</div>
 `;
   }
 
@@ -143,7 +146,7 @@ ${inspected}
     this.activeScene = null;
     this.activeObject = null;
   }
-
+  
   /**
    * A command from a descendant node. Process here.
    */

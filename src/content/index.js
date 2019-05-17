@@ -27,7 +27,7 @@ window.ThreeDevTools = new class ThreeDevTools {
 
   setRenderer(renderer) {
     this.renderer = renderer;
-    this.__refresh();
+    this.__sendRendererInfo();
   }
 
   /**
@@ -52,9 +52,15 @@ window.ThreeDevTools = new class ThreeDevTools {
    * page load.
    */
   __connect() {
-    this[$log]('__connect()');
-    this.connected = true;
-    this.__refresh();
+    if (!this.connected) {
+      this[$log]('__connect()');
+      this.connected = true;
+      this.__refresh();
+      this.__sendRendererInfo();
+
+      // On connect, try sending renderer info once a second
+      setInterval(() => this.__sendRendererInfo(), 1000);
+    }
   }
 
   /**
@@ -66,6 +72,16 @@ window.ThreeDevTools = new class ThreeDevTools {
     console.log('selected', selected);
     if (selected) {
       this.selected = window.$t = selected;
+    }
+  }
+
+  __sendRendererInfo() {
+    if (this.connected && this.renderer) {
+      const info = {
+        render: this.renderer.info.render,
+        memory: this.renderer.info.memory,
+      };
+      this[$send]('renderer-info', info);
     }
   }
 
@@ -97,12 +113,14 @@ window.ThreeDevTools = new class ThreeDevTools {
     }
     if (!uuid) {
       if (this.scene) {
-        this[$send]('data', this.scene);
+        let scene = this[$toJSON](this.scene);
+        this[$send]('data', scene);
       }
       return;
     }
     const item = this[$findByUUID](uuid, typeHint);
     if (item) {
+      item = this[$toJSON](item);
       this[$send]('data', item);
     }
   }
@@ -114,15 +132,15 @@ window.ThreeDevTools = new class ThreeDevTools {
   [$send](type, data) {
     this[$log]('EMIT', type, data);
     try{
-      if (data) {
-        data = this[$toJSON](data);
-      }
       window.postMessage({
         id: 'three-devtools',
         type: type,
         data,
       }, '*');
     } catch(e) {
+      if (!data) {
+        throw e;
+      }
       // If this throws, it could be because of user data not being
       // able to be cloned. This will be much slower, but it will work.
       console.error('Data could not be cloned; ensure "userData" is serializable.', e);
@@ -214,7 +232,7 @@ window.ThreeDevTools = new class ThreeDevTools {
   }
 
   [$log](...message) {
-    console.log('%c ThreeDevTools:', 'color:red', ...message);
+    // console.log('%c ThreeDevTools:', 'color:red', ...message);
   }
 };
 `;

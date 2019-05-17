@@ -1,6 +1,7 @@
 import getAgent from '../../web_modules/@egjs/agent.js';
 import AppElement from './elements/AppElement.js';
 
+import RendererViewElement from './elements/RendererViewElement.js';
 import SceneViewElement from './elements/SceneViewElement.js';
 import ResourcesViewElement from './elements/ResourcesViewElement.js';
 import ObjectViewElement from './elements/ObjectViewElement.js';
@@ -23,6 +24,7 @@ import FontAwesomeElement from './common-elements/FontAwesomeElement.js';
 
 window.customElements.define('three-devtools-app', AppElement);
 
+window.customElements.define('renderer-view', RendererViewElement);
 window.customElements.define('scene-view', SceneViewElement);
 window.customElements.define('resources-view', ResourcesViewElement);
 window.customElements.define('object-view', ObjectViewElement);

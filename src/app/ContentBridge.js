@@ -5,6 +5,7 @@ const $onMessage = Symbol('onMessage');
 const $processSceneData = Symbol('processSceneData');
 const $log = Symbol('log');
 const $eval = Symbol('eval');
+const $rendererInfo = Symbol('rendererInfo');
 const $forceUpdate = Symbol('forceUpdate');
 
 export default class ContentBridge extends EventTarget {
@@ -17,6 +18,7 @@ export default class ContentBridge extends EventTarget {
     super();
 
     this[$db] = new Map();
+    this[$rendererInfo] = null;
 
     this.port = chrome.runtime.connect({
       name: 'three-devtools',
@@ -56,6 +58,10 @@ export default class ContentBridge extends EventTarget {
     return output;
   }
 
+  getRendererInfo() {
+    return this[$rendererInfo];
+  }
+
   updateProperty(uuid, property, value, dataType) {
     const object = this.get(uuid);
     const typeHint = object.typeHint;
@@ -87,7 +93,10 @@ export default class ContentBridge extends EventTarget {
   }
 
   select(uuid) {
-    const param = uuid ? JSON.stringify(uuid) : null;
+    if (!uuid) {
+      return;
+    }
+    const param = JSON.stringify(uuid);
     const typeHint = this.get(uuid).typeHint;
     this[$eval](`ThreeDevTools.__select(${param}, '${typeHint}')`);
   }
@@ -99,8 +108,17 @@ export default class ContentBridge extends EventTarget {
     switch (type) {
       case 'load':
         this[$db] = new Map();
+        this[$rendererInfo] = null;
         this.connect();
         this.dispatchEvent(new CustomEvent('connect'));
+        break;
+      case 'renderer-info':
+        this[$rendererInfo] = data;
+        this.dispatchEvent(new CustomEvent('renderer-info', {
+          detail: {
+            info: data,
+          },
+        }));
         break;
       case 'data':
         this[$processSceneData](data);
@@ -179,6 +197,6 @@ export default class ContentBridge extends EventTarget {
   }
 
   [$log](...message) {
-    console.log('%c ContentBridge:', 'color:red', ...message);
+    // console.log('%c ContentBridge:', 'color:red', ...message);
   }
 }

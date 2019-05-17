@@ -43,7 +43,7 @@ export default class ResourcesViewElement extends LitElement {
   render() {
     const resources = this.app.content.getAllResources();
 
-    if (!resources && !this.uuid) {
+    if (!resources || !this.uuid) {
       return html`<div>no resources</div>`;
     }
 
