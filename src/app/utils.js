@@ -1,4 +1,8 @@
 
+export const entityTypeToTypeHint = type => {
+
+};
+
 export const objectTypeToCategory = type => {
   switch (type) {
     case 'Mesh':

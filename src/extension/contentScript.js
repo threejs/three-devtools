@@ -13,12 +13,10 @@ const script = document.createElement('script');
 script.text = window.SRC_CONTENT_INDEX;
 script.onload = () => {
   script.parentNode.removeChild(script);
-  console.log('INJECTED');
 }
 (document.head || document.documentElement).appendChild(script);
 
 window.addEventListener('message', e => {
-  console.log('contentscript', e);
   if (e.source !== window ||
       typeof e.data !== 'object' ||
       e.data.id !== 'three-devtools') {

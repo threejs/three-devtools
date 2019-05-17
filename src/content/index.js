@@ -1,46 +1,43 @@
 window.SRC_CONTENT_INDEX = `
 const $send = Symbol('send');
-const $toJSON = Symbol('toJSON');
-const $findByUUID = Symbol('findByUUID');
+const $serializeEntity = Symbol('serializeEntity');
+const $serializeScene = Symbol('serializeScene');
 const $log = Symbol('log');
+const $connected = Symbol('connected');
+const $contentReady = Symbol('contentReady');
+const $devtoolsReady = Symbol('devtoolsReady');
+const $attemptConnection = Symbol('attemptConnection');
+const $entityMap = Symbol('entityMap');
+const $sceneData = Symbol('sceneData');
 
-function objectToJSON (object, output) {
-  // 'output' already contains 'toJSON()' content
-  object = data.type ? data : data.object;
+//setInterval(() => this.__sendRendererInfo(), 1000);
 
-  output.renderOrder = object.renderOrder;
-  if (object.children) {
-    object.children.forEach(function(){});
-  }
-}
-
-window.ThreeDevTools = new class ThreeDevTools {
+window.ThreeDevTools = new class ThreeDevTools extends EventTarget {
   constructor() {
+    super();
+
     this.scene = null;
     this.renderer = null;
-    this.connected = false;
+    this[$connected] = false;
+    this[$devtoolsReady] = false;
+    this[$contentReady] = false;
+    this[$entityMap] = new Map();
 
     this.selected = window.$t = null;
 
     this[$send]('load');
   }
 
-  setRenderer(renderer) {
-    this.renderer = renderer;
-    this.__sendRendererInfo();
+  get connected() {
+    return this[$connected];
   }
 
-  /**
-   * Can this be inferred from other objects some how?
-   */
-  setThree(THREE) {
-    this.THREE = THREE;
-    this.__refresh();
-  }
-
-  setScene(scene) {
-    this.scene = scene;
-    this.__refresh();
+  connect(config = {}) {
+    this.renderer = config.renderer || this.renderer;
+    this.scene = config.scene || this.scene;
+    this[$contentReady] = true;
+    this[$send]('connect');
+    this[$attemptConnection]();
   }
 
   /**
@@ -48,34 +45,26 @@ window.ThreeDevTools = new class ThreeDevTools {
    */
 
   /**
-   * Called when the devtools opens or shortly after
+   * Called when the devtools first opens or shortly after
    * page load.
    */
   __connect() {
-    if (!this.connected) {
-      this[$log]('__connect()');
-      this.connected = true;
-      this.__refresh();
-      this.__sendRendererInfo();
-
-      // On connect, try sending renderer info once a second
-      setInterval(() => this.__sendRendererInfo(), 1000);
-    }
+    this[$devtoolsReady] = true;
+    this[$attemptConnection]();
   }
 
   /**
    * This is the active object in the devtools viewer.
    */
-  __select(uuid, typeHint) {
-    this[$log]('__select(' + uuid + ')');
-    const selected = this[$findByUUID](uuid, typeHint);
+  __select(uuid) {
+    const selected = this[$entityMap].get(uuid);
     console.log('selected', selected);
     if (selected) {
       this.selected = window.$t = selected;
     }
   }
 
-  __sendRendererInfo() {
+  __requestRendererInfo() {
     if (this.connected && this.renderer) {
       const info = {
         render: this.renderer.info.render,
@@ -85,17 +74,25 @@ window.ThreeDevTools = new class ThreeDevTools {
     }
   }
 
-  __updateProperty(uuid, typeHint, property, value, dataType) {
+  __updateProperty(uuid, property, value, dataType) {
     this[$log]('__updateProperty(' + Array.prototype.join.call(arguments,',') + ')');
-    const item = this[$findByUUID](uuid, typeHint);
+    const item = this[$entityMap].get(uuid);
     if (item) {
       switch (dataType) {
         case 'color':
           if (item[property] && item[property].isColor) {
             item[property].setHex(value);
           } else if (this.THREE) {
-            // TODO is there a better way than using this.THREE??
-            item[property] = new this.THREE.Color(value);
+            // TODO is there a better way doing this?
+            // We can require devs to provide a THREE object,
+            // or we can side load our own instance of things like
+            // Color.
+            item[property] = {
+              isColor: true,
+              r: (value >> 16 & 255) / 255,
+              g: (value >> 8 & 255) / 255,
+              b: (value & 255) / 255,
+            };
           }
           break;
         default:
@@ -105,23 +102,49 @@ window.ThreeDevTools = new class ThreeDevTools {
     }
   }
 
-  // TODO only fire once per frame
-  __refresh(uuid, typeHint) {
-    this[$log]('__refresh(' + uuid + ', ' + typeHint + ')');
-    if (!this.connected) {
+  __requestScene() {
+    if (!this.connected || !this.scene) {
       return;
     }
-    if (!uuid) {
-      if (this.scene) {
-        let scene = this[$toJSON](this.scene);
-        this[$send]('data', scene);
+    this[$sceneData] = this[$serializeScene](this.scene);
+    this[$entityMap] = new Map();
+
+    // Iterate through scene and tag all entities
+    // (objects, materials, textures, etc.) and store
+    // it in $entityMap.
+    this.scene.traverse(o => {
+      this[$entityMap].set(o.uuid, o);
+      if (o.material && o.material.uuid) {
+        const materials = [].concat(o.material);
+        for (let material of materials) {
+          this[$entityMap].set(material.uuid, material);
+          for (let key of Object.keys(material)) {
+            const value = material[key];
+            if (value && value.isTexture) {
+              this[$entityMap].set(value.uuid, value);
+              if (value.image && value.image.uuid) {
+                this[$entityMap].set(value.image.uuid, value.image);
+              }
+            }
+          }
+        }
       }
+      if (o.geometry && o.geometry.uuid) {
+        this[$entityMap].set(o.geometry.uuid, o.geometry);
+      }
+    });
+
+    this[$send]('scene', this[$sceneData]);
+  }
+
+  __requestEntity(uuid) {
+    if (!this.connected || !uuid || !this.scene) {
       return;
     }
-    const item = this[$findByUUID](uuid, typeHint);
-    if (item) {
-      item = this[$toJSON](item);
-      this[$send]('data', item);
+    const entity = this[$entityMap].get(uuid);
+    if (entity) {
+      const data = this[$serializeEntity](entity);
+      this[$send]('entity', data);
     }
   }
 
@@ -130,7 +153,7 @@ window.ThreeDevTools = new class ThreeDevTools {
    */
 
   [$send](type, data) {
-    this[$log]('EMIT', type, data);
+    this[$log]('emitting', type);
     try{
       window.postMessage({
         id: 'three-devtools',
@@ -152,87 +175,66 @@ window.ThreeDevTools = new class ThreeDevTools {
     }
   }
 
-  [$findByUUID](uuid, type) {
-    if (!this.scene) {
-      return;
-    }
+  [$attemptConnection]() {
+    if (!this.connected && this[$contentReady] && this[$devtoolsReady]) {
+      this[$connected] = true;
+      this.__requestScene();
+      this.__requestRendererInfo();
 
-    if (this.scene.uuid === uuid) {
-      return this.scene;
-    }
-
-    let objects = [this.scene];
-
-    console.log('finding uuid', uuid, type);
-    while (objects.length) {
-      let object = objects.shift();
-
-      switch (type) {
-        case 'object':
-          if (object.uuid === uuid) {
-            return object;
-          }
-          break;
-        case 'material':
-          if (Array.isArray(object.material)) {
-            let result = object.materials.find(m => m.uuid === uuid);
-            if (result) {
-              return result;
-            }
-          } else if (object.material && object.material.uuid === uuid) {
-            return object.material;
-          }
-          break;
-        case 'geometry':
-          if (object.geometry && object.geometry.uuid === uuid) {
-            return object.geometrt;
-          }
-          break;
-        default:
-          break;
-      }
-
-      if (object.children) {
-        objects.push(...object.children);
-      }
+      // @TODO manage this better
+      setInterval(() => this.__requestRendererInfo(), 1000);
     }
   }
 
-  /**
-   * This turns the Three object into something serializable. Uses
-   * the built in 'toJSON()' methods, but adds a few more properties,
-   * and lazily computes others.
-   * Is there a better way to do this?
-   */
-  [$toJSON](item) {
-    // Okay, this doesn't do anything yet.
-    return item.toJSON();
-    /*
-    const data = item.toJSON();
-    if (data.geometries) {
-    }
-    if (data.materials) {
-    }
-    if (data.textures) {
-    }
-    if (data.images) {
-    }
-    if (data.shapes) {
-    }
-    if (data.type || data.object) {
-      let object = data.type ? data : data.object;
 
-      // In this app, "Scene" is a special case of object.
-      this[$update](object, object.type === 'Scene' ? 'scene' : 'object');
-      if (object.children) {
-        object.children.forEach(o => this[$processSceneData](o));
-      }
+  /**
+   * This turns a Three entity into something serializable.
+   * Mostly the built-in 'toJSON()' method with cached metadata.
+   */
+  [$serializeEntity](entity) {
+    const json = entity.toJSON(this[$sceneData]);
+    // Attach 'typeHint' here since we lose this information
+    // over the wire.
+    const typeHint = entity.isObject3D ? 'object' :
+                     entity.isMaterial ? 'material' :
+                     entity.isTexture ? 'texture' :
+                     entity.isImage ? 'image' :
+                     entity.isGeometry ? 'geometry' :
+                     entity.isBufferGeometry ? 'geometry' :
+                     entity.isShape ? 'shape' : 'unknown';
+
+    (json.object || json).typeHint = typeHint;
+
+    return json;
+  }
+
+  [$serializeScene](scene) {
+    const json = scene.toJSON();
+    // The root scene stores the cache of all objects already JSON-ified,
+    // so we need to tag these initially.
+    if (json.geometries) {
+      json.geometries.forEach(geometry => geometry.typeHint = 'geometry');
     }
-    */
+    if (json.materials) {
+      json.materials.forEach(material => material.typeHint = 'material');
+    }
+    if (json.textures) {
+      json.textures.forEach(texture => texture.typeHint = 'texture');
+    }
+    if (json.images) {
+      json.images.forEach(texture => texture.typeHint = 'image');
+    }
+    if (json.shapes) {
+      json.shapes.forEach(texture => texture.typeHint = 'shape');
+    }
+    if (json.object) {
+      json.object.typeHint = 'scene';
+    }
+    return json;
   }
 
   [$log](...message) {
-    // console.log('%c ThreeDevTools:', 'color:red', ...message);
+    console.log('%c ThreeDevTools:', 'color:red', ...message);
   }
 };
 `;

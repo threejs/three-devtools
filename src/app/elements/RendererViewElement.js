@@ -31,7 +31,6 @@ export default class RendererViewElement extends BaseElement {
   render() {
     const info = this.app.content.getRendererInfo();
 
-    console.log('render info view', info);
     if (!info) {
       return html`<div>no renderer</div>`;
     }

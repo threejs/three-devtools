@@ -19,6 +19,39 @@ export const MaterialTypes = [
   'SpriteMaterial'
 ];
 
+export const ObjectTypes = [
+ 'Mesh',
+ 'Line',
+ 'LineLoop',
+ 'LineSegments',
+ 'AmbientLight',
+ 'DirectionalLight',
+ 'HemisphereLight',
+ 'PointLight',
+ 'RectAreaLight',
+ 'SpotLight',
+ 'ArrowHelper',
+ 'AxesHelper',
+ 'BoxHelper',
+ 'Box3Helper',
+ 'CameraHelper',
+ 'DirectionalLightHelper',
+ 'FaceNormalsHelper',
+ 'GridHelper',
+ 'PolarGridHelper',
+ 'PositionalAudioHelper',
+ 'HemisphereLightHelper',
+ 'PlaneHelper',
+ 'PointLightHelper',
+ 'RectAreaLightHelper',
+ 'SkeletonHelper',
+ 'SpotLightHelper',
+ 'VertexNormalsHelper',
+ 'Skeleton',
+ 'Bone',
+ 'Group'
+];
+
 // Defaults go first, and applied if undefined
 const ConstantTypes = {
   mapping: [

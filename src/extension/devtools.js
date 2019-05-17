@@ -12,6 +12,6 @@ if (chrome.devtools.inspectedWindow.tabId) {
 
 function createPanel() {
   chrome.devtools.panels.create(`three`, `assets/icon_256.png`, `src/app/index.html`, panel => {
-    console.log('three-devtools panel created');
+
   });
 }

@@ -39,6 +39,7 @@ export default class SceneViewElement extends BaseElement {
     }
 
     const createNode = (obj, depth=0) => {
+      const children = obj.children ? obj.children.map(uuid => this.app.content.get(uuid)) : [];
       const category = objectTypeToCategory(obj.type);
       const fa = category === 'light' ? { type: 'fas', name: 'lightbulb' } :
                  category === 'mesh' ?  { type: 'fas', name: 'dice-d6' } :
@@ -53,12 +54,12 @@ export default class SceneViewElement extends BaseElement {
         ?root="${depth === 0}"
         ?selected="${obj.uuid && this.selected && this.selected === obj.uuid}"
         ?open="${obj.type === 'Scene'}"
-        ?show-arrow="${obj.children ? obj.children.length > 0 : false}"
+        ?show-arrow="${children.length > 0}"
         depth="${depth}"
         uuid="${obj.uuid}"
         >
         <div slot="content"><font-awesome type="${fa.type}" name="${fa.name}"></font-awesome>${obj.name || obj.type}</div>
-        ${obj.children ? obj.children.map(c => createNode(c, depth + 1)) : null}
+        ${children.map(c => createNode(c, depth + 1))}
       </tree-item>
     `;
     }
