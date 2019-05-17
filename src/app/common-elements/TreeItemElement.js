@@ -1,9 +1,9 @@
 import { LitElement, html } from '../../../web_modules/lit-element.js'
 
-const $onVisibilityToggle = Symbol('onVisibilityToggle');
 const $onClick = Symbol('onClick');
 const $onDoubleClick = Symbol('onDoubleClick');
 const $onKeyDown = Symbol('onKeyDown');
+const $onArrowClick = Symbol('onArrowClick');
 const $onTreeItemSelect = Symbol('onTreeItemSelect');
 const $addListeners = Symbol('addListeners');
 const $removeListeners = Symbol('removeListeners');
@@ -162,9 +162,13 @@ export default class TreeItemElement extends LitElement {
     }
   }
 
-  [$onVisibilityToggle](e) {
-    e.stopPropagation();
-    this.open = !this.open;
+  [$onArrowClick](e) {
+    // Arrow is still in the DOM when no children available,
+    // ignore it in that case so we can select as normal.
+    if (this.getTreeItemChildren().length) {
+      e.stopPropagation();
+      this.open = !this.open;
+    }
   }
 
   [$onClick](e) {
@@ -293,10 +297,10 @@ export default class TreeItemElement extends LitElement {
     border: 0;
     padding: 0;
     position: relative;
-    pointer-events: none;
   }
 
   .arrow {
+    pointer-events: none;
     width: 0;
     height: 0;
     border-style: solid;
@@ -337,8 +341,8 @@ export default class TreeItemElement extends LitElement {
   style="--depth:${this.depth || 0}"
   @click="${this[$onClick]}"
   @dblclick="${this[$onDoubleClick]}">
-  <div class="arrow-block">
-      <div class="arrow" @click="${this[$onVisibilityToggle]}"></div>
+  <div class="arrow-block" @click="${this[$onArrowClick]}">
+      <div class="arrow"></div>
   </div>
   <slot name="content"></slot>
 </div>
