@@ -1,7 +1,6 @@
 window.SRC_CONTENT_INDEX = `
+(function() {
 const $send = Symbol('send');
-const $serializeEntity = Symbol('serializeEntity');
-const $serializeScene = Symbol('serializeScene');
 const $log = Symbol('log');
 const $connected = Symbol('connected');
 const $contentReady = Symbol('contentReady');
@@ -10,7 +9,58 @@ const $attemptConnection = Symbol('attemptConnection');
 const $entityMap = Symbol('entityMap');
 const $sceneData = Symbol('sceneData');
 
-//setInterval(() => this.__sendRendererInfo(), 1000);
+const utils = {
+  /**
+   * This turns a Three entity into something serializable.
+   * Mostly the built-in 'toJSON()' method with cached metadata.
+   */
+  serializeEntity: (entity, meta) => {
+    const json = meta ? entity.toJSON(meta) : entity.toJSON();
+    // Attach 'typeHint' here since we lose this information
+    // over the wire.
+    // Or is this redundant with the toJSON metadata?
+    const typeHint = entity.isObject3D ? 'object' :
+                     entity.isMaterial ? 'material' :
+                     entity.isTexture ? 'texture' :
+                     entity.isImage ? 'image' :
+                     entity.isGeometry ? 'geometry' :
+                     entity.isBufferGeometry ? 'geometry' :
+                     entity.isShape ? 'shape' : 'unknown';
+
+    if (json.geometries) {
+      json.geometries.forEach(geometry => geometry.typeHint = 'geometry');
+    }
+    if (json.materials) {
+      json.materials.forEach(material => material.typeHint = 'material');
+    }
+    if (json.textures) {
+      json.textures.forEach(texture => texture.typeHint = 'texture');
+    }
+    if (json.images) {
+      json.images.forEach(texture => texture.typeHint = 'image');
+    }
+    if (json.shapes) {
+      json.shapes.forEach(texture => texture.typeHint = 'shape');
+    }
+    if (json.object) {
+      json.object.typeHint = meta ? 'object' : 'scene';
+      if (json.object.children) {
+        let children = [...json.object.children];
+        while (children.length) {
+          let child = children.shift();
+          child.typeHint = 'object';
+          if (child.children) {
+            children.push(...child.children);
+          }
+        }
+      }
+    } else {
+      json.typeHint = typeHint;
+    }
+
+    return json;
+  },
+}
 
 window.ThreeDevTools = new class ThreeDevTools extends EventTarget {
   constructor() {
@@ -106,7 +156,7 @@ window.ThreeDevTools = new class ThreeDevTools extends EventTarget {
     if (!this.connected || !this.scene) {
       return;
     }
-    this[$sceneData] = this[$serializeScene](this.scene);
+    this[$sceneData] = utils.serializeEntity(this.scene);
     this[$entityMap] = new Map();
 
     // Iterate through scene and tag all entities
@@ -143,7 +193,7 @@ window.ThreeDevTools = new class ThreeDevTools extends EventTarget {
     }
     const entity = this[$entityMap].get(uuid);
     if (entity) {
-      const data = this[$serializeEntity](entity);
+      const data = utils.serializeEntity(entity, this[$sceneData]);
       this[$send]('entity', data);
     }
   }
@@ -186,55 +236,9 @@ window.ThreeDevTools = new class ThreeDevTools extends EventTarget {
     }
   }
 
-
-  /**
-   * This turns a Three entity into something serializable.
-   * Mostly the built-in 'toJSON()' method with cached metadata.
-   */
-  [$serializeEntity](entity) {
-    const json = entity.toJSON(this[$sceneData]);
-    // Attach 'typeHint' here since we lose this information
-    // over the wire.
-    const typeHint = entity.isObject3D ? 'object' :
-                     entity.isMaterial ? 'material' :
-                     entity.isTexture ? 'texture' :
-                     entity.isImage ? 'image' :
-                     entity.isGeometry ? 'geometry' :
-                     entity.isBufferGeometry ? 'geometry' :
-                     entity.isShape ? 'shape' : 'unknown';
-
-    (json.object || json).typeHint = typeHint;
-
-    return json;
-  }
-
-  [$serializeScene](scene) {
-    const json = scene.toJSON();
-    // The root scene stores the cache of all objects already JSON-ified,
-    // so we need to tag these initially.
-    if (json.geometries) {
-      json.geometries.forEach(geometry => geometry.typeHint = 'geometry');
-    }
-    if (json.materials) {
-      json.materials.forEach(material => material.typeHint = 'material');
-    }
-    if (json.textures) {
-      json.textures.forEach(texture => texture.typeHint = 'texture');
-    }
-    if (json.images) {
-      json.images.forEach(texture => texture.typeHint = 'image');
-    }
-    if (json.shapes) {
-      json.shapes.forEach(texture => texture.typeHint = 'shape');
-    }
-    if (json.object) {
-      json.object.typeHint = 'scene';
-    }
-    return json;
-  }
-
   [$log](...message) {
     console.log('%c ThreeDevTools:', 'color:red', ...message);
   }
 };
+})();
 `;
