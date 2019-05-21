@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "three.js developer tools web extension",
   "scripts": {
-    "build": "npx @pika/web --dest web_modules/"
+    "build": "npx @pika/web --dest web_modules/ && ./scripts/genlicenses.sh"
   },
   "repository": {
     "type": "git",
