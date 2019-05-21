@@ -58,7 +58,7 @@ export default class SceneViewElement extends BaseElement {
         depth="${depth}"
         uuid="${obj.uuid}"
         >
-        <div slot="content"><font-awesome type="${fa.type}" name="${fa.name}"></font-awesome>${obj.name || obj.type}</div>
+        <div slot="content">${obj.name || obj.type}</div>
         ${children.map(c => createNode(c, depth + 1))}
       </tree-item>
     `;
@@ -77,14 +77,6 @@ export default class SceneViewElement extends BaseElement {
   :host > tree-item {
     height: auto;
     max-height: 100%;
-  }
-
-  font-awesome {
-    color: #5a5a5a;
-    padding-right: 5px;
-  }
-  tree-item[selected] > [slot='content'] > font-awesome {
-    color: var(--tree-item-selected-color);
   }
 </style>
 <title-bar title="Scene"></title-bar>

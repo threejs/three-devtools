@@ -81,14 +81,6 @@ export default class ResourcesViewElement extends LitElement {
     height: auto;
     max-height: 100%;
   }
-
-  font-awesome {
-    color: #5a5a5a;
-    padding-right: 5px;
-  }
-  tree-item[selected] > [slot='content'] > font-awesome {
-    color: var(--tree-item-selected-color);
-  }
 </style>
 <title-bar title="Resources"></title-bar>
 <tree-item
@@ -100,7 +92,6 @@ export default class ResourcesViewElement extends LitElement {
   <tree-item depth="0"
     ?show-arrow="${!!geometryNodes.length}">
     <div slot="content">
-      <font-awesome type="fas" name="vector-square"></font-awesome>
       Geometry
     </div>
     ${geometryNodes}
@@ -109,7 +100,6 @@ export default class ResourcesViewElement extends LitElement {
   <tree-item depth="0"
     ?show-arrow="${!!materialNodes.length}">
     <div slot="content">
-      <font-awesome type="fas" name="paint-roller"></font-awesome>
       Materials
     </div>
     ${materialNodes}
@@ -118,7 +108,6 @@ export default class ResourcesViewElement extends LitElement {
   <tree-item depth="0"
     ?show-arrow="${!!textureNodes.length}">
     <div slot="content">
-      <font-awesome type="fas" name="image"></font-awesome>
       Textures
     </div>
     ${textureNodes}
