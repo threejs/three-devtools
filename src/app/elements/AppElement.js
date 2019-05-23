@@ -86,6 +86,9 @@ export default class AppElement extends LitElement {
           case 'material':
             inspected = html`<material-view uuid="${this.activeObject}"></material-view>`;
             break;
+          case 'geometry':
+            inspected = html`<geometry-view uuid="${this.activeObject}"></geometry-view>`;
+            break;
           case 'object':
           default:
             inspected = html`<object-view uuid="${this.activeObject}"></object-view>`;
@@ -96,7 +99,6 @@ export default class AppElement extends LitElement {
       }
     }
 
-    console.log("ACTIVE SCENE", this.activeScene);
     return html`
 <style>
   :host {

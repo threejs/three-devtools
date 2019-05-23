@@ -6,6 +6,7 @@ import SceneViewElement from './elements/SceneViewElement.js';
 import ResourcesViewElement from './elements/ResourcesViewElement.js';
 import ObjectViewElement from './elements/ObjectViewElement.js';
 import MaterialViewElement from './elements/MaterialViewElement.js';
+import GeometryViewElement from './elements/GeometryViewElement.js';
 import TextureViewElement from './elements/TextureViewElement.js';
 
 import TitleBarElement from './elements/TitleBarElement.js';
@@ -28,6 +29,7 @@ window.customElements.define('scene-view', SceneViewElement);
 window.customElements.define('resources-view', ResourcesViewElement);
 window.customElements.define('object-view', ObjectViewElement);
 window.customElements.define('material-view', MaterialViewElement);
+window.customElements.define('geometry-view', GeometryViewElement);
 window.customElements.define('texture-view', TextureViewElement);
 
 window.customElements.define('title-bar', TitleBarElement);
