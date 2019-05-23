@@ -70,9 +70,17 @@ const utils = {
    * Mostly the built-in 'toJSON()' method with cached metadata.
    */
   serializeEntity: (entity, meta) => {
-    console.time('toJSON-'+entity.uuid);
-    const json = meta ? entity.toJSON(meta) : entity.toJSON();
-    console.timeEnd('toJSON-'+entity.uuid);
+    let json;
+
+    try {
+      //console.time('toJSON-'+entity.uuid);
+      json = meta ? entity.toJSON(meta) : entity.toJSON();
+      //console.timeEnd('toJSON-'+entity.uuid);
+    } catch (e) {
+      // If this throws, it could be because of some object not being serializable.
+      // @TODO handle this, throw it for now.
+      console.error(entity.uuid + ' does not appear to be serializable.', e);
+    }
     // Attach 'typeHint' here since we lose this information
     // over the wire.
     // Or is this redundant with the toJSON metadata?

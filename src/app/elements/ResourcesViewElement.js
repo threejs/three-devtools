@@ -7,7 +7,7 @@ const $onTreeItemSelect = Symbol('onTreeItemSelect');
 export default class ResourcesViewElement extends LitElement {
   static get properties() {
     return {
-      selected: { type: Boolean, reflect: true },
+      selected: { type: String, reflect: true },
       uuid: { type: String, reflect: true }, // Should this inherit from BaseElement?
     }
   }
@@ -46,8 +46,6 @@ export default class ResourcesViewElement extends LitElement {
     if (!resources || !this.uuid) {
       return html`<div>no resources</div>`;
     }
-
-    console.log(resources);
 
     const createNode = (obj) => {
       let selected = obj.uuid && this.selected && this.selected === obj.uuid;

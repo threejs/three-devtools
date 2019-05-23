@@ -1,6 +1,7 @@
 import { html } from '../../../web_modules/lit-element.js'
 import BaseElement from './BaseElement.js';
 import { objectTypeToCategory } from '../utils.js';
+import ChromeSelectStyle from './shared-styles/chrome-select.js';
 
 const $onSelectScene = Symbol('onSelectScene');
 const $onTreeItemSelect = Symbol('onTreeItemSelect');
@@ -33,6 +34,9 @@ export default class SceneViewElement extends BaseElement {
 
   render() {
     const scene = this.getEntity();
+    const resources = this.app.content.getAllResources();
+    const scenes = resources ? resources.scene : [];
+    console.log(resources, scenes);
 
     if (!scene) {
       return html`<div>no scene registered</div>`;
@@ -78,8 +82,14 @@ export default class SceneViewElement extends BaseElement {
     height: auto;
     max-height: 100%;
   }
+
+  ${ChromeSelectStyle}
 </style>
-<title-bar title="Scene"></title-bar>
+<title-bar title="Scene">
+  <select class="chrome-select">
+    ${scenes.map(scene => `<option value="${scene.uuid}">${scene.uuid}</option>`)}
+  </select>
+</title-bar>
 ${createNode(scene)}
 `;
   }

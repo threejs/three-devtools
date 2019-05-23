@@ -120,7 +120,6 @@ export default class ContentBridge extends EventTarget {
         this.connect();
         break;
       case 'renderer':
-      console.log(data);
         this[$renderers].set(data.id, data);
         this.dispatchEvent(new CustomEvent('renderer-update', {
           detail: data,
@@ -133,6 +132,9 @@ export default class ContentBridge extends EventTarget {
   }
 
   [$processSceneData](data) {
+    if (data.error) {
+      console.warn(data);
+    }
     if (data.geometries) {
       data.geometries.forEach(o => this[$update](o));
     }
@@ -205,6 +207,6 @@ export default class ContentBridge extends EventTarget {
   }
 
   [$log](...message) {
-    console.log('%c ContentBridge:', 'color:red', ...message);
+    // console.log('%c ContentBridge:', 'color:red', ...message);
   }
 }
