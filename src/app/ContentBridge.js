@@ -5,7 +5,7 @@ const $onMessage = Symbol('onMessage');
 const $processSceneData = Symbol('processSceneData');
 const $log = Symbol('log');
 const $eval = Symbol('eval');
-const $rendererInfo = Symbol('rendererInfo');
+const $renderers = Symbol('renderers');
 const $forceUpdate = Symbol('forceUpdate');
 
 export default class ContentBridge extends EventTarget {
@@ -18,7 +18,7 @@ export default class ContentBridge extends EventTarget {
     super();
 
     this[$db] = new Map();
-    this[$rendererInfo] = null;
+    this[$renderers] = new Map();
 
     this.port = chrome.runtime.connect({
       name: 'three-devtools',
@@ -63,8 +63,8 @@ export default class ContentBridge extends EventTarget {
     return output;
   }
 
-  getRendererInfo() {
-    return this[$rendererInfo];
+  getRenderer(id) {
+    return this[$renderers].get(id);
   }
 
   updateProperty(uuid, property, value, dataType) {
@@ -90,8 +90,8 @@ export default class ContentBridge extends EventTarget {
     }
   }
 
-  requestRendererInfo() {
-    this[$eval]('ThreeDevTools.__requestRendererInfo()');
+  requestRenderer(id) {
+    this[$eval](`ThreeDevTools.__requestRenderer("${id}")`);
   }
 
   connect() {
@@ -113,24 +113,18 @@ export default class ContentBridge extends EventTarget {
     switch (type) {
       case 'load':
         this[$db] = new Map();
-        this[$rendererInfo] = null;
+        this[$renderers] = new Map();
         this.dispatchEvent(new CustomEvent('load'));
         break;
       case 'connect':
         this.connect();
         break;
-      case 'renderer-info':
-        this[$rendererInfo] = data;
-        this.dispatchEvent(new CustomEvent('renderer-info', {
-          detail: {
-            info: data,
-          },
+      case 'renderer':
+      console.log(data);
+        this[$renderers].set(data.id, data);
+        this.dispatchEvent(new CustomEvent('renderer-update', {
+          detail: data,
         }));
-        break;
-      case 'scene':
-        this[$db] = new Map();
-        this[$rendererInfo] = null;
-        this[$processSceneData](data);
         break;
       case 'entity':
         this[$processSceneData](data);
@@ -203,7 +197,11 @@ export default class ContentBridge extends EventTarget {
 
   [$eval](string) {
     this[$log]('EVAL', string);
-    chrome.devtools.inspectedWindow.eval(string);
+    chrome.devtools.inspectedWindow.eval(string, (value, error) => {
+      if (error) {
+        console.warn(error);  
+      }
+    });
   }
 
   [$log](...message) {

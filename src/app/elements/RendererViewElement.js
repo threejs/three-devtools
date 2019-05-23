@@ -1,39 +1,56 @@
 import { html } from '../../../web_modules/lit-element.js'
 import BaseElement from './BaseElement.js';
 
-const $onRendererInfoUpdate = Symbol('onRendererInfoUpdate');
+const $onRendererUpdate = Symbol('onRendererUpdate');
+const $onPoll = Symbol('onPoll');
+const RENDERER_POLL_INTERVAL = 1000; // ms
 
 export default class RendererViewElement extends BaseElement {
   // Note that BaseElement is only used for the `app.content`
   // connection, not the auto-updating via UUID.
   static get properties() {
-    return [];
+    return {
+      id: { type: String, reflect: true },
+    };
   }
 
   constructor() {
     super();
-    this[$onRendererInfoUpdate] = this[$onRendererInfoUpdate].bind(this);
+    this[$onPoll] = this[$onPoll].bind(this);
+    this[$onRendererUpdate] = this[$onRendererUpdate].bind(this);
   }
 
   connectedCallback() {
     super.connectedCallback();
-    this.app.content.addEventListener('renderer-info', this[$onRendererInfoUpdate]);
+    this.app.content.addEventListener('renderer-update', this[$onRendererUpdate]);
+    this[$onPoll].timer = window.setInterval(this[$onPoll], RENDERER_POLL_INTERVAL);
   }
   disconnectedCallback() {
-    this.app.content.removeEventListener('renderer-info', this[$onRendererInfoUpdate]);
+    window.clearInterval(this[$onPoll].timer);
+    this.app.content.removeEventListener('renderer-update', this[$onRendererUpdate]);
     super.disconnectedCallback();
   }
 
-  [$onRendererInfoUpdate](e) {
-    this.requestUpdate();
+  [$onPoll]() {
+    if (this.id) {
+      this.app.content.requestRenderer(this.id);
+    }
+  }
+
+  [$onRendererUpdate](e) {
+    if (this.id && e.detail.info && e.detail.id === this.id) {
+      this.requestUpdate();
+    }
   }
 
   render() {
-    const info = this.app.content.getRendererInfo();
+    const renderer = this.app.content.getRenderer(this.id);
 
-    if (!info) {
+    if (!renderer || !renderer.info) {
       return html`<div>no renderer</div>`;
     }
+
+    const info = renderer.info;
 
     return html`
 <style>

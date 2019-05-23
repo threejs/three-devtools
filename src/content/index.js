@@ -3,19 +3,76 @@ window.SRC_CONTENT_INDEX = `
 const $send = Symbol('send');
 const $log = Symbol('log');
 const $connected = Symbol('connected');
-const $contentReady = Symbol('contentReady');
-const $devtoolsReady = Symbol('devtoolsReady');
+const $contentConnected = Symbol('contentConnected');
+const $devtoolsConnected = Symbol('devtoolsConnected');
 const $attemptConnection = Symbol('attemptConnection');
 const $entityMap = Symbol('entityMap');
-const $sceneData = Symbol('sceneData');
+const $resources = Symbol('sceneData');
+const $initializeContent = Symbol('initializeContent');
+const $registerScene = Symbol('registerScene');
+const $registerRenderer = Symbol('registerRenderer');
+const DEBUG = false;
 
 const utils = {
+  cacheEntitiesInScene: (scene, map) => {  
+    map.set(scene.uuid, scene);
+
+    scene.traverse(o => {
+      map.set(o.uuid, o);
+      if (o.material && o.material.uuid) {
+        const materials = [].concat(o.material);
+        for (let material of materials) {
+          map.set(material.uuid, material);
+          for (let key of Object.keys(material)) {
+            const value = material[key];
+            if (value && value.isTexture) {
+              map.set(value.uuid, value);
+              if (value.image && value.image.uuid) {
+                map.set(value.image.uuid, value.image);
+              }
+            }
+          }
+        }
+      }
+      if (o.geometry && o.geometry.uuid) {
+        map.set(o.geometry.uuid, o.geometry);
+      }
+    });
+  },
+
+  mergeResources(output, ...sceneResources) {
+    ['materials', 'images', 'geometries', 'textures'].forEach(prop => {
+      for (let resources of sceneResources) {
+        if (!Array.isArray(output[prop])) {
+          output[prop] = [];
+        }
+        const newEntities = sceneResources[prop] 
+        const savedEntities = output[prop] 
+        if (!Array.isArray(newEntities) || !newEntities || !newEntities.length) {
+          return output;
+        }
+        output[prop] = savedEntities.push(...newEntities);
+      }
+
+      let uuids = [];
+      output[prop] = output[prop].filter(entity => {
+        if (uuids.indexOf(entity.uuid) !== -1) {
+          return false;
+        }
+        uuids.push(entity.uuid);
+        return true;
+      });
+    });
+  },
+
   /**
    * This turns a Three entity into something serializable.
    * Mostly the built-in 'toJSON()' method with cached metadata.
    */
   serializeEntity: (entity, meta) => {
+    console.time('toJSON-'+entity.uuid);
     const json = meta ? entity.toJSON(meta) : entity.toJSON();
+    console.timeEnd('toJSON-'+entity.uuid);
     // Attach 'typeHint' here since we lose this information
     // over the wire.
     // Or is this redundant with the toJSON metadata?
@@ -66,12 +123,14 @@ window.ThreeDevTools = new class ThreeDevTools extends EventTarget {
   constructor() {
     super();
 
-    this.scene = null;
-    this.renderer = null;
+    this.scenes = [];
+    this.renderers = [];
+
     this[$connected] = false;
-    this[$devtoolsReady] = false;
-    this[$contentReady] = false;
+    this[$devtoolsConnected] = false;
+    this[$contentConnected] = false;
     this[$entityMap] = new Map();
+    this[$resources] = new Map();
 
     this.selected = window.$t = null;
 
@@ -82,12 +141,16 @@ window.ThreeDevTools = new class ThreeDevTools extends EventTarget {
     return this[$connected];
   }
 
-  connect(config = {}) {
-    this.renderer = config.renderer || this.renderer;
-    this.scene = config.scene || this.scene;
-    this[$contentReady] = true;
-    this[$send]('connect');
-    this[$attemptConnection]();
+  addScene(scene) {
+    this.scenes.push(scene);
+    this[$registerScene](scene);
+    this[$initializeContent]();
+  }
+
+  addRenderer(renderer) {
+    this.renderers.push(renderer);
+    this[$registerRenderer](renderer);
+    this[$initializeContent]();
   }
 
   /**
@@ -99,7 +162,7 @@ window.ThreeDevTools = new class ThreeDevTools extends EventTarget {
    * page load.
    */
   __connect() {
-    this[$devtoolsReady] = true;
+    this[$devtoolsConnected] = true;
     this[$attemptConnection]();
   }
 
@@ -108,19 +171,8 @@ window.ThreeDevTools = new class ThreeDevTools extends EventTarget {
    */
   __select(uuid) {
     const selected = this[$entityMap].get(uuid);
-    console.log('selected', selected);
     if (selected) {
       this.selected = window.$t = selected;
-    }
-  }
-
-  __requestRendererInfo() {
-    if (this.connected && this.renderer) {
-      const info = {
-        render: this.renderer.info.render,
-        memory: this.renderer.info.memory,
-      };
-      this[$send]('renderer-info', info);
     }
   }
 
@@ -152,56 +204,97 @@ window.ThreeDevTools = new class ThreeDevTools extends EventTarget {
     }
   }
 
-  __requestScene() {
-    if (!this.connected || !this.scene) {
-      return;
-    }
-    this[$sceneData] = utils.serializeEntity(this.scene);
-    this[$entityMap] = new Map();
-
-    // Iterate through scene and tag all entities
-    // (objects, materials, textures, etc.) and store
-    // it in $entityMap.
-    this.scene.traverse(o => {
-      this[$entityMap].set(o.uuid, o);
-      if (o.material && o.material.uuid) {
-        const materials = [].concat(o.material);
-        for (let material of materials) {
-          this[$entityMap].set(material.uuid, material);
-          for (let key of Object.keys(material)) {
-            const value = material[key];
-            if (value && value.isTexture) {
-              this[$entityMap].set(value.uuid, value);
-              if (value.image && value.image.uuid) {
-                this[$entityMap].set(value.image.uuid, value.image);
-              }
-            }
-          }
-        }
-      }
-      if (o.geometry && o.geometry.uuid) {
-        this[$entityMap].set(o.geometry.uuid, o.geometry);
-      }
-    });
-
-    this[$send]('scene', this[$sceneData]);
-  }
-
   __requestEntity(uuid) {
-    if (!this.connected || !uuid || !this.scene) {
+    if (!this.connected || !uuid) {
       return;
     }
+
     const entity = this[$entityMap].get(uuid);
-    if (entity) {
-      const data = utils.serializeEntity(entity, this[$sceneData]);
-      this[$send]('entity', data);
+    if (!entity) {
+      return;
+    }
+
+    let data;
+
+    if (entity.isScene) {
+      data = utils.serializeEntity(entity);
+
+      // Track all resources in all scenes so we can use
+      // this object as a cache when serializing other entities.
+      utils.mergeResources(this[$resources], data);
+      
+      // Iterate through scene and tag all entities
+      // (objects, materials, textures, etc.) and store
+      // it in $entityMap.
+      utils.cacheEntitiesInScene(entity, this[$entityMap]);
+    } else {
+      // Hardcoded to use all scenes metadata for now.
+      data = utils.serializeEntity(entity, this[$resources]);
+    }
+
+    this[$send]('entity', data);
+  }
+  
+  __requestRenderer(index) {
+    const renderer = this.renderers[+index];
+    if (this.connected && renderer) {
+      const data = {
+        id: index+'',
+        info: {
+          render: renderer.info.render,
+          memory: renderer.info.memory,
+        },
+      };
+      this[$send]('renderer', data);
     }
   }
+
 
   /**
    * Private
    */
+  [$initializeContent]() {
+    if (!this[$contentConnected]) {
+      this[$contentConnected] = true;
+      this[$send]('connect');
+      this[$attemptConnection]();
+    }
+  }
 
+  [$attemptConnection]() {
+    if (!this.connected && this[$contentConnected] && this[$devtoolsConnected]) {
+      this[$connected] = true;
+
+      // Both content and devtools have indicated intent in debugging.
+      // Now to do the initial, costly overhead of parsing any previously
+      // registered entities.
+      this.scenes.forEach(scene => this[$registerScene](scene));
+      this.renderers.forEach(renderer => this[$registerRenderer](renderer));
+    }
+  }
+  
+  [$registerScene](scene) {
+    if (!this.connected) {
+      return;
+    }
+
+    this[$entityMap].set(scene.uuid, scene);
+
+    // @TODO can this be rolled into the below?
+    this.__requestEntity(scene.uuid);
+  }
+
+  [$registerRenderer](renderer) {
+    if (!this.connected) {
+      return;
+    }
+
+    const id = this.renderers.indexOf(renderer);
+    // @TODO can this be rolled into the below?
+    this.__requestRenderer(id);
+  }
+
+  
   [$send](type, data) {
     this[$log]('emitting', type);
     try{
@@ -225,19 +318,11 @@ window.ThreeDevTools = new class ThreeDevTools extends EventTarget {
     }
   }
 
-  [$attemptConnection]() {
-    if (!this.connected && this[$contentReady] && this[$devtoolsReady]) {
-      this[$connected] = true;
-      this.__requestScene();
-      this.__requestRendererInfo();
-
-      // @TODO manage this better
-      setInterval(() => this.__requestRendererInfo(), 1000);
-    }
-  }
 
   [$log](...message) {
-    console.log('%c ThreeDevTools:', 'color:red', ...message);
+    if (DEBUG) {
+      console.log('%c ThreeDevTools:', 'color:red', ...message);
+    }
   }
 };
 })();

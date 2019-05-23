@@ -2,9 +2,11 @@ import { LitElement, html } from '../../../web_modules/lit-element.js'
 import { ifDefined } from '../../../web_modules/lit-html/directives/if-defined.js';
 import ContentBridge from '../ContentBridge.js';
 
-const $onSelectObject = Symbol('onSelectObject');
+const $onSelectEntity = Symbol('onSelectEntity');
+const $onSelectRenderer = Symbol('onSelectRenderer');
 const $onContentUpdate = Symbol('onContentUpdate');
 const $onContentLoad = Symbol('onContentLoad');
+const $onContentRendererUpdate = Symbol('onContentRendererUpdate');
 const $onCommand = Symbol('onCommand');
 
 export default class AppElement extends LitElement {
@@ -12,6 +14,7 @@ export default class AppElement extends LitElement {
     return {
       activeScene: { type: String, reflect: true, attribute: 'active-scene' },
       activeObject: { type: String, reflect: true, attribute: 'active-object' },
+      activeRenderer: { type: String, reflect: true, attribute: 'active-renderer' },
     }
   }
 
@@ -19,14 +22,16 @@ export default class AppElement extends LitElement {
   constructor() {
     super();
 
-    this[$onSelectObject] = this[$onSelectObject].bind(this);
+    this[$onSelectEntity] = this[$onSelectEntity].bind(this);
     this[$onContentUpdate] = this[$onContentUpdate].bind(this);
     this[$onContentLoad] = this[$onContentLoad].bind(this);
+    this[$onContentRendererUpdate] = this[$onContentRendererUpdate].bind(this);
     this[$onCommand] = this[$onCommand].bind(this);
     this.content = new ContentBridge();
 
     this.content.addEventListener('update', this[$onContentUpdate]);
     this.content.addEventListener('load', this[$onContentLoad]);
+    this.content.addEventListener('renderer-update', this[$onContentRendererUpdate]);
     this.addEventListener('command', this[$onCommand]);
   }
 
@@ -43,17 +48,23 @@ export default class AppElement extends LitElement {
    */
   async connectedCallback() {
     super.connectedCallback && super.connectedCallback();
-    this.addEventListener('select-object', this[$onSelectObject]);
+    this.addEventListener('select-object', this[$onSelectEntity]);
+    this.addEventListener('select-renderer', this[$onSelectRenderer]);
     this.content.connect();
   }
 
   disconnectedCallback() {
-    this.removeEventListener('select-object', this[$onSelectObject]);
+    this.removeEventListener('select-object', this[$onSelectEntity]);
+    this.removeEventListener('select-renderer', this[$onSelectRenderer]);
     super.disconnectedCallback && super.disconnectedCallback();
   }
 
   shouldUpdate(changedProps) {
     if (changedProps.has('activeObject')) {
+      // @TODO this selects it in the client which
+      // refreshes the entity, while it's probably
+      // being selected from this event as well, resulting
+      // in multiple refreshes
       this.content.select(this.activeObject);
     }
 
@@ -129,13 +140,32 @@ export default class AppElement extends LitElement {
 </div>
 ${inspected}
 <div class="wrapper">
-  <renderer-view></renderer-view>
+  <renderer-view id="${ifDefined(this.activeRenderer)}"
+      selected="${ifDefined(this.activeRenderer)}"></renderer-view>
 </div>
 `;
   }
 
-  [$onSelectObject](e) {
+  [$onSelectEntity](e) {
     this.activeObject = e.detail.uuid || undefined;
+  }
+
+  [$onSelectRenderer](e) {
+    this.activeRenderer = e.detail.id || undefined;
+  }
+  
+  [$onContentUpdate](e) {
+    // If this is the initial scene, set it as active
+    if (!this.activeScene && e.detail.typeHint === 'scene') {
+      this.activeScene = e.detail.uuid;
+    }
+  }
+  
+  [$onContentRendererUpdate](e) {
+    // If this is the initial renderer, set it as active
+    if (!this.activeRenderer && e.detail.id) {
+      this.activeRenderer = e.detail.id;
+    }
   }
 
   [$onContentUpdate](e) {
@@ -149,6 +179,7 @@ ${inspected}
   [$onContentLoad](e) {
     this.activeScene = undefined;
     this.activeObject = undefined;
+    this.activeRenderer = undefined;
   }
   
   /**
