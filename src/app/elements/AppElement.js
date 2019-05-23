@@ -13,7 +13,7 @@ export default class AppElement extends LitElement {
   static get properties() {
     return {
       activeScene: { type: String, reflect: true, attribute: 'active-scene' },
-      activeObject: { type: String, reflect: true, attribute: 'active-object' },
+      activeEntity: { type: String, reflect: true, attribute: 'active-entity' },
       activeRenderer: { type: String, reflect: true, attribute: 'active-renderer' },
     }
   }
@@ -48,24 +48,24 @@ export default class AppElement extends LitElement {
    */
   async connectedCallback() {
     super.connectedCallback && super.connectedCallback();
-    this.addEventListener('select-object', this[$onSelectEntity]);
+    this.addEventListener('select-entity', this[$onSelectEntity]);
     this.addEventListener('select-renderer', this[$onSelectRenderer]);
     this.content.connect();
   }
 
   disconnectedCallback() {
-    this.removeEventListener('select-object', this[$onSelectEntity]);
+    this.removeEventListener('select-entity', this[$onSelectEntity]);
     this.removeEventListener('select-renderer', this[$onSelectRenderer]);
     super.disconnectedCallback && super.disconnectedCallback();
   }
 
   shouldUpdate(changedProps) {
-    if (changedProps.has('activeObject')) {
+    if (changedProps.has('activeEntity')) {
       // @TODO this selects it in the client which
       // refreshes the entity, while it's probably
       // being selected from this event as well, resulting
       // in multiple refreshes
-      this.content.select(this.activeObject);
+      this.content.select(this.activeEntity);
     }
 
     return true;
@@ -75,27 +75,27 @@ export default class AppElement extends LitElement {
 
     let inspected;
 
-    if (this.activeObject) {
-      const object = this.content.get(this.activeObject);
+    if (this.activeEntity) {
+      const object = this.content.get(this.activeEntity);
 
       if (object) {
         switch (object.typeHint) {
           case 'texture':
-            inspected = html`<texture-view uuid="${this.activeObject}"></texture-view>`;
+            inspected = html`<texture-view uuid="${this.activeEntity}"></texture-view>`;
             break;
           case 'material':
-            inspected = html`<material-view uuid="${this.activeObject}"></material-view>`;
+            inspected = html`<material-view uuid="${this.activeEntity}"></material-view>`;
             break;
           case 'geometry':
-            inspected = html`<geometry-view uuid="${this.activeObject}"></geometry-view>`;
+            inspected = html`<geometry-view uuid="${this.activeEntity}"></geometry-view>`;
             break;
           case 'object':
           default:
-            inspected = html`<object-view uuid="${this.activeObject}"></object-view>`;
+            inspected = html`<object-view uuid="${this.activeEntity}"></object-view>`;
             break;
         }
       } else {
-        console.log('could not find activeObject', this.activeObject);
+        console.log('could not find activeEntity', this.activeEntity);
       }
     }
 
@@ -136,9 +136,9 @@ export default class AppElement extends LitElement {
 </style>
 <div class="wrapper">
   <scene-view uuid="${ifDefined(this.activeScene)}"
-      selected="${ifDefined(this.activeObject)}"></scene-view>
+      selected="${ifDefined(this.activeEntity)}"></scene-view>
   <resources-view uuid="${ifDefined(this.activeScene)}"
-      selected="${ifDefined(this.activeObject)}"></resources-view>
+      selected="${ifDefined(this.activeEntity)}"></resources-view>
 </div>
 ${inspected}
 <div class="wrapper">
@@ -149,7 +149,7 @@ ${inspected}
   }
 
   [$onSelectEntity](e) {
-    this.activeObject = e.detail.uuid || undefined;
+    this.activeEntity = e.detail.uuid || undefined;
   }
 
   [$onSelectRenderer](e) {
@@ -180,7 +180,7 @@ ${inspected}
   // Fired when content is initially loaded
   [$onContentLoad](e) {
     this.activeScene = undefined;
-    this.activeObject = undefined;
+    this.activeEntity = undefined;
     this.activeRenderer = undefined;
   }
   

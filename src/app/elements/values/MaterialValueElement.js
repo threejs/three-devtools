@@ -55,7 +55,7 @@ export default class MaterialValueElement extends BaseElement {
   }
 
   [$onActivate](e) {
-    this.app.dispatchEvent(new CustomEvent('select-object', { detail: {
+    this.app.dispatchEvent(new CustomEvent('select-entity', { detail: {
       uuid: this.uuid,
       typeHint: 'material',
     }}));

@@ -97,7 +97,7 @@ ${createNode(scene)}
   [$onTreeItemSelect](e) {
     e.stopPropagation();
     const treeItem = e.composedPath()[0];
-    this.dispatchEvent(new CustomEvent('select-object', {
+    this.dispatchEvent(new CustomEvent('select-entity', {
       detail: {
         uuid: treeItem.getAttribute('uuid'),
         type: 'object',

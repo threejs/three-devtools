@@ -55,7 +55,7 @@ export default class ImagePreviewElement extends BaseElement {
   }
 
   [$onActivate](e) {
-    this.dispatchEvent(new CustomEvent('select-object', {
+    this.dispatchEvent(new CustomEvent('select-entity', {
       detail: {
         uuid: this.uuid,
         typeHint: 'image',

@@ -53,7 +53,7 @@ export default class TextureValueElement extends BaseElement {
   }
 
   [$onActivate](e) {
-    this.app.dispatchEvent(new CustomEvent('select-object', { detail: {
+    this.app.dispatchEvent(new CustomEvent('select-entity', { detail: {
       uuid: this.uuid,
       typeHint: 'texture',
     }}));
