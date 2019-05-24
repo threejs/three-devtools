@@ -15,8 +15,8 @@ if (browser.devtools.inspectedWindow.tabId) {
 async function createPanel() {
   // It appears that Chrome treats URLs relative to extension root,
   // and Firefox treats it relative to the devtools page.
+  // Use `/` to circumvent.
   const icon = '/assets/icon_128.png';
-  const url = '/src/app/index.html';//browser.runtime.getURL('src/app/index.html'); // Firefox requires full URL
-  console.log('creating panel', icon, url);
+  const url = '/src/app/index.html';
   const panel = await browser.devtools.panels.create(`three`, icon, url);
 }
