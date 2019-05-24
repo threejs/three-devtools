@@ -246,6 +246,7 @@ window.ThreeDevTools = new class ThreeDevTools extends EventTarget {
       data = utils.serializeEntity(entity, this[$resources]);
     }
 
+    console.log("SENDING ENTITY", data, uuid);
     this[$send]('entity', data);
   }
   

@@ -109,7 +109,7 @@ export default class ContentBridge extends EventTarget {
   [$onMessage](request) {
     const { id, type, data } = request;
 
-    this[$log]('>>', type);
+    this[$log]('>>', type, data);
     switch (type) {
       case 'load':
         this[$db] = new Map();
@@ -207,6 +207,6 @@ export default class ContentBridge extends EventTarget {
   }
 
   [$log](...message) {
-    // console.log('%c ContentBridge:', 'color:red', ...message);
+    //console.log('%c ContentBridge:', 'color:red', ...message);
   }
 }

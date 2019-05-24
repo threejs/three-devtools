@@ -21,7 +21,6 @@ export default class TitleBarElement extends LitElement {
 
   :host {
     height: 22px;
-    width: 100%;
     display: flex;
     color: var(--title-color);
     background-color: var(--title-background-color);
@@ -31,15 +30,24 @@ export default class TitleBarElement extends LitElement {
     line-height: 15px;
     white-space: nowrap;
     align-items: center;
+    overflow: hidden;
   }
 
   #title {
     text-overflow: ellipsis;
-    overflow: hidden;
+    padding-right: 0.8em;
+  }
+
+  ::slotted(*) {
+    display: inline-block;
+    flex: 1;
   }
 
 </style>
-<div id="title">${this.title}</div>
+<span id="title">
+${this.title}
+</span>
+<slot></slot>
 `;
   }
 }

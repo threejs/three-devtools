@@ -3,7 +3,8 @@ import BaseElement from './BaseElement.js';
 import { objectTypeToCategory } from '../utils.js';
 import ChromeSelectStyle from './shared-styles/chrome-select.js';
 
-const $onSelectScene = Symbol('onSelectScene');
+const $onSceneSelect = Symbol('onSceneSelect');
+const $onContentUpdate = Symbol('onContentUpdate');
 const $onTreeItemSelect = Symbol('onTreeItemSelect');
 
 export default class SceneViewElement extends BaseElement {
@@ -19,17 +20,23 @@ export default class SceneViewElement extends BaseElement {
   constructor() {
     super();
     this[$onTreeItemSelect] = this[$onTreeItemSelect].bind(this);
-
+    this[$onContentUpdate] = this[$onContentUpdate].bind(this);
   }
 
   connectedCallback() {
     super.connectedCallback();
     this.addEventListener('tree-item-select', this[$onTreeItemSelect]);
+    // This is redundant as this is a BaseElement, so it's already listening
+    // to this, specifically the selected scene.
+    // @TODO need to rethink this, possibly something like Redux's selectors
+    // to handle this.
+    this.app.content.addEventListener('update', this[$onContentUpdate]);
   }
 
   disconnectedCallback() {
     super.disconnectedCallback();
     this.removeEventListener('tree-item-select', this[$onTreeItemSelect]);
+    this.app.content.removeEventListener('update', this[$onContentUpdate]);
   }
 
   render() {
@@ -44,13 +51,6 @@ export default class SceneViewElement extends BaseElement {
 
     const createNode = (obj, depth=0) => {
       const children = obj.children ? obj.children.map(uuid => this.app.content.get(uuid)) : [];
-      const category = objectTypeToCategory(obj.type);
-      const fa = category === 'light' ? { type: 'fas', name: 'lightbulb' } :
-                 category === 'mesh' ?  { type: 'fas', name: 'dice-d6' } :
-                 category === 'helper' ?  { type: 'fas', name: 'hands-helping' } :
-                 category === 'line' ?  { type: 'fas', name: 'grip-lines-vertical' } :
-                 category === 'group' ?  { type: 'fas', name: 'archive' } :
-                 category === 'bone' ?  { type: 'fas', name: 'bone' } : {};
 
       return html`
       <tree-item
@@ -86,12 +86,31 @@ export default class SceneViewElement extends BaseElement {
   ${ChromeSelectStyle}
 </style>
 <title-bar title="Scene">
-  <select class="chrome-select">
-    ${scenes.map(scene => `<option value="${scene.uuid}">${scene.uuid}</option>`)}
+  <select @change="${this[$onSceneSelect]}" class="chrome-select">
+    ${scenes.map(scene => html`<option value="${scene.uuid}">${scene.uuid}</option>`)}
   </select>
 </title-bar>
 ${createNode(scene)}
 `;
+  }
+ 
+  [$onSceneSelect](e) {
+    console.log("SCENE SELECT", e, e.target, e.target.value)
+    this.dispatchEvent(new CustomEvent('select-scene', {
+      detail: {
+        uuid: e.target.value,
+      },
+      bubbles: true,
+      composed: true,
+    }));
+  }
+
+  [$onContentUpdate](e) {
+    if (e.detail.typeHint === 'scene') {
+      // Maybe the selector should be pulled into its own component,
+      // this is a bit messy.
+      this.requestUpdate();
+    }
   }
 
   [$onTreeItemSelect](e) {

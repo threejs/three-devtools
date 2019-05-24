@@ -2,6 +2,7 @@ import { LitElement, html } from '../../../web_modules/lit-element.js'
 import { ifDefined } from '../../../web_modules/lit-html/directives/if-defined.js';
 import ContentBridge from '../ContentBridge.js';
 
+const $onSelectScene = Symbol('onSelectScene');
 const $onSelectEntity = Symbol('onSelectEntity');
 const $onSelectRenderer = Symbol('onSelectRenderer');
 const $onContentUpdate = Symbol('onContentUpdate');
@@ -22,6 +23,7 @@ export default class AppElement extends LitElement {
   constructor() {
     super();
 
+    this[$onSelectScene] = this[$onSelectScene].bind(this);
     this[$onSelectEntity] = this[$onSelectEntity].bind(this);
     this[$onContentUpdate] = this[$onContentUpdate].bind(this);
     this[$onContentLoad] = this[$onContentLoad].bind(this);
@@ -48,12 +50,14 @@ export default class AppElement extends LitElement {
    */
   async connectedCallback() {
     super.connectedCallback && super.connectedCallback();
+    this.addEventListener('select-scene', this[$onSelectScene]);
     this.addEventListener('select-entity', this[$onSelectEntity]);
     this.addEventListener('select-renderer', this[$onSelectRenderer]);
     this.content.connect();
   }
 
   disconnectedCallback() {
+    this.removeEventListener('select-scene', this[$onSelectScene]);
     this.removeEventListener('select-entity', this[$onSelectEntity]);
     this.removeEventListener('select-renderer', this[$onSelectRenderer]);
     super.disconnectedCallback && super.disconnectedCallback();
@@ -147,6 +151,10 @@ ${inspected}
 </div>
 `;
   }
+  
+  [$onSelectScene](e) {
+    this.activeScene = e.detail.uuid || undefined;
+  }
 
   [$onSelectEntity](e) {
     this.activeEntity = e.detail.uuid || undefined;
@@ -167,13 +175,6 @@ ${inspected}
     // If this is the initial renderer, set it as active
     if (!this.activeRenderer && e.detail.id) {
       this.activeRenderer = e.detail.id;
-    }
-  }
-
-  [$onContentUpdate](e) {
-    // If this is the initial scene, set it as active
-    if (!this.activeScene && e.detail.typeHint === 'scene') {
-      this.activeScene = e.detail.uuid;
     }
   }
 
