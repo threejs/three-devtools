@@ -24,6 +24,8 @@ window.app = new class App {
 
     this.meshes = [];
 
+    const envMap = this.textureLoader.load('textures/studio_small_03_1k.hdr');
+
     const geometry = new THREE.SphereBufferGeometry(0.5, 64, 64);
 
     this.meshBasic = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
@@ -46,6 +48,12 @@ window.app = new class App {
     }));
     this.meshToon.name = 'Toon Sphere';
     this.meshToon.position.x = -1;
+
+    this.meshToon = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({
+      color: 0xaaeecc,
+    }));
+    this.meshToon.name = 'Phong Sphere';
+    this.meshToon.position.x = 0;
 
     this.meshStandard = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({
       map: this.textureLoader.load('textures/marble/marble_01_diff_1k.jpg'),
@@ -108,8 +116,8 @@ window.app = new class App {
     window.addEventListener('resize', this.updateSize);
 
     if (window.ThreeDevTools) {
-        window.ThreeDevTools.setThree(THREE);
-        window.ThreeDevTools.setScene(this.scene);
+      window.ThreeDevTools.addRenderer(this.renderer);
+      window.ThreeDevTools.addScene(this.scene);
     }
   }
 

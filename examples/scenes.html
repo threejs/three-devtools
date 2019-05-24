@@ -18,11 +18,12 @@ window.app = new class App {
     this.renderer.setPixelRatio(window.devicePixelRatio);
 
     this.scene = new THREE.Scene();
+    this.scene2 = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 100);
     this.camera.position.z = 5;
     this.updateSize();
 
-    for (let x = 0; x < 5; x++) {
+    for (let x = 0; x < 10; x++) {
       const mesh = new THREE.Mesh(new THREE.SphereBufferGeometry(0.5, 64, 64), new THREE.MeshBasicMaterial({
           color: new THREE.Color(`hsl(${x/5*360},100%,50%)`),
         }));
@@ -33,7 +34,7 @@ window.app = new class App {
       mesh.receiveShadow = true;
       mesh.renderOrder = x;
       }
-      this.scene.add(mesh);
+      this[x%2 ? 'scene' : 'scene2'].add(mesh);
     }
 
     this.dLight = new THREE.DirectionalLight(0xffffff,0.7);
@@ -41,6 +42,12 @@ window.app = new class App {
     this.scene.add(this.dLight);
     this.light = new THREE.AmbientLight(0xffffff, 0.3);
     this.scene.add(this.light);
+    
+    const dLight = new THREE.DirectionalLight(0xffffff,0.7);
+    dLight.position.y = 5;
+    this.scene2.add(dLight);
+    const light = new THREE.AmbientLight(0xffffff, 0.3);
+    this.scene2.add(light);
 
     this.renderer.setAnimationLoop(this.render);
     document.body.appendChild(this.renderer.domElement);
@@ -49,6 +56,7 @@ window.app = new class App {
     if (window.ThreeDevTools) {
         window.ThreeDevTools.addRenderer(this.renderer);
         window.ThreeDevTools.addScene(this.scene);
+        window.ThreeDevTools.addScene(this.scene2);
     }
   }
 
