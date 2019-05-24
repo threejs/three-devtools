@@ -1,5 +1,6 @@
 {
   "name": "three-devtools",
+  "private": true,
   "version": "0.0.1",
   "description": "three.js developer tools web extension",
   "scripts": {
