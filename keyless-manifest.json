@@ -9,8 +9,7 @@
     ]
   },
   "icons": {
-    "128": "assets/icon_128.png",
-    "256": "assets/icon_256.png"
+    "128": "assets/icon_128.png"
   },
   "content_scripts": [{
     "matches": ["http://*/*", "https://*/*"],
