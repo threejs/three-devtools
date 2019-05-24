@@ -1,3 +1,4 @@
+import browser from '../../web_modules/webextension-polyfill/dist/browser-polyfill.js';
 import getAgent from '../../web_modules/@egjs/agent.js';
 import AppElement from './elements/AppElement.js';
 
@@ -21,6 +22,7 @@ import TreeItemElement from './common-elements/TreeItemElement.js';
 import AccordionViewElement from './common-elements/AccordionViewElement.js';
 
 //////
+globalThis.browser = browser;
 
 window.customElements.define('three-devtools-app', AppElement);
 

@@ -25,5 +25,9 @@ window.addEventListener('message', e => {
 
   const { type } = e.data;
 
-  chrome.runtime.sendMessage(e.data);
+  // Don't bring in the 35kb polyfill on every page
+  // for a single command that doesn't matter if its callback
+  // promise; handle this manually.
+  const extRoot = globalThis.chrome ? globalThis.chrome : globalThis.browser;
+  extRoot.runtime.sendMessage(e.data);
 });

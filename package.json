@@ -19,11 +19,13 @@
     "@egjs/agent": "^2.1.5",
     "lit-element": "^2.1.0",
     "lit-html": "^1.0.0",
-    "three": "^0.104.0"
+    "three": "^0.104.0",
+    "webextension-polyfill": "^0.4.0"
   },
   "devDependencies": {},
   "@pika/web": {
     "webDependencies": [
+      "webextension-polyfill/dist/browser-polyfill.js",
       "lit-element",
       "lit-html/directives/if-defined.js",
       "three",

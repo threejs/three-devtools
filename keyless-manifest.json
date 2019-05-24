@@ -4,9 +4,7 @@
   "description": "",
   "devtools_page": "src/extension/devtools.html",
   "background": {
-    "scripts": [
-      "src/extension/background.js"
-    ]
+    "page": "src/extension/background.html"
   },
   "icons": {
     "128": "assets/icon_128.png"

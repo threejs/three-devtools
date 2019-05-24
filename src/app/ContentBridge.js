@@ -20,14 +20,14 @@ export default class ContentBridge extends EventTarget {
     this[$db] = new Map();
     this[$renderers] = new Map();
 
-    this.port = chrome.runtime.connect({
+    this.port = browser.runtime.connect({
       name: 'three-devtools',
     });
 
     // @TODO I think this can be removed
     this.port.postMessage({
       name: 'connect',
-      tabId: chrome.devtools.inspectedWindow.tabId,
+      tabId: browser.devtools.inspectedWindow.tabId,
     });
 
     this.port.onDisconnect.addListener(request => {
@@ -197,13 +197,13 @@ export default class ContentBridge extends EventTarget {
     }));
   }
 
-  [$eval](string) {
+  async [$eval](string) {
     this[$log]('EVAL', string);
-    chrome.devtools.inspectedWindow.eval(string, (value, error) => {
-      if (error) {
-        console.warn(error);  
-      }
-    });
+    const [result, error] = await browser.devtools.inspectedWindow.eval(string);
+    if (error) {
+      console.warn(error);  
+    }
+    return result;
   }
 
   [$log](...message) {
