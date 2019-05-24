@@ -150,12 +150,18 @@ window.ThreeDevTools = new class ThreeDevTools extends EventTarget {
   }
 
   addScene(scene) {
+    if (this.scenes.indexOf(scene) !== -1) {
+      return;
+    }
     this.scenes.push(scene);
     this[$registerScene](scene);
     this[$initializeContent]();
   }
 
   addRenderer(renderer) {
+    if (this.renderers.indexOf(renderer) !== -1) {
+      return;
+    }
     this.renderers.push(renderer);
     this[$registerRenderer](renderer);
     this[$initializeContent]();
