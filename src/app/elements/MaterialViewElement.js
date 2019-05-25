@@ -95,7 +95,7 @@ export default class MaterialViewElement extends BaseElement {
   <key-value class="basic toon lambert standard linebasic linedashed" editable uuid="${this.uuid}" key-name="Color" .value="${material.color}" type="color" property="color"></key-value>
   <key-value class="depth" editable uuid="${this.uuid}" key-name="Depth Packing" .value="${material.depthPacking}" type="enum" property="depthPacking"></key-value>
 
-  <key-value class="basic depth lambert" editable uuid="${this.uuid}" key-name="Diffuse Map" .value="${material.map}" type="texture" property="map"></key-value>
+  <key-value class="basic depth lambert standard" editable uuid="${this.uuid}" key-name="Diffuse Map" .value="${material.map}" type="texture" property="map"></key-value>
   <key-value class="basic depth lambert" editable uuid="${this.uuid}" key-name="Alpha Map" .value="${material.alphaMap}" type="texture" property="alphaMap"></key-value>
   <key-value class="toon" uuid="${this.uuid}" key-name="Gradient Map" .value="${material.gradientMap}" type="texture" property="gradientMap"></key-value>
   <key-value class="linebasic" uuid="${this.uuid}" key-name="Line Width" .value="${material.linewidth === undefined ? 1 : material.linewidth}" type="number" property="linewidth"></key-value>
