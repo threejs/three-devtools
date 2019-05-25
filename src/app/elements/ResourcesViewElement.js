@@ -90,7 +90,7 @@ export default class ResourcesViewElement extends LitElement {
   <tree-item depth="0"
     ?show-arrow="${!!geometryNodes.length}">
     <div slot="content">
-      Geometry
+      Geometry (${geometryNodes.length})
     </div>
     ${geometryNodes}
   </tree-item>
@@ -98,7 +98,7 @@ export default class ResourcesViewElement extends LitElement {
   <tree-item depth="0"
     ?show-arrow="${!!materialNodes.length}">
     <div slot="content">
-      Materials
+      Materials (${materialNodes.length})
     </div>
     ${materialNodes}
   </tree-item>
@@ -106,7 +106,7 @@ export default class ResourcesViewElement extends LitElement {
   <tree-item depth="0"
     ?show-arrow="${!!textureNodes.length}">
     <div slot="content">
-      Textures
+      Textures (${textureNodes.length})
     </div>
     ${textureNodes}
   </tree-item>
