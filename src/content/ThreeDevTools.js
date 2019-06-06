@@ -1,12 +1,21 @@
 (() => {
 const DEBUG = false;
-const utils = window.__ThreeDevToolsUtils__;
+const utils = window.__THREE_DEVTOOLS_UTILS__;
+const EventDispatcher = window.__THREE_DEVTOOLS_EVENT_DISPATCHER__;
 const $send = Symbol('send');
 const $log = Symbol('log');
 const $entityMap = Symbol('entityMap');
 const $resources = Symbol('resources');
+const $addScene = Symbol('addScene');
+const $addRenderer = Symbol('addRenderer');
 
-window.ThreeDevTools = new class ThreeDevTools extends EventTarget {
+/**
+ * Supported events:
+ *
+ * `scene`
+ * `renderer`
+ */
+window.__THREE_DEVTOOLS__ = new class ThreeDevTools extends EventDispatcher {
   constructor() {
     super();
 
@@ -17,25 +26,9 @@ window.ThreeDevTools = new class ThreeDevTools extends EventTarget {
     this[$resources] = new Map();
 
     this.selected = window.$t = null;
-  }
 
-  addScene(scene) {
-    if (this.scenes.indexOf(scene) !== -1) {
-      return;
-    }
-    this.scenes.push(scene);
-    this[$entityMap].set(scene.uuid, scene);
-    this.__requestEntity(scene.uuid);
-  }
-
-  addRenderer(renderer) {
-    if (this.renderers.indexOf(renderer) !== -1) {
-      return;
-    }
-    this.renderers.push(renderer);
-    const id = this.renderers.indexOf(renderer);
-
-    this.__requestRenderer(id);
+    this.addEventListener('scene', e => this[$addScene](e));
+    this.addEventListener('renderer', e => this[$addRenderer](e));
   }
 
   /**
@@ -156,6 +149,26 @@ window.ThreeDevTools = new class ThreeDevTools extends EventTarget {
     }
   }
 
+  [$addScene]({ value }) {
+    const scene = value;
+    if (this.scenes.indexOf(scene) !== -1) {
+      return;
+    }
+    this.scenes.push(scene);
+    this[$entityMap].set(scene.uuid, scene);
+    this.__requestEntity(scene.uuid);
+  }
+
+  [$addRenderer]({ value }) {
+    const renderer = value;
+    if (this.renderers.indexOf(renderer) !== -1) {
+      return;
+    }
+    this.renderers.push(renderer);
+    const id = this.renderers.indexOf(renderer);
+
+    this.__requestRenderer(id);
+  }
 
   [$log](...message) {
     if (DEBUG) {

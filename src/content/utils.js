@@ -1,4 +1,4 @@
-window.__ThreeDevToolsUtils__ = {
+window.__THREE_DEVTOOLS_UTILS__ = {
   cacheEntitiesInScene: (scene, map) => {  
     map.set(scene.uuid, scene);
 

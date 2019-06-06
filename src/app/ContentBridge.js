@@ -65,7 +65,7 @@ export default class ContentBridge extends EventTarget {
 
   updateProperty(uuid, property, value, dataType) {
     const object = this.get(uuid);
-    this[$eval](`ThreeDevTools.__updateProperty("${uuid}", "${property}", ${JSON.stringify(value)}, "${dataType}")`);
+    this[$eval](`__THREE_DEVTOOLS__.__updateProperty("${uuid}", "${property}", ${JSON.stringify(value)}, "${dataType}")`);
 
     // Updating property won't trigger a data flush, instead update
     // the local state so that elements' values are in sync with their
@@ -82,12 +82,12 @@ export default class ContentBridge extends EventTarget {
    */
   refresh(uuid) {
     if (uuid) {
-      this[$eval](`ThreeDevTools.__requestEntity("${uuid}")`);
+      this[$eval](`__THREE_DEVTOOLS__.__requestEntity("${uuid}")`);
     }
   }
 
   requestRenderer(id) {
-    this[$eval](`ThreeDevTools.__requestRenderer("${id}")`);
+    this[$eval](`__THREE_DEVTOOLS__.__requestRenderer("${id}")`);
   }
 
   select(uuid) {
@@ -95,7 +95,7 @@ export default class ContentBridge extends EventTarget {
       return;
     }
     const param = JSON.stringify(uuid);
-    this[$eval](`ThreeDevTools.__select(${param})`);
+    this[$eval](`__THREE_DEVTOOLS__.__select(${param})`);
   }
 
   [$onMessage](request) {
@@ -116,6 +116,7 @@ export default class ContentBridge extends EventTarget {
     (document.head || document.documentElement).appendChild(script);
   };
   inject('${browser.runtime.getURL('src/content/utils.js')}');
+  inject('${browser.runtime.getURL('src/content/EventDispatcher.js')}');
   inject('${browser.runtime.getURL('src/content/ThreeDevTools.js')}');
 })();
         `);
