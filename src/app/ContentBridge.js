@@ -112,6 +112,7 @@ export default class ContentBridge extends EventTarget {
         const green = 'rgb(190, 251, 125)'
         const blue = 'rgb(120, 250, 228)';
         this[$eval](injection);
+        this.dispatchEvent(new CustomEvent('load'));
         break;
       case 'renderer':
         this[$renderers].set(data.id, data);
