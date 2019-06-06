@@ -35,10 +35,6 @@ export default class ContentBridge extends EventTarget {
     });
 
     this.port.onMessage.addListener(e => this[$onMessage](e));
-
-    // Connect on load, when devtools is opened on a page
-    // with an active Three scene
-    this.connect();
   }
 
   get(uuid) {
@@ -94,10 +90,6 @@ export default class ContentBridge extends EventTarget {
     this[$eval](`ThreeDevTools.__requestRenderer("${id}")`);
   }
 
-  connect() {
-    this[$eval]('ThreeDevTools.__connect()');
-  }
-
   select(uuid) {
     if (!uuid) {
       return;
@@ -111,13 +103,23 @@ export default class ContentBridge extends EventTarget {
 
     this[$log]('>>', type, data);
     switch (type) {
-      case 'load':
+      case 'committed':
         this[$db] = new Map();
         this[$renderers] = new Map();
+        this[$eval](`
+          console.log('three-devtools');
+(() => {
+  const inject = url => {
+    const script = document.createElement('script');
+    script.src = url;
+    script.onload = () => script.parentNode.removeChild(script);
+    (document.head || document.documentElement).appendChild(script);
+  };
+  inject('${browser.runtime.getURL('src/content/utils.js')}');
+  inject('${browser.runtime.getURL('src/content/ThreeDevTools.js')}');
+})();
+        `);
         this.dispatchEvent(new CustomEvent('load'));
-        break;
-      case 'connect':
-        this.connect();
         break;
       case 'renderer':
         this[$renderers].set(data.id, data);
@@ -201,12 +203,12 @@ export default class ContentBridge extends EventTarget {
     this[$log]('EVAL', string);
     const [result, error] = await browser.devtools.inspectedWindow.eval(string);
     if (error) {
-      console.warn(error);  
+      console.warn(error);
     }
     return result;
   }
 
   [$log](...message) {
-    //console.log('%c ContentBridge:', 'color:red', ...message);
+    console.log('%c ContentBridge:', 'color:red', ...message);
   }
 }
