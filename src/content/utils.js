@@ -1,4 +1,5 @@
-window.__THREE_DEVTOOLS_UTILS__ = {
+export default (() => {
+return {
   cacheEntitiesInScene: (scene, map) => {  
     map.set(scene.uuid, scene);
 
@@ -111,3 +112,4 @@ window.__THREE_DEVTOOLS_UTILS__ = {
     return json;
   },
 }
+});

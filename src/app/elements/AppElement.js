@@ -53,7 +53,6 @@ export default class AppElement extends LitElement {
     this.addEventListener('select-scene', this[$onSelectScene]);
     this.addEventListener('select-entity', this[$onSelectEntity]);
     this.addEventListener('select-renderer', this[$onSelectRenderer]);
-    this.content.connect();
   }
 
   disconnectedCallback() {

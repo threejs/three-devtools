@@ -1,4 +1,5 @@
 import { MaterialTypes } from './constants.js';
+import injection from './injection.js';
 const $db = Symbol('db');
 const $update = Symbol('update');
 const $onMessage = Symbol('onMessage');
@@ -106,21 +107,11 @@ export default class ContentBridge extends EventTarget {
       case 'committed':
         this[$db] = new Map();
         this[$renderers] = new Map();
-        this[$eval](`
-          console.log('three-devtools');
-(() => {
-  const inject = url => {
-    const script = document.createElement('script');
-    script.src = url;
-    script.onload = () => script.parentNode.removeChild(script);
-    (document.head || document.documentElement).appendChild(script);
-  };
-  inject('${browser.runtime.getURL('src/content/utils.js')}');
-  inject('${browser.runtime.getURL('src/content/EventDispatcher.js')}');
-  inject('${browser.runtime.getURL('src/content/ThreeDevTools.js')}');
-})();
-        `);
-        this.dispatchEvent(new CustomEvent('load'));
+
+        const red = 'rgb(255, 137, 137)';
+        const green = 'rgb(190, 251, 125)'
+        const blue = 'rgb(120, 250, 228)';
+        this[$eval](injection);
         break;
       case 'renderer':
         this[$renderers].set(data.id, data);
@@ -210,6 +201,6 @@ export default class ContentBridge extends EventTarget {
   }
 
   [$log](...message) {
-    console.log('%c ContentBridge:', 'color:red', ...message);
+    console.log('ContentBridge:', ...message);
   }
 }

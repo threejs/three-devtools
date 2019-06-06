@@ -1,7 +1,6 @@
-(() => {
+export default () => {
+
 const DEBUG = false;
-const utils = window.__THREE_DEVTOOLS_UTILS__;
-const EventDispatcher = window.__THREE_DEVTOOLS_EVENT_DISPATCHER__;
 const $send = Symbol('send');
 const $log = Symbol('log');
 const $entityMap = Symbol('entityMap');
@@ -15,7 +14,7 @@ const $addRenderer = Symbol('addRenderer');
  * `scene`
  * `renderer`
  */
-window.__THREE_DEVTOOLS__ = new class ThreeDevTools extends EventDispatcher {
+return new class ThreeDevTools extends EventDispatcher {
   constructor() {
     super();
 
@@ -177,4 +176,4 @@ window.__THREE_DEVTOOLS__ = new class ThreeDevTools extends EventDispatcher {
   }
 };
 
-})();
+};

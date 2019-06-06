@@ -4,7 +4,7 @@
  * Modified export for three-devtools to extend.
  */
 
-(() => {
+export default () => {
 function EventDispatcher() {}
 
 Object.assign( EventDispatcher.prototype, {
@@ -85,5 +85,5 @@ Object.assign( EventDispatcher.prototype, {
 
 } );
 
-window.__THREE_DEVTOOLS_EVENT_DISPATCHER__ = EventDispatcher;
-})();
+return EventDispatcher;
+};
