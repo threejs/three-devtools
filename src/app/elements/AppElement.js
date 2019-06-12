@@ -37,8 +37,8 @@ export default class AppElement extends LitElement {
     this.addEventListener('command', this[$onCommand]);
   }
 
-  refresh(uuid, typeHint) {
-    this.content.refresh(uuid, typeHint);
+  refresh(uuid) {
+    this.content.refresh(uuid);
   }
 
   /**

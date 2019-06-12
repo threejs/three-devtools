@@ -33,7 +33,7 @@ export default class RendererViewElement extends BaseElement {
 
   [$onPoll]() {
     if (this.id) {
-      this.app.content.requestRenderer(this.id);
+      this.app.content.refresh(this.id);
     }
   }
 

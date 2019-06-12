@@ -1,12 +1,4 @@
-export default () => {
-
-const DEBUG = false;
-const $send = Symbol('send');
-const $log = Symbol('log');
-const $entityMap = Symbol('entityMap');
-const $resources = Symbol('resources');
-const $addScene = Symbol('addScene');
-const $addRenderer = Symbol('addRenderer');
+export default (() => {
 
 /**
  * Supported events:
@@ -14,20 +6,21 @@ const $addRenderer = Symbol('addRenderer');
  * `scene`
  * `renderer`
  */
-return new class ThreeDevTools extends EventDispatcher {
-  constructor() {
-    super();
+return class ThreeDevTools {
+  constructor(target) {
+    this.target = target;
+    this.scenes = new Set();
+    this.renderers = new Set();
 
-    this.scenes = [];
-    this.renderers = [];
-
-    this[$entityMap] = new Map();
-    this[$resources] = new Map();
+    this.entityMap = new Map();
+    this.resources = new Map();
 
     this.selected = window.$t = null;
 
-    this.addEventListener('scene', e => this[$addScene](e));
-    this.addEventListener('renderer', e => this[$addRenderer](e));
+    this.target.addEventListener('track', e => this.track(e.detail));
+    this.target.addEventListener('refresh', e => this.refresh(e.detail && e.detail.uuid));
+    this.target.addEventListener('select', e => this.select(e.detail && e.detail.uuid));
+    this.target.addEventListener('update', e => this.update(e.detail));
   }
 
   /**
@@ -37,16 +30,15 @@ return new class ThreeDevTools extends EventDispatcher {
   /**
    * This is the active object in the devtools viewer.
    */
-  __select(uuid) {
-    const selected = this[$entityMap].get(uuid);
+  select(uuid) {
+    const selected = this.entityMap.get(uuid);
     if (selected) {
       this.selected = window.$t = selected;
     }
   }
 
-  __updateProperty(uuid, property, value, dataType) {
-    this[$log]('__updateProperty(' + Array.prototype.join.call(arguments,',') + ')');
-    const item = this[$entityMap].get(uuid);
+  update({ uuid, property, value, dataType }) {
+    const item = this.entityMap.get(uuid);
     if (item) {
       switch (dataType) {
         case 'color':
@@ -66,67 +58,50 @@ return new class ThreeDevTools extends EventDispatcher {
           }
           break;
         default:
-          console.log('unknown dataType', dataType);
+          this.log('unknown dataType', dataType);
           item[property] = value;
       }
     }
   }
 
-  __requestEntity(uuid) {
-    if (!uuid) {
-      return;
-    }
-
-    const entity = this[$entityMap].get(uuid);
+  refresh(id) {
+    const entity = this.entityMap.get(id);
     if (!entity) {
       return;
     }
 
     let data;
 
-    if (entity.isScene) {
+    if (/renderer/.test(id)) {
+      data = {
+        type: 'renderer',
+        id,
+        info: {
+          render: entity.info.render,
+          memory: entity.info.memory,
+        },
+      };
+    } else if (entity.isScene) {
       data = utils.serializeEntity(entity);
 
       // Track all resources in all scenes so we can use
       // this object as a cache when serializing other entities.
-      utils.mergeResources(this[$resources], data);
+      utils.mergeResources(this.resources, data);
 
       // Iterate through scene and tag all entities
       // (objects, materials, textures, etc.) and store
-      // it in $entityMap.
-      utils.cacheEntitiesInScene(entity, this[$entityMap]);
+      // it in entityMap.
+      utils.cacheEntitiesInScene(entity, this.entityMap);
     } else {
       // Hardcoded to use all scenes metadata for now.
-      data = utils.serializeEntity(entity, this[$resources]);
+      data = utils.serializeEntity(entity, this.resources);
     }
 
-    console.log("SENDING ENTITY", data, uuid);
-    this[$send]('entity', data);
+    this.send('entity', data);
   }
 
-  __requestRenderer(index) {
-    const renderer = this.renderers[+index];
-    if (!renderer) {
-      return;
-    }
-
-    const data = {
-      id: index+'',
-      info: {
-        render: renderer.info.render,
-        memory: renderer.info.memory,
-      },
-    };
-    this[$send]('renderer', data);
-  }
-
-
-  /**
-   * Private
-   */
-
-  [$send](type, data) {
-    this[$log]('emitting', type);
+  send(type, data) {
+    this.log('emitting', type, data);
     try{
       window.postMessage({
         id: 'three-devtools',
@@ -148,32 +123,45 @@ return new class ThreeDevTools extends EventDispatcher {
     }
   }
 
-  [$addScene]({ value }) {
-    const scene = value;
-    if (this.scenes.indexOf(scene) !== -1) {
+  track(value) {
+    if (!value) {
+      //console.error('ThreeDevTools#track must have event detail.');
       return;
     }
-    this.scenes.push(scene);
-    this[$entityMap].set(scene.uuid, scene);
-    this.__requestEntity(scene.uuid);
-  }
 
-  [$addRenderer]({ value }) {
-    const renderer = value;
-    if (this.renderers.indexOf(renderer) !== -1) {
+    let id;
+
+    if (value.isScene) {
+      this.scenes.add(value);
+      id = value.uuid;
+    } else if (typeof value.render === 'function') {
+      if (this.renderers.has(value)) {
+        id = this.entityMap.get(value);
+      } else {
+        id = `renderer-${this.renderers.size}`;
+      }
+      this.renderers.add(value);
+    } else {
+      //console.error(`Unable to track ${value}`);
       return;
     }
-    this.renderers.push(renderer);
-    const id = this.renderers.indexOf(renderer);
 
-    this.__requestRenderer(id);
+    if (!id) {
+      return;
+    }
+
+    this.entityMap.set(id, value);
+
+    // Fire on next tick; otherwise this is called when the scene is created,
+    // which won't have any objects. Will have to explore more in #18.
+    requestAnimationFrame(() => this.refresh(id));
   }
 
-  [$log](...message) {
+  log(...message) {
     if (DEBUG) {
       console.log('%c ThreeDevTools:', 'color:red', ...message);
     }
   }
 };
 
-};
+})();

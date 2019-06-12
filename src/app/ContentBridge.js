@@ -6,6 +6,7 @@ const $onMessage = Symbol('onMessage');
 const $processSceneData = Symbol('processSceneData');
 const $log = Symbol('log');
 const $eval = Symbol('eval');
+const $dispatchToContent = Symbol('dispatchToContent');
 const $renderers = Symbol('renderers');
 const $forceUpdate = Symbol('forceUpdate');
 
@@ -66,7 +67,12 @@ export default class ContentBridge extends EventTarget {
 
   updateProperty(uuid, property, value, dataType) {
     const object = this.get(uuid);
-    this[$eval](`__THREE_DEVTOOLS__.__updateProperty("${uuid}", "${property}", ${JSON.stringify(value)}, "${dataType}")`);
+    this[$dispatchToContent]('update', {
+      uuid,
+      property,
+      value,
+      dataType,
+    });
 
     // Updating property won't trigger a data flush, instead update
     // the local state so that elements' values are in sync with their
@@ -82,21 +88,14 @@ export default class ContentBridge extends EventTarget {
    * with UUID.
    */
   refresh(uuid) {
-    if (uuid) {
-      this[$eval](`__THREE_DEVTOOLS__.__requestEntity("${uuid}")`);
-    }
-  }
-
-  requestRenderer(id) {
-    this[$eval](`__THREE_DEVTOOLS__.__requestRenderer("${id}")`);
+    this[$dispatchToContent]('refresh', { uuid });
   }
 
   select(uuid) {
     if (!uuid) {
       return;
     }
-    const param = JSON.stringify(uuid);
-    this[$eval](`__THREE_DEVTOOLS__.__select(${param})`);
+    this[$dispatchToContent]('select', { uuid });
   }
 
   [$onMessage](request) {
@@ -108,20 +107,18 @@ export default class ContentBridge extends EventTarget {
         this[$db] = new Map();
         this[$renderers] = new Map();
 
-        const red = 'rgb(255, 137, 137)';
-        const green = 'rgb(190, 251, 125)'
-        const blue = 'rgb(120, 250, 228)';
         this[$eval](injection);
         this.dispatchEvent(new CustomEvent('load'));
         break;
-      case 'renderer':
-        this[$renderers].set(data.id, data);
-        this.dispatchEvent(new CustomEvent('renderer-update', {
-          detail: data,
-        }));
-        break;
       case 'entity':
-        this[$processSceneData](data);
+        if (data.type === 'renderer') {
+          this[$renderers].set(data.id, data);
+          this.dispatchEvent(new CustomEvent('renderer-update', {
+            detail: data,
+          }));
+        } else {
+          this[$processSceneData](data);
+        }
         break;
     }
   }
@@ -190,6 +187,14 @@ export default class ContentBridge extends EventTarget {
         uuid: object.uuid,
       },
     }));
+  }
+
+  [$dispatchToContent](type, detail) {
+    this[$eval](`
+      __THREE_DEVTOOLS__.dispatchEvent(new CustomEvent('${type}', {
+        detail: ${JSON.stringify(detail)},
+      }));`
+    );
   }
 
   async [$eval](string) {

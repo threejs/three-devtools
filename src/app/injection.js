@@ -1,4 +1,3 @@
-import EventDispatcher from '../content/EventDispatcher.js';
 import utils from '../content/utils.js';
 import ThreeDevTools from '../content/ThreeDevTools.js';
 
@@ -14,10 +13,11 @@ console.log('%c▲%cthree-devtools%cv0.1',
   'font-size: 110%; background-color: ${blue}; color:#666; padding: 0 5px;');
 (() => {
 
-  const EventDispatcher = (${EventDispatcher})();
+  const DEBUG = true;
   const utils = (${utils})();
+  const devtools = new (${ThreeDevTools})(window.__THREE_DEVTOOLS__);
 
-  window.__THREE_DEVTOOLS__ = (${ThreeDevTools})();
+  window.__THREE_DEVTOOLS__.dispatchEvent(new CustomEvent('devtools-ready'));
 })();
 
 `;
