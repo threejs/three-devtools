@@ -11,9 +11,10 @@ This API has not been thought out at all, but this will register your
 THREE.Scene and THREE.Renderer to be observed by the tools.
 
 ```js
-if (window.ThreeDevTools) {
-  window.ThreeDevTools.addScene(scene);
-  window.ThreeDevTools.addRenderer(renderer);
+// Track a scene or a renderer
+if (typeof __THREE_DEVTOOLS__ !== 'undefined') {
+  __THREE_DEVTOOLS__.dispatchEvent(new CustomEvent('track', { detail: scene }));
+  __THREE_DEVTOOLS__.dispatchEvent(new CustomEvent('track', { detail: renderer }));
 }
 ```
 
