@@ -20,6 +20,8 @@ import EnumValueElement from './elements/values/EnumValueElement.js';
 
 import TreeItemElement from './common-elements/TreeItemElement.js';
 import AccordionViewElement from './common-elements/AccordionViewElement.js';
+import DevtoolsMessageElement from './common-elements/DevtoolsMessageElement.js';
+import DevtoolsButtonElement from './common-elements/DevtoolsButtonElement.js';
 
 //////
 globalThis.browser = browser;
@@ -44,6 +46,8 @@ window.customElements.define('enum-value', EnumValueElement);
 
 window.customElements.define('tree-item', TreeItemElement);
 window.customElements.define('accordion-view', AccordionViewElement);
+window.customElements.define('devtools-message', DevtoolsMessageElement);
+window.customElements.define('devtools-button', DevtoolsButtonElement);
 
 const agent = getAgent(window.navigator.userAgent);
 console.log('Parsed agent:', agent);

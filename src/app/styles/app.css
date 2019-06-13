@@ -20,13 +20,3 @@
 body {
   margin: 0;
 }
-
-three-devtools-app {
-  flex-direction: column;
-  user-select: none;
-}
-@media (min-aspect-ratio: 1/1) {
-  three-devtools-app {
-    flex-direction: row;
-  }
-}

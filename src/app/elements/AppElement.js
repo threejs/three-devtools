@@ -16,12 +16,15 @@ export default class AppElement extends LitElement {
       activeScene: { type: String, reflect: true, attribute: 'active-scene' },
       activeEntity: { type: String, reflect: true, attribute: 'active-entity' },
       activeRenderer: { type: String, reflect: true, attribute: 'active-renderer' },
+      needsReload: { type: Boolean, reflect: true, attribute: 'needs-reload' },
     }
   }
 
 
   constructor() {
     super();
+
+    this.needsReload = true;
 
     this[$onSelectScene] = this[$onSelectScene].bind(this);
     this[$onSelectEntity] = this[$onSelectEntity].bind(this);
@@ -78,6 +81,8 @@ export default class AppElement extends LitElement {
 
     let inspected;
 
+    const isReady = this.activeScene && this.activeRenderer;
+
     if (this.activeEntity) {
       const object = this.content.get(this.activeEntity);
 
@@ -105,22 +110,33 @@ export default class AppElement extends LitElement {
     return html`
 <style>
   :host {
-    display: flex;
     width: 100%;
     height: 100%;
   }
 
-  :host > * {
+  #container {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+    user-select: none;
+  }
+  #container > * {
     flex: 1;
     overflow: hidden;
     border-top: 1px solid var(--view-border-color);
   }
+
   @media (min-aspect-ratio: 1/1) {
-    :host > * {
+    #container {
+      flex-direction: row;
+    }
+    #container > * {
       border-left: 1px solid var(--view-border-color);
     }
   }
-  :host > *:first-child {
+
+  #container > *:first-child {
     border-left-width: 0px;
     border-top-width: 0px;
   }
@@ -136,21 +152,57 @@ export default class AppElement extends LitElement {
   .wrapper > *:first-child {
     border-left-width: 0px;
   }
+
+  [state] [visible-when] {
+    display: none;
+  }
+  [state='ready'] [visible-when='ready'] {
+    display: flex;
+  }
+  [state='needs-reload'] [visible-when='needs-reload'] {
+    display: flex;
+  }
+  [state='waiting'] [visible-when='waiting'] {
+    display: flex;
+  }
+  .loading {
+    animation: loading 1s infinite;
+  }
+  @keyframes loading {
+    from {
+      transform: rotateY(0deg);
+    }
+    to {
+      transform: rotateY(180deg);
+    }
+  }
 </style>
-<div class="wrapper">
-  <scene-view uuid="${ifDefined(this.activeScene)}"
-      selected="${ifDefined(this.activeEntity)}"></scene-view>
-  <resources-view uuid="${ifDefined(this.activeScene)}"
-      selected="${ifDefined(this.activeEntity)}"></resources-view>
-</div>
-${inspected}
-<div class="wrapper">
-  <renderer-view id="${ifDefined(this.activeRenderer)}"
-      selected="${ifDefined(this.activeRenderer)}"></renderer-view>
+<div state=${isReady ? 'ready' : this.needsReload ? 'needs-reload' : 'waiting'} id="container">
+  <div visible-when='ready' class="wrapper">
+    <scene-view uuid="${ifDefined(this.activeScene)}"
+        selected="${ifDefined(this.activeEntity)}"></scene-view>
+    <resources-view uuid="${ifDefined(this.activeScene)}"
+        selected="${ifDefined(this.activeEntity)}"></resources-view>
+  </div>
+  ${inspected}
+  <div visible-when='ready' class="wrapper">
+    <renderer-view id="${ifDefined(this.activeRenderer)}"
+        selected="${ifDefined(this.activeRenderer)}"></renderer-view>
+  </div>
+  <devtools-message visible-when='needs-reload'>
+    <span>Three Devtools requires a page reload.</span>
+    <devtools-button @click="${() => this.content.reload()}">
+      <span>Reload</span>
+    </devtools-button>
+  </devtools-message>
+  <devtools-message visible-when='waiting'>
+    <span>Waiting for a scene and renderer to be tracked...</span>
+    <span class="loading">▲</span>
+  </devtools-message>
 </div>
 `;
   }
-  
+
   [$onSelectScene](e) {
     this.activeScene = e.detail.uuid || undefined;
   }
@@ -162,14 +214,14 @@ ${inspected}
   [$onSelectRenderer](e) {
     this.activeRenderer = e.detail.id || undefined;
   }
-  
+
   [$onContentUpdate](e) {
     // If this is the initial scene, set it as active
     if (!this.activeScene && e.detail.typeHint === 'scene') {
       this.activeScene = e.detail.uuid;
     }
   }
-  
+
   [$onContentRendererUpdate](e) {
     // If this is the initial renderer, set it as active
     if (!this.activeRenderer && e.detail.id) {
@@ -182,8 +234,9 @@ ${inspected}
     this.activeScene = undefined;
     this.activeEntity = undefined;
     this.activeRenderer = undefined;
+    this.needsReload = false;
   }
-  
+
   /**
    * A command from a descendant node. Process here.
    */

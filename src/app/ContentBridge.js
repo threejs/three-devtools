@@ -39,6 +39,10 @@ export default class ContentBridge extends EventTarget {
     this.port.onMessage.addListener(e => this[$onMessage](e));
   }
 
+  reload() {
+    browser.devtools.inspectedWindow.reload();
+  }
+
   get(uuid) {
     return this[$db].get(uuid);
   }
