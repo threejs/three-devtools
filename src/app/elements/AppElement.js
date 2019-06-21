@@ -196,7 +196,7 @@ export default class AppElement extends LitElement {
     </devtools-button>
   </devtools-message>
   <devtools-message visible-when='waiting'>
-    <span>Waiting for a scene and renderer to be tracked...</span>
+    <span>Waiting for a scene and renderer to be observed...</span>
     <span class="loading">▲</span>
   </devtools-message>
 </div>

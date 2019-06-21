@@ -35,7 +35,7 @@ export default class ResourcesViewElement extends LitElement {
   }
 
   [$onContentUpdate](e) {
-    // If the tracked object has been updated in
+    // If the observed object has been updated in
     // storage, force a rerender
     this.requestUpdate();
   }

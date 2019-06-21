@@ -65,7 +65,7 @@ export default class BaseElement extends LitElement {
   }
 
   [$onContentUpdate](e) {
-    // If the tracked object has been updated in
+    // If the observed object has been updated in
     // storage, force a rerender
     if (e.detail.uuid === this.uuid) {
       this.requestUpdate();

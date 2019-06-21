@@ -17,7 +17,7 @@ return class ThreeDevTools {
 
     this.selected = window.$t = null;
 
-    this.target.addEventListener('track', e => this.track(e.detail));
+    this.target.addEventListener('observe', e => this.observe(e.detail));
     this.target.addEventListener('refresh', e => this.refresh(e.detail && e.detail.uuid));
     this.target.addEventListener('select', e => this.select(e.detail && e.detail.uuid));
     this.target.addEventListener('update', e => this.update(e.detail));
@@ -84,7 +84,7 @@ return class ThreeDevTools {
     } else if (entity.isScene) {
       data = utils.serializeEntity(entity);
 
-      // Track all resources in all scenes so we can use
+      // Observe all resources in all scenes so we can use
       // this object as a cache when serializing other entities.
       utils.mergeResources(this.resources, data);
 
@@ -123,9 +123,9 @@ return class ThreeDevTools {
     }
   }
 
-  track(value) {
+  observe(value) {
     if (!value) {
-      //console.error('ThreeDevTools#track must have event detail.');
+      //console.error('ThreeDevTools#observe must have event detail.');
       return;
     }
 
@@ -142,7 +142,7 @@ return class ThreeDevTools {
       }
       this.renderers.add(value);
     } else {
-      //console.error(`Unable to track ${value}`);
+      //console.error(`Unable to observe ${value}`);
       return;
     }
 
