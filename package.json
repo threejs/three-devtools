@@ -5,7 +5,8 @@
   "description": "three.js developer tools web extension",
   "scripts": {
     "build:deps": "./scripts/build-deps.sh",
-    "build:dist": "./scripts/build-dist.sh"
+    "build:dist": "./scripts/build-dist.sh",
+    "build:dist:chrome": "./scripts/build-dist.sh chrome"
   },
   "repository": {
     "type": "git",
@@ -24,7 +25,9 @@
     "three": "^0.104.0",
     "webextension-polyfill": "^0.4.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "json": "^9.0.6"
+  },
   "@pika/web": {
     "webDependencies": [
       "webextension-polyfill/dist/browser-polyfill.js",

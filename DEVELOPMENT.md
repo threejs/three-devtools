@@ -2,6 +2,24 @@
 
 **three-devtools** is a web extension that allows inspection of content in a three.js environment.using [web components] for the UI.
 
+## Commands
+
+* `npm run build:deps` builds dependencies via [@pika/web](https://github.com/pikapkg/web).
+* `npm run build:dist` builds a zip file of the extension in the `dist/*` directory for non-Chrome browsers.
+* `npm run build:dist:chrome` builds a zip file of the extension in the `dist/*` directory for Chrome. Chrome does not recognize the web extension manifest key `browser_specific_settings`, and requires a special build to fix this warning.
+
+## Local Development
+
+* Loading the extension unpacked for development on Chrome requires removing the `browser_specific_settings` key in `manifest.json` to prevent a warning in `chrome://extensions` regarding the unrecognized key. Everything else works as expected.
+
+### Building
+
+Running `npm run build:dist` creates a zip of the extension in `./dist`.
+
+Running locally as an unsigned extension on Firefox requires Developer Edition, Nightly or ESR and `xpinstall.signatures.required` in `about:config` ([source](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Distribution_options#Signing_your_extension)).
+
+Chrome requires its own build since it does not recognize `browser_specific_settings` in the web extension manifest. Run `npm run build:dist:chrome` to create a build specifically for Chrome in `./dist`. This will then need to be packed as a `.crx` via "Pack Extension" in `chrome://extensions`.
+
 ## Technology & Background
 
 Devtools extensions run in several different processes and communicating between content, background scripts and devtools pages requires some plumbing. See [Extending DevTools](https://developer.chrome.com/extensions/devtools) for more details.
