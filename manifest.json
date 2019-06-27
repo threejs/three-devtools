@@ -1,5 +1,5 @@
 {
-  "name": "three-devtools",
+  "name": "Three.js Developer Tools",
   "version": "0.1",
   "description": "Developer tools for 3D library three.js.",
   "devtools_page": "src/extension/devtools.html",
@@ -27,6 +27,7 @@
     "src/content/*.js"
   ],
   "manifest_version": 2,
+  "author": "Jordan Santell",
   "browser_specific_settings": {
     "gecko": {
       "id": "three-devtools@jsantell.com"
