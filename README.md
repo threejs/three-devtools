@@ -21,3 +21,8 @@ if (typeof __THREE_DEVTOOLS__ !== 'undefined') {
 ## Development
 
 Architecture & development notes can be found in [DEVELOPMENT.md](DEVELOPMENT.md).
+
+### Commands
+
+* `npm run build:deps` builds dependencies via [@pika/web](https://github.com/pikapkg/web).
+* `npm run build:dist` builds a zip file of the extension in the `dist/*` directory

@@ -1,7 +1,7 @@
 {
   "name": "three-devtools",
   "version": "0.1",
-  "description": "",
+  "description": "Developer tools for 3D library three.js.",
   "devtools_page": "src/extension/devtools.html",
   "background": {
     "page": "src/extension/background.html"

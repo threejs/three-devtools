@@ -1,0 +1,5 @@
+#!/bin/sh
+
+npm install
+npx @pika/web --dest web_modules/
+./scripts/genlicenses.sh",

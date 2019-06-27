@@ -1,10 +1,11 @@
 {
   "name": "three-devtools",
   "private": true,
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "three.js developer tools web extension",
   "scripts": {
-    "build": "npx @pika/web --dest web_modules/ && ./scripts/genlicenses.sh"
+    "build:deps": "./scripts/build-deps.sh",
+    "build:dist": "./scripts/build-dist.sh"
   },
   "repository": {
     "type": "git",
