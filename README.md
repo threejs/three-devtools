@@ -5,6 +5,10 @@
 > ## 🚨 Status: Experimental
 > **three-devtools** is very much in an alpha/experimentation stage. Use at your own risk. Follow the [Baseline Milestone](https://github.com/jsantell/three-devtools/milestone/1) for issues and considerations that need to be solved in order for some stability.
 
+## Installing
+
+The alpha version of the developer tools can be installed as a web extension on Firefox Add-ons/AMO (awaiting review) and for Chrome via [Chrome Web Store](https://chrome.google.com/webstore/detail/threejs-developer-tools/ebpnegggocnnhleeicgljbedjkganaek). See [DEVELOPMENT.md](DEVELOPMENT.md) for local installation.
+
 ## Current API
 
 This API has not been thought out at all, but this will register your
