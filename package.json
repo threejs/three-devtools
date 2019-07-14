@@ -4,6 +4,7 @@
   "version": "0.1.0",
   "description": "three.js developer tools web extension",
   "scripts": {
+    "build:source": "./scripts/build-source.sh",
     "build:deps": "./scripts/build-deps.sh",
     "build:dist": "./scripts/build-dist.sh",
     "build:dist:chrome": "./scripts/build-dist.sh chrome"

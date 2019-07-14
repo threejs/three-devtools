@@ -7,6 +7,7 @@
 * `npm run build:deps` builds dependencies via [@pika/web](https://github.com/pikapkg/web).
 * `npm run build:dist` builds a zip file of the extension in the `dist/*` directory for non-Chrome browsers.
 * `npm run build:dist:chrome` builds a zip file of the extension in the `dist/*` directory for Chrome. Chrome does not recognize the web extension manifest key `browser_specific_settings`, and requires a special build to fix this warning.
+* `npm run build:source` builds a zip file of the source files for the extension (sans dependencies from npm) for AMO reviews in order to build the extension.
 
 ## Local Development
 
