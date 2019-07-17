@@ -49,6 +49,11 @@ window.customElements.define('accordion-view', AccordionViewElement);
 window.customElements.define('devtools-message', DevtoolsMessageElement);
 window.customElements.define('devtools-button', DevtoolsButtonElement);
 
+// match browser devtools theme setting
+if (browser.devtools.panels.themeName === 'dark') {
+  document.documentElement.classList.add('-theme-with-dark-background');
+}
+
 const agent = getAgent(window.navigator.userAgent);
 console.log('Parsed agent:', agent);
 if (agent.os.name === 'window') {
