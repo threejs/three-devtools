@@ -12,7 +12,7 @@
   --tree-item-hover-selected-background-color: var(--selection-bg-color);
   --tree-item-indent-per-level: 10px;
   --tree-item-row-height: 20px;
-  --tree-item-border-color: #ccc;
+  --tree-item-border-color: var(--divider-color);
   --key-value-height: 30px;
   --key-value-divider-position: 40%;
 }
