@@ -34,7 +34,7 @@
     --selection-inactive-fg-color: #cdcdcd;
     --selection-inactive-bg-color: hsl(0, 0%, 28%);
     --tab-selected-fg-color: #eaeaea;
-    --tab-selected-bg-color: black;
+    --tab-selected-bg-color: var(--toolbar-bg-color);
     --drop-shadow: 0 0 0 1px rgba(255, 255, 255, 0.2),
                    0 2px 4px 2px rgba(0, 0, 0, 0.2),
                    0 2px 6px 2px rgba(0, 0, 0, 0.1);
@@ -64,6 +64,11 @@ body {
   -webkit-user-select: none;
   color: #222;
   background: white;
+}
+
+html.-theme-with-dark-background > body {
+	color: #d5d5d5;
+	background: #242424;
 }
 
 .platform-linux {
