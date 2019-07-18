@@ -38,7 +38,9 @@ export default class ObjectViewElement extends BaseElement {
   .mesh { display: none; }
   [object-hint="mesh"] .mesh { display: flex; }
 </style>
-<title-bar title="Object View"></title-bar>
+<title-bar title="Object View">
+  <devtools-icon-button sheet-variant="large" icon-style="--spritesheet-position:-84px 48px; width: 28px; height: 24px;">
+</title-bar>
 <div class="properties" object-hint="${objectType}">
   <key-value uuid=${this.uuid} key-name="Type" .value="${object.type}" type="string" property="type"></key-value>
   <key-value uuid=${this.uuid} key-name="UUID" .value="${object.uuid}" type="string" property="uuid"></key-value>

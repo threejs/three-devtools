@@ -83,7 +83,9 @@ export default class MaterialViewElement extends BaseElement {
     display: flex;
   }
 </style>
-<title-bar title="Material View"></title-bar>
+<title-bar title="Material View">
+  <devtools-icon-button sheet-variant="large" icon-style="--spritesheet-position:-84px 48px; width: 28px; height: 24px;">
+</title-bar>
 <div class="properties" material-hint="${materialHint}">
   <key-value uuid="${this.uuid}" key-name="Type" .value="${material.type}" type="string" property="type"></key-value>
   <key-value uuid="${this.uuid}" key-name="UUID" .value="${material.uuid}" type="string" property="uuid"></key-value>

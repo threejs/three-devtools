@@ -89,6 +89,7 @@ export default class SceneViewElement extends BaseElement {
   <select @change="${this[$onSceneSelect]}" class="chrome-select">
     ${scenes.map(scene => html`<option value="${scene.uuid}">${scene.uuid}</option>`)}
   </select>
+  <devtools-icon-button sheet-variant="large" icon-style="--spritesheet-position:-84px 48px; width: 28px; height: 24px;">
 </title-bar>
 ${createNode(scene)}
 `;

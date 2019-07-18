@@ -56,7 +56,9 @@ export default class TextureViewElement extends BaseElement {
     display: flex;
   }
 </style>
-<title-bar title="Texture View"></title-bar>
+<title-bar title="Texture View">
+  <devtools-icon-button sheet-variant="large" icon-style="--spritesheet-position:-84px 48px; width: 28px; height: 24px;">
+</title-bar>
 <div class="properties" texture-hint="${textureHint}">
   <image-preview uuid="${texture.image}"></image-preview>
   <key-value uuid="${this.uuid}" key-name="UUID" .value="${texture.uuid}" type="string" property="uuid"></key-value>
