@@ -22,6 +22,7 @@ import TreeItemElement from './common-elements/TreeItemElement.js';
 import AccordionViewElement from './common-elements/AccordionViewElement.js';
 import DevtoolsMessageElement from './common-elements/DevtoolsMessageElement.js';
 import DevtoolsButtonElement from './common-elements/DevtoolsButtonElement.js';
+import DevtoolsIconButtonElement from './common-elements/DevtoolsIconButtonElement.js';
 
 //////
 globalThis.browser = browser;
@@ -48,6 +49,7 @@ window.customElements.define('tree-item', TreeItemElement);
 window.customElements.define('accordion-view', AccordionViewElement);
 window.customElements.define('devtools-message', DevtoolsMessageElement);
 window.customElements.define('devtools-button', DevtoolsButtonElement);
+window.customElements.define('devtools-icon-button', DevtoolsIconButtonElement);
 
 function changeTheme(themeName) {
   // chrome "default" = firefox "light"
