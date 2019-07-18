@@ -30,7 +30,9 @@ export default class GeometryViewElement extends BaseElement {
     overflow-x: hidden;
   }
 </style>
-<title-bar title="Geometry View"></title-bar>
+<title-bar title="Geometry View">
+  <devtools-icon-button sheet-variant="large" icon-style="--spritesheet-position:-84px 48px; width: 28px; height: 24px;">
+</title-bar>
 <div class="properties">
   <div>TODO</div>
   <key-value uuid="${this.uuid}" key-name="UUID" .value="${geometry.uuid}" type="string" property="uuid"></key-value>

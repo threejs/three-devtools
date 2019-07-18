@@ -26,7 +26,6 @@ export default class TitleBarElement extends LitElement {
     background-color: var(--title-background-color);
     border-bottom: 1px solid var(--title-border-color);
 
-    padding: 2px 0.8em;
     line-height: 15px;
     white-space: nowrap;
     align-items: center;
@@ -35,12 +34,12 @@ export default class TitleBarElement extends LitElement {
 
   #title {
     text-overflow: ellipsis;
-    padding-right: 0.8em;
+    padding: 2px 0.8em;
+    flex: 1;
   }
 
   ::slotted(*) {
     display: inline-block;
-    flex: 1;
   }
 
 </style>
