@@ -49,10 +49,24 @@ window.customElements.define('accordion-view', AccordionViewElement);
 window.customElements.define('devtools-message', DevtoolsMessageElement);
 window.customElements.define('devtools-button', DevtoolsButtonElement);
 
-// match browser devtools theme setting
-if (browser.devtools.panels.themeName === 'dark') {
-  document.documentElement.classList.add('-theme-with-dark-background');
+function changeTheme(themeName) {
+  // chrome "default" = firefox "light"
+  if (themeName === 'default' || themeName === 'light') {
+    document.documentElement.classList.remove('-theme-with-dark-background');
+    // assume dark theme for anything else (including third-party themes)
+  } else {
+    document.documentElement.classList.add('-theme-with-dark-background');
+  }
 }
+
+// firefox devtools are not reloaded when the theme is changed
+// so we have to add a listener for it
+if (browser.devtools.panels.onThemeChanged) {
+  browser.devtools.panels.onThemeChanged.addListener(changeTheme);
+}
+
+// match browser devtools theme setting
+changeTheme(browser.devtools.panels.themeName);
 
 const agent = getAgent(window.navigator.userAgent);
 console.log('Parsed agent:', agent);
