@@ -31,7 +31,7 @@ export default class GeometryViewElement extends BaseElement {
   }
 </style>
 <title-bar title="Geometry View">
-  <devtools-icon-button sheet-variant="large" icon-style="--spritesheet-position:-84px 48px; width: 28px; height: 24px;">
+  <devtools-icon-button icon="refresh">
 </title-bar>
 <div class="properties">
   <div>TODO</div>
