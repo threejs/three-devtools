@@ -1,11 +1,9 @@
 import { LitElement, html } from '../../../web_modules/lit-element.js'
-import IconStyles from '../elements/shared-styles/ui-icon.js'
 
 export default class DevtoolsIconButtonElement extends LitElement {
   static get properties() {
     return {
-      "sheet-variant": { type: String, reflect: true },
-      "icon-style": { type: String, reflect: true }
+      "icon": { type: String, reflect: true }
     }
   }
 
@@ -30,14 +28,13 @@ export default class DevtoolsIconButtonElement extends LitElement {
     outline-width: 0;
   }
 
-  :host > button:enabled:hover:not(:active) span {
-    background-color: rgb(204, 204, 204);
+  :host > button:enabled:hover:not(:active) > * {
+    background-color: var(--tab-selected-fg-color);
   }
 
-  ${IconStyles}
 </style>
 <button>
-  <span is="ui-icon" class="toolbar-glyph spritesheet-${this["sheet-variant"]}icons ${this["sheet-variant"]}icon-menu icon-mask" style="${this["icon-style"]}"></span>
+  <devtools-icon icon="${this.icon}"></devtools-icon>
 </button>
 `;
   }

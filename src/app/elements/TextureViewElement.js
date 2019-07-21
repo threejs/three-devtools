@@ -57,7 +57,7 @@ export default class TextureViewElement extends BaseElement {
   }
 </style>
 <title-bar title="Texture View">
-  <devtools-icon-button sheet-variant="large" icon-style="--spritesheet-position:-84px 48px; width: 28px; height: 24px;">
+  <devtools-icon-button icon="refresh">
 </title-bar>
 <div class="properties" texture-hint="${textureHint}">
   <image-preview uuid="${texture.image}"></image-preview>

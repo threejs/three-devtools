@@ -81,7 +81,7 @@ export default class ResourcesViewElement extends LitElement {
   }
 </style>
 <title-bar title="Resources">
-	<devtools-icon-button sheet-variant="large" icon-style="--spritesheet-position:-84px 48px; width: 28px; height: 24px;">
+  <devtools-icon-button icon="refresh">
 </title-bar>
 <tree-item
   tabindex="0"
