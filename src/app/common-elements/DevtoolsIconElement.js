@@ -32,14 +32,14 @@ export default class DevtoolsIconElement extends LitElement {
     return html`
 <style>
 :host {
-	display: inline-block;
-	flex-shrink: 0;
-	${sizes[icon.sheet]};
-	background-color: rgb(145, 145, 145);
-	-webkit-mask-position: ${icon.position};
-					mask-position: ${icon.position};
-	-webkit-mask-image: -webkit-image-set(url(assets/${icon.sheet}Icons.png) 1x, url(assets/${icon.sheet}Icons_2x.png) 2x);
-					mask-image: url(assets/${icon.sheet}Icons.png);
+  display: inline-block;
+  flex-shrink: 0;
+  ${sizes[icon.sheet]};
+  background-color: rgb(145, 145, 145);
+  -webkit-mask-position: ${icon.position};
+          mask-position: ${icon.position};
+  -webkit-mask-image: -webkit-image-set(url(assets/${icon.sheet}Icons.png) 1x, url(assets/${icon.sheet}Icons_2x.png) 2x);
+          mask-image: url(assets/${icon.sheet}Icons.png);
 }
 </style>
 `;
