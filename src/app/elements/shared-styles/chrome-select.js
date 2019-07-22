@@ -24,7 +24,7 @@ select {
     background-position: right center;
     background-repeat: no-repeat;
     min-height: 24px;
-    min-width: 80px;
+    min-width: 16px;
     background-size: 15px;
   }
 

@@ -68,16 +68,17 @@ export default class ResourcesViewElement extends LitElement {
     return html`
 <style>
   :host {
-    display: block;
+    display: flex;
+    flex-direction: column;
     width: 100%;
     height: 100%;
-    overflow-y: auto;
     overflow-x: hidden;
   }
 
   :host > tree-item {
-    height: auto;
-    max-height: 100%;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
   }
 </style>
 <title-bar title="Resources"></title-bar>
