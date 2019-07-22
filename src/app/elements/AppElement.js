@@ -152,6 +152,9 @@ export default class AppElement extends LitElement {
   .wrapper > *:first-child {
     border-left-width: 0px;
   }
+  .flex-inherit {
+    flex: inherit !important;
+  }
 
   [state] [visible-when] {
     display: none;
@@ -185,7 +188,7 @@ export default class AppElement extends LitElement {
         selected="${ifDefined(this.activeEntity)}"></resources-view>
   </div>
   ${inspected}
-  <div visible-when='ready' class="wrapper">
+  <div visible-when='ready' class="wrapper flex-inherit">
     <renderer-view id="${ifDefined(this.activeRenderer)}"
         selected="${ifDefined(this.activeRenderer)}"></renderer-view>
   </div>
