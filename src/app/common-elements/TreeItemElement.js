@@ -255,7 +255,7 @@ export default class TreeItemElement extends LitElement {
   :host([depth]) {
     border-top: 1px solid var(--tree-item-border-color);
   }
-  :host([depth="0"]) {
+  :host([depth="0"]), :host([depth="-1"]) {
     border: 0;
   }
   :host([depth="0"]) #children {
