@@ -58,26 +58,48 @@ export default class RendererViewElement extends BaseElement {
     display: flex;
     flex-direction: column;
     width: 100%;
-    height: 100%;
   }
 
   .properties {
     flex: 1;
+    font-size: 1em;
+    padding: 4px 6px;
+    box-sizing: border-box;
+    width: 100%;
     overflow-y: auto;
     overflow-x: hidden;
   }
 
+  .properties td:last-child {
+    text-align: right;
+  }
 </style>
 <title-bar title="Renderer"></title-bar>
-<ul class="properties">
-  <li><strong>frame</strong>${info.render.frame}</li>
-  <li><strong>calls</strong>${info.render.calls}</li>
-  <li><strong>triangles</strong>${info.render.triangles}</li>
-  <li><strong>points</strong>${info.render.points}</li>
-  <li><strong>lines</strong>${info.render.lines}</li>
-  <li><strong>geometries</strong>${info.memory.geometries}</li>
-  <li><strong>textures</strong>${info.memory.textures}</li>
-</ul>
+<table class="properties">
+  <tbody>
+    <tr>
+      <td>frame</td><td>${info.render.frame}</td>
+    </tr>
+    <tr>
+      <td>calls</td><td>${info.render.calls}</td>
+    </tr>
+    <tr>
+      <td>triangles</td><td>${info.render.triangles}</td>
+    </tr>
+    <tr>
+      <td>points</td><td>${info.render.points}</td>
+    </tr>
+    <tr>
+      <td>lines</td><td>${info.render.lines}</td>
+    </tr>
+    <tr>
+      <td>geometries</td><td>${info.memory.geometries}</td>
+    </tr>
+    <tr>
+      <td>textures</td><td>${info.memory.textures}</td>
+    </tr>
+  </tbody>
+</table>
 `;
   }
 }
