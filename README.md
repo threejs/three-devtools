@@ -7,7 +7,7 @@
 
 ## Installing
 
-The alpha version of the developer tools can be installed as a web extension on [Firefox Add-ons/AMO](https://addons.mozilla.org/en-US/firefox/addon/three-js-developer-tools/) and for Chrome via [Chrome Web Store](https://chrome.google.com/webstore/detail/threejs-developer-tools/ebpnegggocnnhleeicgljbedjkganaek). See [DEVELOPMENT.md](DEVELOPMENT.md) for local installation.
+The alpha version of the developer tools can be installed as a web extension on [Firefox Add-ons/AMO](https://addons.mozilla.org/en-US/firefox/addon/three-js-developer-tools/) and for Chrome via [Chrome Web Store](https://chrome.google.com/webstore/detail/threejs-developer-tools/ebpnegggocnnhleeicgljbedjkganaek) (**Awaiting approval again on the Chrome Web Store, link currently down**). See [DEVELOPMENT.md](DEVELOPMENT.md) for local installation.
 
 ## Current API
 
