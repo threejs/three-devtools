@@ -4,8 +4,15 @@
 const script = document.createElement('script');
 script.text = `
 (() => {
+/**
+ * This script injected by the installed three.js developer
+ * tools extension.
+ * https://github.com/threejs/three-devtools
+ */
+
 const $devtoolsReady = Symbol('devtoolsReady');
 const $backlog = Symbol('backlog');
+
 // The __THREE_DEVTOOLS__ target is small and light-weight, and collects
 // events triggered until the devtools panel is ready, which is when
 // the events are flushed.
