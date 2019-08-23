@@ -39,7 +39,7 @@ export default class ObjectViewElement extends BaseElement {
   [object-hint="mesh"] .mesh { display: flex; }
 </style>
 <title-bar title="Object View">
-  <devtools-icon-button icon="refresh">
+  <devtools-icon-button icon="refresh" @click="${this.refresh}">
 </title-bar>
 <div class="properties" object-hint="${objectType}">
   <key-value uuid=${this.uuid} key-name="Type" .value="${object.type}" type="string" property="type"></key-value>

@@ -84,7 +84,7 @@ export default class MaterialViewElement extends BaseElement {
   }
 </style>
 <title-bar title="Material View">
-  <devtools-icon-button icon="refresh">
+  <devtools-icon-button icon="refresh" @click="${this.refresh}">
 </title-bar>
 <div class="properties" material-hint="${materialHint}">
   <key-value uuid="${this.uuid}" key-name="Type" .value="${material.type}" type="string" property="type"></key-value>

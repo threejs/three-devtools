@@ -59,9 +59,15 @@ export default class BaseElement extends LitElement {
    */
   shouldUpdate(changedProperties) {
     if (this.app && changedProperties.has('uuid')) {
-      this.app.refresh(this.uuid, this.constructor.typeHint);
+      this.refresh();
     }
     return true;
+  }
+
+  refresh() {
+    if (this.app) {
+      this.app.refresh(this.uuid, this.constructor.typeHint);
+    }
   }
 
   [$onContentUpdate](e) {
