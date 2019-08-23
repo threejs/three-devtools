@@ -1,4 +1,4 @@
-import { d as directive, A as AttributePart } from '../../common/chunk-954e4e40.js';
+import { d as directive, A as AttributePart } from '../../common/lit-html-d6553ed1.js';
 
 /**
  * @license
@@ -19,17 +19,16 @@ import { d as directive, A as AttributePart } from '../../common/chunk-954e4e40.
  *
  * For other part types, this directive is a no-op.
  */
-const ifDefined = directive((value) => (part) => {
-    if (value === undefined && part instanceof AttributePart) {
-        if (value !== part.value) {
-            const name = part.committer.name;
-            part.committer.element.removeAttribute(name);
-        }
+
+const ifDefined = directive(value => part => {
+  if (value === undefined && part instanceof AttributePart) {
+    if (value !== part.value) {
+      const name = part.committer.name;
+      part.committer.element.removeAttribute(name);
     }
-    else {
-        part.setValue(value);
-    }
+  } else {
+    part.setValue(value);
+  }
 });
 
 export { ifDefined };
-//# sourceMappingURL=if-defined.js.map

@@ -1,0 +1,13 @@
+{
+  "imports": {
+    "webextension-polyfill/dist/browser-polyfill": "./webextension-polyfill/dist/browser-polyfill.js",
+    "lit-element": "./lit-element.js",
+    "lit-html/directives/if-defined": "./lit-html/directives/if-defined.js",
+    "@egjs/agent": "./@egjs/agent.js",
+    "three": "./three.js",
+    "three/src/constants": "./three/src/constants.js",
+    "three/examples/jsm/loaders/GLTFLoader": "./three/examples/jsm/loaders/GLTFLoader.js",
+    "three/examples/jsm/pmrem/PMREMGenerator": "./three/examples/jsm/pmrem/PMREMGenerator.js",
+    "three/examples/jsm/pmrem/PMREMCubeUVPacker": "./three/examples/jsm/pmrem/PMREMCubeUVPacker.js"
+  }
+}

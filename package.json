@@ -20,14 +20,14 @@
   },
   "homepage": "https://github.com/jsantell/three-devtools#readme",
   "dependencies": {
-    "@egjs/agent": "^2.1.5",
-    "lit-element": "^2.1.0",
-    "lit-html": "^1.0.0",
-    "three": "^0.104.0",
-    "webextension-polyfill": "^0.4.0"
+    "@egjs/agent": "2.1.5",
+    "lit-element": "2.2.1",
+    "lit-html": "1.1.2",
+    "three": "0.107.0",
+    "webextension-polyfill": "0.4.0"
   },
   "devDependencies": {
-    "json": "^9.0.6"
+    "json": "9.0.6"
   },
   "@pika/web": {
     "webDependencies": [
