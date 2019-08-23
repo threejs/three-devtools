@@ -57,7 +57,7 @@ export default class TextureViewElement extends BaseElement {
   }
 </style>
 <title-bar title="Texture View">
-  <devtools-icon-button icon="refresh">
+  <devtools-icon-button icon="refresh" @click="${this.refresh}">
 </title-bar>
 <div class="properties" texture-hint="${textureHint}">
   <image-preview uuid="${texture.image}"></image-preview>

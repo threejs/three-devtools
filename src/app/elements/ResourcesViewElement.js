@@ -82,7 +82,6 @@ export default class ResourcesViewElement extends LitElement {
   }
 </style>
 <title-bar title="Resources">
-  <devtools-icon-button icon="refresh">
 </title-bar>
 <tree-item
   tabindex="0"
