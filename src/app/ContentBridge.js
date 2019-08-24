@@ -10,6 +10,8 @@ const $dispatchToContent = Symbol('dispatchToContent');
 const $renderers = Symbol('renderers');
 const $forceUpdate = Symbol('forceUpdate');
 
+const VERBOSE_CONTENT_BRIDGE = false;
+
 export default class ContentBridge extends EventTarget {
   /**
    * Events:
@@ -37,6 +39,20 @@ export default class ContentBridge extends EventTarget {
     });
 
     this.port.onMessage.addListener(e => this[$onMessage](e));
+    
+    document.addEventListener('keydown', e => {
+      let mode, space;
+      switch (e.key) {
+        case 'q': space = true; break;
+        case 'w': mode = 'translate'; break;
+        case 'e': mode = 'rotate'; break;
+        case 'r': mode = 'scale'; break;
+      }
+
+      if (mode || space) {
+        this[$dispatchToContent]('_transform-controls-update', { mode, space });
+      }
+    }, { passive: true })
   }
 
   reload() {
@@ -211,6 +227,8 @@ export default class ContentBridge extends EventTarget {
   }
 
   [$log](...message) {
-    console.log('ContentBridge:', ...message);
+    if (VERBOSE_CONTENT_BRIDGE) {
+      console.log('ContentBridge:', ...message);
+    }
   }
 }

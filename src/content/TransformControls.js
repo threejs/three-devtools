@@ -1,3 +1,4 @@
+export default (THREE) => {
 /**
  * @author arodic / https://github.com/arodic
  */
@@ -1579,3 +1580,4 @@ THREE.TransformControlsPlane.prototype = Object.assign( Object.create( THREE.Mes
 	isTransformControlsPlane: true
 
 } );
+};

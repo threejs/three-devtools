@@ -20,5 +20,7 @@ cat node_modules/three/build/three.min.js >> src/content/three.js
 echo '  return exports;'                  >> src/content/three.js
 echo '};'                              >> src/content/three.js
 # Copy over the non-modified version of TransformControls
-cat node_modules/three/examples/js/controls/TransformControls.js > src/content/TransformControls.js
+echo 'export default (THREE) => {'        > src/content/TransformControls.js
+cat node_modules/three/examples/js/controls/TransformControls.js >> src/content/TransformControls.js
+echo '};'                                 >> src/content/TransformControls.js
 
