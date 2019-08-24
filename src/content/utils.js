@@ -1,5 +1,13 @@
 export default (() => {
 return {
+  hideObjectFromTools: (object) => {
+    object.userData.fromDevtools = true;
+  },
+
+  isHiddenFromTools: (object) => {
+    return !!(object.userData && object.userData.fromDevtools);
+  },
+
   cacheEntitiesInScene: (scene, map) => {  
     map.set(scene.uuid, scene);
 

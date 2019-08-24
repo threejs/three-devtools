@@ -1,5 +1,8 @@
 import utils from '../content/utils.js';
+import TransformControls from '../content/TransformControls.js';
 import ThreeDevTools from '../content/ThreeDevTools.js';
+import DevToolsScene from '../content/DevToolsScene.js';
+import THREE from '../content/three.js';
 
 const red = 'rgb(255, 137, 137)';
 const green = 'rgb(190, 251, 125)'
@@ -15,6 +18,9 @@ console.log('%c▲%cthree-devtools%cv0.1',
 
   const DEBUG = false;
   const utils = (${utils})();
+  const THREE = (${THREE})();
+  (${TransformControls})(THREE);
+  const DevToolsScene = (${DevToolsScene})(THREE);
   const devtools = new (${ThreeDevTools})(window.__THREE_DEVTOOLS__);
 
   window.__THREE_DEVTOOLS__.dispatchEvent(new CustomEvent('devtools-ready'));
