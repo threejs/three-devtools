@@ -8,6 +8,7 @@ export default (() => {
  */
 return class ThreeDevTools {
   constructor(target) {
+    this.USE_RENDER_OVERLAY = false;
     this.target = target;
     this.scenes = new Set();
     this.renderers = new Set();
@@ -229,10 +230,15 @@ return class ThreeDevTools {
   }
 
   setActiveRenderer(renderer) {
+    // Hide the overlay rendering unless
+    // enabled while some buggy cases are ironed out
+    if (!this.USE_RENDER_OVERLAY) {
+      return;
+    }
     const render = renderer.render;
     const devtools = this;
-    let devtoolsScene = devtools.devtoolsScene;
 
+    let devtoolsScene;
     renderer.render = function (scene, camera) {
       const target = renderer.getRenderTarget();
       render.call(this, scene, camera);
