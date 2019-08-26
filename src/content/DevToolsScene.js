@@ -7,10 +7,14 @@ export default (THREE) => {
 return class DevToolsScene extends THREE.Scene {
   constructor(target, domElement, camera) {
     super();
+    this.onSelectedObjectRemove = this.onSelectedObjectRemove.bind(this);
     this.name = 'DevToolsScene';
-    this.bbHelper = new THREE.Box3Helper(new THREE.Box3());
+    this.bbHelper = new THREE.BoxHelper();
+    window.bbHelper = this.bbHelper;
     this.bbHelper.material.depthWrite = false;
-    this.bbHelper.material.depthRead = false;
+    this.bbHelper.material.depthTest = false;
+    this.bbHelper.visible = false;
+    this.add(this.bbHelper);
  
     this.target = target;
     this.camera = camera;
@@ -55,25 +59,40 @@ return class DevToolsScene extends THREE.Scene {
   }
 
   selectObject(object) {
-    if (object.isObject3D && !object.isScene) {
-      this.transformControls.attach(object);
-    } else {
+    if (this.selectedObject) {
+      this.selectedObject.removeEventListener('removed', this.onSelectedObjectRemove);
       this.transformControls.detach();
     }
-    
-    if (object.geometry) {
-      let boundingBox = object.geometry.boundingBox;
-      if (!boundingBox) {
-        object.geometry.computeBoundingBox();
-        boundingBox = object.geometry.boundingBox;
+
+    this.selectedObject = object;
+    this.bbHelper.visible = false;
+
+    if (object && object.isObject3D && !object.isScene) {
+      this.transformControls.attach(object);
+      object.addEventListener('removed', this.onSelectedObjectRemove);
+    }
+
+    if (object) {
+      const currentBBVersion = this.bbHelper.geometry.attributes.position.version;
+      this.bbHelper.setFromObject(object);
+      // Only way to determine if the object's bounding box is empty
+      // or not without recomputing
+      if (currentBBVersion !== this.bbHelper.geometry.attributes.position.version) {
+        this.bbHelper.visible = true;
       }
-      this.bbHelper.box = boundingBox;
-      this.bbHelper.visible = true;
-    } else {
-      this.bbHelper.visible = false;
     }
 
     this.target.dispatchEvent(new CustomEvent('visualization-change'));
+  }
+
+  onBeforeRender() {
+    if (this.bbHelper.visible) {
+      this.bbHelper.update();
+    }
+  }
+
+  onSelectedObjectRemove() {
+    this.selectObject(null);
   }
 }
 };
