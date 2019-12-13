@@ -74,7 +74,9 @@ return class ThreeDevTools {
     const selected = this.entityMap.get(uuid);
 
     if (selected) {
-      this.devtoolsScene.selectObject(selected);
+      if (this.devtoolsScene) {
+        this.devtoolsScene.selectObject(selected);
+      }
       this.selected = window.$t = selected;
     }
   }
