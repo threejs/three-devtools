@@ -15,7 +15,7 @@ return class ThreeDevTools {
 
     this.entityMap = new Map();
     this.resources = new Map();
-    
+
     this.devtoolsScene = null;
 
     this.selected = window.$t = null;
@@ -36,13 +36,13 @@ return class ThreeDevTools {
         // Space isn't a string, just a truthy value will trigger a toggle
         if (space) {
           this.devtoolsScene.toggleTransformSpace(space);
-      	}
+        }
         if (mode) {
           this.devtoolsScene.setTransformMode(mode);
-	      }
+        }
       }
     });
-  
+
     // The 'visualization-change' event is fired by DevToolsScene, indicating
     // something has changed and if not rendering on a RAF loop, a render
     // is necessary to render the devtools content.
@@ -60,7 +60,7 @@ return class ThreeDevTools {
         case 'r': this.devtoolsScene.setTransformMode('scale'); break;
       }
     }, { passive: true })
-    
+
   }
 
   /**
@@ -156,13 +156,13 @@ return class ThreeDevTools {
 
   send(type, data) {
     this.log('emitting', type, data);
-    try{
+    try {
       window.postMessage({
         id: 'three-devtools',
         type: type,
         data,
       }, '*');
-    } catch(e) {
+    } catch (e) {
       if (!data) {
         throw e;
       }
@@ -242,13 +242,13 @@ return class ThreeDevTools {
     renderer.render = function (scene, camera) {
       const target = renderer.getRenderTarget();
       render.call(this, scene, camera);
-      
+
       if (!target) {
         if (!devtoolsScene) {
           devtoolsScene = devtools.createDevToolsScene(renderer, camera);
         }
         devtoolsScene.setCamera(camera);
-        
+
         const autoClear = renderer.autoClear;
         renderer.autoClear = false;
         render.call(renderer, devtoolsScene, camera);
