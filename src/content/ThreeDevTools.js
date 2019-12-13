@@ -114,6 +114,13 @@ return class ThreeDevTools {
       return;
     }
 
+    // Images are entities, via textures, and
+    // probably should not change, so no need
+    // to update.
+    if (entity instanceof Image) {
+      return;	    
+    }
+
     // The observe call for our own internal scene
     // fires as soon as the devtools scene superclass
     // is created, before any signifiers can be added
