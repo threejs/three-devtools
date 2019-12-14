@@ -1,6 +1,6 @@
 {
   "name": "Three.js Developer Tools",
-  "version": "0.2",
+  "version": "0.2.1",
   "description": "Developer tools for 3D library three.js.",
   "devtools_page": "src/extension/devtools.html",
   "background": {
@@ -9,21 +9,26 @@
   "icons": {
     "128": "assets/icon_128.png"
   },
-  "content_scripts": [{
-    "matches": ["http://*/*", "https://*/*"],
-    "js": [
-      "src/extension/contentScript.js"
-    ],
-    "run_at": "document_start"
-  }],
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": [
+        "src/extension/contentScript.js"
+      ],
+      "run_at": "document_start"
+    }
+  ],
   "permissions": [
     "storage",
-    "tabs", 
-    "webNavigation", 
+    "tabs",
+    "webNavigation",
     "http://*/*",
     "https://*/*"
   ],
-  "web_accessible_resources":[
+  "web_accessible_resources": [
     "src/content/*.js"
   ],
   "manifest_version": 2,
