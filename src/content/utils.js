@@ -89,13 +89,12 @@ const utils = {
       // but this geometry is unrehydratable (for good reason,
       // as this would then get access to privileged extension code).
       // https://github.com/mrdoob/three.js/issues/17381
-      if (entity.isParametricGeometry ||
-          entity.isParametricBufferGeometry) {
+      if (entity.parameters && typeof entity.parameters.func === 'function') {
         const toJSON = entity.toJSON;
         entity.toJSON = function () {
           const data = toJSON.apply(this, arguments);
           data.func = entity.parameters.func ?
-                      entity.parametrs.func.toString() : '';
+                      entity.parameters.func.toString() : '';
           return data;
         };
         entity[PATCHED] = true;
