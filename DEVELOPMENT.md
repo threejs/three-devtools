@@ -4,7 +4,7 @@
 
 ## Commands
 
-* `npm run build:deps` builds dependencies via [@pika/web](https://github.com/pikapkg/web).
+* `npm run build:deps` builds dependencies via [@pika/web]
 * `npm run build:dist` builds a zip file of the extension in the `dist/*` directory for non-Chrome browsers.
 * `npm run build:dist:chrome` builds a zip file of the extension in the `dist/*` directory for Chrome. Chrome does not recognize the web extension manifest key `browser_specific_settings`, and requires a special build to fix this warning.
 * `npm run build:source` builds a zip file of the source files for the extension (sans dependencies from npm) for AMO reviews in order to build the extension.
@@ -147,6 +147,24 @@ There are a few options to handle this.
   * Less inspectable than a singleton
   * Moves code from injected code to content script code -- could the extra content script be lazily brought in on first sign of a post message?
 
+## Publishing
 
+### Firefox
+
+* Test everything via `web-ext run`
+* `npm run build:dist` and `npm run build:source`
+* Go to [Three.js Developer Tools AMO Page](https://addons.mozilla.org/en-US/developers/addon/three-js-developer-tools) and upload build `dist/three.js_developer_tools_*.zip`
+  * Since [@pika/web] is used to bundle dependencies, according to AMO's [source code submission policy](https://developer.mozilla.org/en-US/Add-ons/Source_Code_Submission), source code also needs to be uploaded. Upload `dist/three-devtools-source.zip`
+  * TODO Should add a markdown page for AMO reviewers to easily recreate builds
+* Ensure minimum Firefox version is updated -- latest release version (or maybe ESR?).
+
+### Chrome
+
+* Test unpacked extension
+* Build extension for Chrome: `npm run build:dist:chrome`
+* Go to [Chrome's Developer Dashboard](https://chrome.google.com/webstore/developer/dashboard) and *edit* the Three.js Developer Tools entry, and upload `dist/three.js_developer_tools_*.zip`
+  * Accept the review notice that it'll take some time due to the broad permissions.
+
+[@pika/web]: https://github.com/pikapkg/web
 [LitElement]: https://lit-element.polymer-project.org
 [web components]: https://developer.mozilla.org/en-US/docs/Web/Web_Components
