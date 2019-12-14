@@ -185,8 +185,10 @@ const utils = {
     if (entity.isScene && entity.background) {
       utils.patchUnserializableEntities(entity.background);
     }
-    if (entity.isMesh) {
+    if (entity.material) {
       utils.patchUnserializableEntities(entity.material);
+    }
+    if (entity.geometry) {
       utils.patchUnserializableEntities(entity.geometry);
     }
   },
