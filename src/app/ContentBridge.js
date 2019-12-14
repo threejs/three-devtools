@@ -123,6 +123,10 @@ export default class ContentBridge extends EventTarget {
 
     this[$log]('>>', type, data);
     switch (type) {
+      case 'register':
+        this.revision = data.revision;
+        this[$eval](`console.log("three-devtools: debugging three.js r${this.revision}")`);
+        break;
       case 'committed':
         this[$db] = new Map();
         this[$renderers] = new Map();

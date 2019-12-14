@@ -20,16 +20,18 @@ return class ThreeDevTools {
 
     this.selected = window.$t = null;
 
-    // These events are dispatched by the extension. Content could
+    // These events are dispatched by the extension, or
+    // by the three.js library itself. Content could
     // also listen to these events and respond accordingly.
-    // Underscored events are intended to be private.
     this.target.addEventListener('observe', e => this.observe(e.detail));
     this.target.addEventListener('refresh', e => this.refresh(e.detail && e.detail.uuid));
     this.target.addEventListener('select', e => this.select(e.detail && e.detail.uuid));
     // @TODO "update" is too general (and similar to "refresh") -- maybe
     // something like "set-property"?
     this.target.addEventListener('update', e => this.update(e.detail));
+    this.target.addEventListener('register', e => this.register(e.detail));
 
+    // Underscored events are intended to be private.
     this.target.addEventListener('_transform-controls-update', e => {
       if (this.devtoolsScene) {
         const { space, mode } = e.detail;
@@ -106,6 +108,12 @@ return class ThreeDevTools {
           item[property] = value;
       }
     }
+  }
+
+  register({ revision }) {
+    this.send('register', {
+      revision, 
+    });
   }
 
   refresh(id) {
