@@ -11,9 +11,17 @@
 
 ## Local Development
 
-* Loading the extension unpacked for development on Chrome requires removing the `browser_specific_settings` key in `manifest.json` to prevent a warning in `chrome://extensions` regarding the unrecognized key. Everything else works as expected.
+### Firefox
 
-### Building
+Using [web-ext](https://extensionworkshop.com/documentation/develop/getting-started-with-web-ext/) allows local development via Firefox. `web-ext run` in the project directory.
+
+### Chrome
+
+In [chrome://extensions], load the extension *unpacked*.
+
+A (benign) warning will appear referencing the `browser_specific_settings` key in `manifest.json` as unrecognized. Everything else works as expected.
+
+## Building
 
 Running `npm run build:dist` creates a zip of the extension in `./dist`.
 
