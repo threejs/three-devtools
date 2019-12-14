@@ -7,7 +7,9 @@
     "build:source": "./scripts/build-source.sh",
     "build:deps": "./scripts/build-deps.sh",
     "build:dist": "./scripts/build-dist.sh",
-    "build:dist:chrome": "./scripts/build-dist.sh chrome"
+    "build:dist:chrome": "./scripts/build-dist.sh chrome",
+    "version": "node ./scripts/version.js && git add *.json",
+    "postversion": "git push && git push --tags"
   },
   "repository": {
     "type": "git",
