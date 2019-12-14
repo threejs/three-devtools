@@ -149,9 +149,14 @@ There are a few options to handle this.
 
 ## Publishing
 
+Before publishing:
+
+* Test Firefox via `web-ext run`
+* Test Chrome via unpacked extension in `chrome://extensions`
+* Increment the version via `npm version [major | minor | patch]`. This will update the version across `package.json`, `manifest.json` and tag and push to the git origin.
+
 ### Firefox
 
-* Test everything via `web-ext run`
 * `npm run build:dist` and `npm run build:source`
 * Go to [Three.js Developer Tools AMO Page](https://addons.mozilla.org/en-US/developers/addon/three-js-developer-tools) and upload build `dist/three.js_developer_tools_*.zip`
   * Since [@pika/web] is used to bundle dependencies, according to AMO's [source code submission policy](https://developer.mozilla.org/en-US/Add-ons/Source_Code_Submission), source code also needs to be uploaded. Upload `dist/three-devtools-source.zip`
@@ -160,7 +165,6 @@ There are a few options to handle this.
 
 ### Chrome
 
-* Test unpacked extension
 * Build extension for Chrome: `npm run build:dist:chrome`
 * Go to [Chrome's Developer Dashboard](https://chrome.google.com/webstore/developer/dashboard) and *edit* the Three.js Developer Tools entry, and upload `dist/three.js_developer_tools_*.zip`
   * Accept the review notice that it'll take some time due to the broad permissions.
