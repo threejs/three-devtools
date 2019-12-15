@@ -2,6 +2,7 @@ import { LitElement, html } from '../../../web_modules/lit-element.js'
 import { ifDefined } from '../../../web_modules/lit-html/directives/if-defined.js';
 import ContentBridge from '../ContentBridge.js';
 
+const $onPresetClick = Symbol('onPresetClick');
 const $onSelectScene = Symbol('onSelectScene');
 const $onSelectEntity = Symbol('onSelectEntity');
 const $onSelectRenderer = Symbol('onSelectRenderer');
@@ -13,6 +14,8 @@ const $onCommand = Symbol('onCommand');
 export default class AppElement extends LitElement {
   static get properties() {
     return {
+      // scene, geometry, material, texture, rendering
+      preset: { type: String, },
       activeScene: { type: String, reflect: true, attribute: 'active-scene' },
       activeEntity: { type: String, reflect: true, attribute: 'active-entity' },
       activeRenderer: { type: String, reflect: true, attribute: 'active-renderer' },
@@ -77,11 +80,17 @@ export default class AppElement extends LitElement {
     return true;
   }
 
+  createRenderRoot() {
+    return this;
+  }
+
   render() {
 
     let inspected;
 
     const isReady = this.activeScene && this.activeRenderer;
+    // scene, geometry, material, texture, rendering
+    const preset = this.preset || 'scene';
 
     if (this.activeEntity) {
       const object = this.content.get(this.activeEntity);
@@ -89,17 +98,17 @@ export default class AppElement extends LitElement {
       if (object) {
         switch (object.typeHint) {
           case 'texture':
-            inspected = html`<texture-view uuid="${this.activeEntity}"></texture-view>`;
+            inspected = html`<texture-view enabled uuid="${this.activeEntity}"></texture-view>`;
             break;
           case 'material':
-            inspected = html`<material-view uuid="${this.activeEntity}"></material-view>`;
+            inspected = html`<material-view enabled uuid="${this.activeEntity}"></material-view>`;
             break;
           case 'geometry':
-            inspected = html`<geometry-view uuid="${this.activeEntity}"></geometry-view>`;
+            inspected = html`<geometry-view enabled uuid="${this.activeEntity}"></geometry-view>`;
             break;
           case 'object':
           default:
-            inspected = html`<object-view uuid="${this.activeEntity}"></object-view>`;
+            inspected = html`<object-view enabled uuid="${this.activeEntity}"></object-view>`;
             break;
         }
       } else {
@@ -114,6 +123,8 @@ export default class AppElement extends LitElement {
     height: 100%;
   }
 
+  /* Vertical */
+
   #container {
     display: flex;
     width: 100%;
@@ -126,6 +137,16 @@ export default class AppElement extends LitElement {
     overflow: hidden;
     border-top: 1px solid var(--view-border-color);
   }
+  #container > devtools-message {
+    border: 0px;
+  }
+  #container > tab-bar {
+    flex: 0 1 auto;
+    border: 0px;
+  }
+  tab-bar {
+    flex-direction: row;
+  }
 
   @media (min-aspect-ratio: 1/1) {
     #container {
@@ -133,24 +154,27 @@ export default class AppElement extends LitElement {
     }
     #container > * {
       border-left: 1px solid var(--view-border-color);
+      border-top: 0px;
+    }
+    tab-bar {
+      flex-direction: column;
+      height: 100%;
     }
   }
 
-  #container > *:first-child {
-    border-left-width: 0px;
-    border-top-width: 0px;
-  }
   /* @TODO turn these into generic flex components? */
-  .wrapper {
+  .frame > * {
+    display: none;
+  }
+  .frame > [enabled] {
+    display: inherit;
+  }
+  .frame {
     display: flex;
     flex-direction: row;
   }
-  .wrapper > * {
+  .frame > * {
     flex: 1;
-    border-left: 1px solid var(--view-border-color);
-  }
-  .wrapper > *:first-child {
-    border-left-width: 0px;
   }
   .flex-inherit {
     flex: inherit !important;
@@ -181,17 +205,7 @@ export default class AppElement extends LitElement {
   }
 </style>
 <div state=${isReady ? 'ready' : this.needsReload ? 'needs-reload' : 'waiting'} id="container">
-  <div visible-when='ready' class="wrapper">
-    <scene-view uuid="${ifDefined(this.activeScene)}"
-        selected="${ifDefined(this.activeEntity)}"></scene-view>
-    <resources-view uuid="${ifDefined(this.activeScene)}"
-        selected="${ifDefined(this.activeEntity)}"></resources-view>
-  </div>
-  ${inspected}
-  <div visible-when='ready' class="wrapper flex-inherit">
-    <renderer-view id="${ifDefined(this.activeRenderer)}"
-        selected="${ifDefined(this.activeRenderer)}"></renderer-view>
-  </div>
+  <!-- Reload panes -->
   <devtools-message visible-when='needs-reload'>
     <span>Three Devtools requires a page reload.</span>
     <devtools-button @click="${() => this.content.reload()}">
@@ -202,8 +216,48 @@ export default class AppElement extends LitElement {
     <span>Waiting for a scene and renderer to be observed...</span>
     <span class="loading">▲</span>
   </devtools-message>
+
+  <!-- Application panes -->
+  <tab-bar visible-when='ready' @click=${this[$onPresetClick]}>
+    <x-icon title="Scene" ?active=${preset === 'scene'} icon="cubes" fill></x-icon>
+    <x-icon title="Geometries" ?active=${preset === 'geometry'} icon="dice-d20" fill></x-icon>
+    <x-icon title="Materials" ?active=${preset === 'material'} icon="paint-brush" fill></x-icon>
+    <x-icon title="Textures" ?active=${preset === 'texture'} icon="chess-board" fill></x-icon>
+    <x-icon title="Rendering" ?active=${preset === 'rendering'} icon="video" fill></x-icon>
+  </tab-bar>
+
+  <div class="frame" visible-when='ready'> 
+    <scene-view
+      uuid="${ifDefined(this.activeScene)}"
+      selected="${ifDefined(this.activeEntity)}"
+      ?enabled=${preset === 'scene'}
+      ></scene-view>
+    <resources-view
+      uuid="${ifDefined(this.activeScene)}"
+      selected="${ifDefined(this.activeEntity)}"
+      ?enabled=${preset === 'material' || preset === 'texture' || preset === 'geometry'}
+      ></resources-view>
+    <renderer-view
+      id="${ifDefined(this.activeRenderer)}"
+      selected="${ifDefined(this.activeRenderer)}"
+      ?enabled=${preset === 'rendering'}
+      ></renderer-view>
+  </div>
+  <div class="frame" visible-when='ready'>
+    ${inspected}
+  </div>
 </div>
 `;
+  }
+
+  [$onPresetClick](e) {
+    switch(e.target.title) {
+      case 'Scene': this.preset = 'scene'; break;
+      case 'Geometries': this.preset = 'geometry'; break;
+      case 'Materials': this.preset = 'material'; break;
+      case 'Textures': this.preset = 'texture'; break;
+      case 'Rendering': this.preset = 'rendering'; break;
+    }
   }
 
   [$onSelectScene](e) {

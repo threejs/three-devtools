@@ -17,6 +17,7 @@ import KeyValueElement from './elements/values/KeyValueElement.js';
 import MaterialValueElement from './elements/values/MaterialValueElement.js';
 import TextureValueElement from './elements/values/TextureValueElement.js';
 import EnumValueElement from './elements/values/EnumValueElement.js';
+import TabBarElement from './elements/TabBarElement.js';
 
 import TreeItemElement from './common-elements/TreeItemElement.js';
 import AccordionViewElement from './common-elements/AccordionViewElement.js';
@@ -24,6 +25,7 @@ import DevtoolsMessageElement from './common-elements/DevtoolsMessageElement.js'
 import DevtoolsIconElement from './common-elements/DevtoolsIconElement.js';
 import DevtoolsButtonElement from './common-elements/DevtoolsButtonElement.js';
 import DevtoolsIconButtonElement from './common-elements/DevtoolsIconButtonElement.js';
+import IconElement from './common-elements/IconElement.js';
 
 //////
 globalThis.browser = browser;
@@ -45,6 +47,7 @@ window.customElements.define('key-value', KeyValueElement);
 window.customElements.define('material-value', MaterialValueElement);
 window.customElements.define('texture-value', TextureValueElement);
 window.customElements.define('enum-value', EnumValueElement);
+window.customElements.define('tab-bar', TabBarElement);
 
 window.customElements.define('tree-item', TreeItemElement);
 window.customElements.define('accordion-view', AccordionViewElement);
@@ -52,6 +55,7 @@ window.customElements.define('devtools-message', DevtoolsMessageElement);
 window.customElements.define('devtools-icon', DevtoolsIconElement);
 window.customElements.define('devtools-button', DevtoolsButtonElement);
 window.customElements.define('devtools-icon-button', DevtoolsIconButtonElement);
+window.customElements.define('x-icon', IconElement);
 
 function changeTheme(themeName) {
   // chrome "default" = firefox "light"
