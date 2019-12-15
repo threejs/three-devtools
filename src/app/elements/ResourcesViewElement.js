@@ -3,10 +3,20 @@ import { objectTypeToCategory } from '../utils.js';
 
 const $onContentUpdate = Symbol('onContentUpdate');
 const $onTreeItemSelect = Symbol('onTreeItemSelect');
-
+const filters = [
+  'geometry',
+  'material',
+  'texture'
+];
+const filterToTitle = {
+  geometry: 'Geometry',
+  material: 'Materials',
+  texture: 'Textures',
+}
 export default class ResourcesViewElement extends LitElement {
   static get properties() {
     return {
+      filter: { type: String, reflect: true },
       selected: { type: String, reflect: true },
       uuid: { type: String, reflect: true }, // Should this inherit from BaseElement?
     }
@@ -47,12 +57,17 @@ export default class ResourcesViewElement extends LitElement {
       return html`<div>no resources</div>`;
     }
 
+    console.log('this.filter',this.filter);
+    if (filters.indexOf(this.filter) === -1) {
+      return html`<div>no filter</div>`;
+    }
+
     const createNode = (obj) => {
       let selected = obj.uuid && this.selected && this.selected === obj.uuid;
       return html`
       <tree-item
         ?selected="${selected}"
-        depth="1"
+        depth="0"
         uuid="${obj.uuid}"
         type-hint="${obj.typeHint}"
       >
@@ -61,10 +76,13 @@ export default class ResourcesViewElement extends LitElement {
       `;
     }
 
-    const geometryNodes = resources.geometry ? resources.geometry.map(createNode) : [];
-    const materialNodes = resources.material ? resources.material.map(createNode) : [];
-    const textureNodes = resources.texture ? resources.texture.map(createNode): [];
+    let nodes = [];
+    const entities = resources[this.filter];
+    if (entities) {
+      nodes = entities.map(createNode);  
+    }
 
+    const title = filterToTitle[this.filter];
     return html`
 <style>
   :host {
@@ -80,38 +98,34 @@ export default class ResourcesViewElement extends LitElement {
     overflow-y: auto;
     overflow-x: hidden;
   }
+
+  #tree-root {
+    --tree-item-arrow-width: 0.8em;
+  }
+  #tree-root:focus {
+    /* TODO how can focus be shown in the tree view? */
+    outline: none;
+  }
 </style>
-<title-bar title="Resources">
+<title-bar title="${title}">
 </title-bar>
 <tree-item
+  id="tree-root"
   tabindex="0"
   root
   open
   depth="-1">
+  ${nodes}
 
+  <!--
   <tree-item depth="0"
-    ?show-arrow="${!!geometryNodes.length}">
+    ?show-arrow="true"
     <div slot="content">
-      Geometry (${geometryNodes.length})
+      Geometry (1)
     </div>
-    ${geometryNodes}
+    (nodes)
   </tree-item>
-
-  <tree-item depth="0"
-    ?show-arrow="${!!materialNodes.length}">
-    <div slot="content">
-      Materials (${materialNodes.length})
-    </div>
-    ${materialNodes}
-  </tree-item>
-
-  <tree-item depth="0"
-    ?show-arrow="${!!textureNodes.length}">
-    <div slot="content">
-      Textures (${textureNodes.length})
-    </div>
-    ${textureNodes}
-  </tree-item>
+  -->
 </tree-item>
 `;
   }

@@ -83,6 +83,10 @@ export default class SceneViewElement extends BaseElement {
     overflow-y: auto;
     overflow-x: hidden;
   }
+  :host > tree-item:focus {
+    /* TODO how can focus be shown in the tree view? */
+    outline: none;
+  }
 
   ${ChromeSelectStyle}
 </style>
