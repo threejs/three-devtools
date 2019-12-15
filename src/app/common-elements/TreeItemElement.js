@@ -197,8 +197,6 @@ export default class TreeItemElement extends LitElement {
 
     const selected = e.composedPath()[0];
 
-    console.log("*** on tree item selected", this.getAttribute('uuid'));
-    console.log(this, selected, this.currentSelection);
     // If there's been a change in the selection,
     // update the store and allow the event to
     // propagate outside.
@@ -215,7 +213,6 @@ export default class TreeItemElement extends LitElement {
 
   [$addListeners]() {
     if (this.root && this[$connected] && !this[$listening]) {
-      console.log('listening to key up', this.getAttribute('uuid'));
       // @TODO How can we be smarter about binding key events?
       // 1) Could enable as an attribute on root element e.g. "key-events"
       // 2) Could rely on having focus on the root tree element (or some object with focus)
@@ -239,6 +236,7 @@ export default class TreeItemElement extends LitElement {
    *
    * --tree-item-indent-per-level: 10px
    * --tree-item-row-height: 20px
+   * --tree-item-arrow-width: 24px
    * --tree-item-border-color
    * --tree-item-hover-color
    * --tree-item-hover-background-color
@@ -292,7 +290,7 @@ export default class TreeItemElement extends LitElement {
 
   .arrow-block {
     height: 100%;
-    flex: 0 0 24px;
+    flex: 0 0 var(--tree-item-arrow-width, 24px);
     background-color: transparent;
     border: 0;
     padding: 0;

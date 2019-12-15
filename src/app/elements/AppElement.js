@@ -91,7 +91,7 @@ export default class AppElement extends LitElement {
     const isReady = this.activeScene && this.activeRenderer;
     // scene, geometry, material, texture, rendering
     const preset = this.preset || 'scene';
-
+    const showResourceView = ['geometry', 'material', 'texture'].indexOf(preset) !== -1;
     if (this.activeEntity) {
       const object = this.content.get(this.activeEntity);
 
@@ -233,9 +233,10 @@ export default class AppElement extends LitElement {
       ?enabled=${preset === 'scene'}
       ></scene-view>
     <resources-view
+      filter="${showResourceView ? preset : ''}"
       uuid="${ifDefined(this.activeScene)}"
       selected="${ifDefined(this.activeEntity)}"
-      ?enabled=${preset === 'material' || preset === 'texture' || preset === 'geometry'}
+      ?enabled=${showResourceView}
       ></resources-view>
     <renderer-view
       id="${ifDefined(this.activeRenderer)}"
