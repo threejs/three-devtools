@@ -8,6 +8,7 @@
     "build:deps": "./scripts/build-deps.sh",
     "build:dist": "./scripts/build-dist.sh",
     "build:dist:chrome": "./scripts/build-dist.sh chrome",
+    "serve": "http-server . -c-1",
     "version": "node ./scripts/version.js && git add *.json",
     "postversion": "git push && git push --tags"
   },
@@ -29,6 +30,7 @@
     "webextension-polyfill": "0.4.0"
   },
   "devDependencies": {
+    "http-server": "^0.12.0",
     "json": "9.0.6"
   },
   "@pika/web": {
