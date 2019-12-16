@@ -221,6 +221,10 @@ export default class ContentBridge extends EventTarget {
     );
   }
 
+  _contentLog(string) {
+    this[$eval](`console.log("${string}")`);
+  }
+
   async [$eval](string) {
     this[$log]('EVAL', string);
     const [result, error] = await browser.devtools.inspectedWindow.eval(string);

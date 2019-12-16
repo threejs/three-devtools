@@ -57,18 +57,18 @@ export default class ResourcesViewElement extends LitElement {
       return html`<div>no resources</div>`;
     }
 
-    console.log('this.filter',this.filter);
     if (filters.indexOf(this.filter) === -1) {
       return html`<div>no filter</div>`;
     }
 
-    const createNode = (obj) => {
+    const createNode = (obj, i) => {
       let selected = obj.uuid && this.selected && this.selected === obj.uuid;
+      let unique = obj.uuid || `${this.filter}-${i}`;
       return html`
       <tree-item
+        unique="${unique}"
         ?selected="${selected}"
         depth="0"
-        uuid="${obj.uuid}"
         type-hint="${obj.typeHint}"
       >
       <div slot="content">${obj.typeHint==='texture'?'<Texture>':(obj.name || obj.type)}</div>
@@ -140,10 +140,12 @@ export default class ResourcesViewElement extends LitElement {
   [$onTreeItemSelect](e) {
     e.stopPropagation();
     const treeItem = e.composedPath()[0];
+    const uuid = treeItem.getAttribute('unique');
+    const type = treeItem.getAttribute('type-hint');
     this.dispatchEvent(new CustomEvent('select-entity', {
       detail: {
-        uuid: treeItem.getAttribute('uuid'),
-        type: treeItem.getAttribute('type-hint'),
+        uuid,
+        type,
       },
       bubbles: true,
       composed: true,

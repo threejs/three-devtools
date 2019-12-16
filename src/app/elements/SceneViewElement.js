@@ -43,7 +43,6 @@ export default class SceneViewElement extends BaseElement {
     const scene = this.getEntity();
     const resources = this.app.content.getAllResources();
     const scenes = resources ? resources.scene : [];
-    console.log(resources, scenes);
 
     if (!scene) {
       return html`<div>no scene registered</div>`;
@@ -55,6 +54,7 @@ export default class SceneViewElement extends BaseElement {
       return html`
       <tree-item
         tabindex="${depth === 0 ? 0 : ''}"
+        unique="${obj.uuid}"
         ?root="${depth === 0}"
         ?selected="${obj.uuid && this.selected && this.selected === obj.uuid}"
         ?open="${obj.type === 'Scene'}"
@@ -68,6 +68,7 @@ export default class SceneViewElement extends BaseElement {
     `;
     }
 
+    console.log('render scene graph');
     return html`
 <style>
   :host {
@@ -101,7 +102,6 @@ ${createNode(scene)}
   }
  
   [$onSceneSelect](e) {
-    console.log("SCENE SELECT", e, e.target, e.target.value)
     this.dispatchEvent(new CustomEvent('select-scene', {
       detail: {
         uuid: e.target.value,
@@ -122,10 +122,12 @@ ${createNode(scene)}
   [$onTreeItemSelect](e) {
     e.stopPropagation();
     const treeItem = e.composedPath()[0];
+    const uuid = treeItem.getAttribute('uuid');
+    const type = 'object';
     this.dispatchEvent(new CustomEvent('select-entity', {
       detail: {
-        uuid: treeItem.getAttribute('uuid'),
-        type: 'object',
+        uuid,
+        type,
       },
       bubbles: true,
       composed: true,

@@ -9,7 +9,12 @@ const $addListeners = Symbol('addListeners');
 const $removeListeners = Symbol('removeListeners');
 const $connected = Symbol('connected');
 const $listening = Symbol('listening');
-
+const ObservedKeys = [
+  'ArrowRight',
+  'ArrowLeft',
+  'ArrowUp',
+  'ArrowDown',
+]
 /**
  * TODO leverage ideas from wai-aria practices treeitem demo:
  * https://www.w3.org/TR/wai-aria-practices/examples/treeview/treeview-2/treeview-2a.html
@@ -17,13 +22,16 @@ const $listening = Symbol('listening');
 export default class TreeItemElement extends LitElement {
   static get properties() {
     return {
-      open: {type: Boolean, reflect: true},
+      unique: {type: String },
       // @TODO can `show-arrow` be baked in by checking if there
       // are children?
-      showArrow: {type: Boolean, reflect: true, attribute: 'show-arrow'},
-      depth: {type: Number, reflect: true},
-      root: {type: Boolean, reflect: true},
-      selected: {type: Boolean, reflect: true},
+      showArrow: {type: Boolean, attribute: 'show-arrow'},
+      // Some of these attributes are used as host styles
+      // as well, so reflection is important.
+      depth: {type: Number, reflect: true },
+      root: {type: Boolean, reflect: true },
+      selected: {type: Boolean, reflect: true },
+      open: {type: Boolean, reflect: true },
     }
   }
 
@@ -31,6 +39,7 @@ export default class TreeItemElement extends LitElement {
     super();
     this[$onKeyDown] = this[$onKeyDown].bind(this);
 
+    this.unique = '';
     this.open = false;
     this.showArrow = false;
     this.depth = 0;
@@ -38,7 +47,6 @@ export default class TreeItemElement extends LitElement {
     this.selected = false;
 
     // Non-managed properties
-    this.currentSelection = null;
     this[$listening] = false;
     this[$connected] = false;
   }
@@ -64,14 +72,6 @@ export default class TreeItemElement extends LitElement {
       }
     }
 
-    if (changed.has('selected') && this.selected) {
-      this.dispatchEvent(new CustomEvent('tree-item-select', {
-        detail: {},
-        bubbles: true,
-        composed: true
-      }));
-    }
-
     return true;
   }
 
@@ -79,24 +79,45 @@ export default class TreeItemElement extends LitElement {
     return this.shadowRoot.querySelector('#children').assignedElements();
   }
 
+  getSelected() {
+    if (!this.root) {
+      console.warn('Must be called on root');
+      return;
+    }
+    const queue = [this];
+    for (let item of queue) {
+      if (item.selected) {
+        return item;
+      }
+      queue.push(...item.getTreeItemChildren());
+    }
+  }
+
+  select() {
+    this.dispatchEvent(new CustomEvent('tree-item-select', {
+      detail: {},
+      bubbles: true,
+      composed: true
+    }));
+  }
+
   // https://medium.com/dev-channel/focus-inside-shadow-dom-78e8a575b73
   [$onKeyDown](e) {
-    if (!this.root) {
-      console.log('%c onKeyDown on non root', 'color:red');
-      // @TODO see $onTreeItemSelect
+    if (ObservedKeys.indexOf(e.key) === -1) {
       return;
     }
 
-    if (!this.currentSelection) {
+    const currentSelection = this.getSelected();
+    if (!currentSelection) {
       return;
     }
 
-    const open = this.currentSelection.open;
-    let parent = this.currentSelection.parentElement;
+    const open = currentSelection.open;
+    let parent = currentSelection.parentElement;
     let parentNext = parent ? parent.nextElementSibling : null;
-    let children = this.currentSelection.getTreeItemChildren();
-    let next = this.currentSelection.nextElementSibling;
-    let previous = this.currentSelection.previousElementSibling;
+    let children = currentSelection.getTreeItemChildren();
+    let next = currentSelection.nextElementSibling;
+    let previous = currentSelection.previousElementSibling;
     let previousLastChild = null;
 
     // Filter out the edges of the DOM by ensuring these
@@ -122,7 +143,7 @@ export default class TreeItemElement extends LitElement {
     switch(e.key) {
       case 'ArrowLeft':
         if (open && children.length) {
-          this.currentSelection.open = false;
+          currentSelection.open = false;
         } else if (parent) {
           newSelection = parent;
         }
@@ -131,7 +152,7 @@ export default class TreeItemElement extends LitElement {
         if (open && children.length) {
           newSelection = children[0];
         } else if (!open && children.length) {
-          this.currentSelection.open = true;
+          currentSelection.open = true;
         }
         break;
       case 'ArrowDown':
@@ -157,8 +178,8 @@ export default class TreeItemElement extends LitElement {
     }
 
     if (newSelection) {
-      newSelection.selected = true;
       e.preventDefault();
+      newSelection.select();
     }
   }
 
@@ -173,7 +194,7 @@ export default class TreeItemElement extends LitElement {
 
   [$onClick](e) {
     e.stopPropagation();
-    this.selected = true;
+    this.select();
   }
 
   [$onDoubleClick](e) {
@@ -184,7 +205,7 @@ export default class TreeItemElement extends LitElement {
   /**
    * A tree item in this root's descendents has been
    * selected. Update the styling here before further
-   * propogation.
+   * propogation outside the root TreeItemElement.
    */
   [$onTreeItemSelect](e) {
     if (!this.root) {
@@ -196,16 +217,15 @@ export default class TreeItemElement extends LitElement {
     }
 
     const selected = e.composedPath()[0];
-
+    const currentSelection = this.getSelected();
     // If there's been a change in the selection,
     // update the store and allow the event to
     // propagate outside.
-    if (selected !== this.currentSelection) {
-      if (this.currentSelection) {
-        this.currentSelection.selected = false;
+    if (selected !== currentSelection) {
+      if (currentSelection) {
+        currentSelection.selected = false;
       }
-      this.currentSelection = selected;
-      this.currentSelection.focus();
+      selected.focus();
     } else {
       e.stopPropagation();
     }
@@ -229,6 +249,9 @@ export default class TreeItemElement extends LitElement {
   }
 
   render() {
+    if (!this.unique) {
+      console.warn(`TreeItemElement's "unique" attribute not set.`);
+    }
     return html`
 <style>
   /**
