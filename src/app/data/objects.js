@@ -1,30 +1,52 @@
-import { object } from './common.js';
+import transform from './object-transform.js';
+import renderable from './object-renderable.js';
 
-const Renderable = {
-  type: 'renderable',
-  props: [{
-    name: 'Geometry',
-    prop: 'geometry',
-    type: 'geometry',
-  }, {
-    name: 'Material',
-    prop: 'material',
-    type: 'material',
-  }, ...object]
-};
+const geometry = {
+  name: 'Geometry',
+  prop: 'geometry',
+  type: 'geometry',
+}
+const material = {
+  name: 'Material',
+  prop: 'material',
+  type: 'material',
+}
+
+const object = [
+  transform,
+  renderable,
+];
+
+const GeometryRenderable = {
+  type: 'object',
+  props: [
+    geometry,
+    material,
+    transform,
+    renderable,
+  ]
+}
 
 const Light = {
   type: 'light',
   props: object,
 }
+
+const Scene = {
+  type: 'scene',
+  props: object,
+}
+
 const Helper = {
   type: 'helper',
   props: object,
 }
+
 const Bone = {
   type: 'bone',
   props: object,
 }
+
 // Does not have a further classification yet
 const Object3D = {
   type: 'object',
@@ -32,11 +54,11 @@ const Object3D = {
 }
 
 export default {
-  Mesh: Renderable,
-  Line: Renderable,
-  LineLoop: Renderable,
-  LineSegments: Renderable,
-  Points: Renderable,
+  Mesh: GeometryRenderable,
+  Line: GeometryRenderable,
+  LineLoop: GeometryRenderable,
+  LineSegments: GeometryRenderable,
+  Points: GeometryRenderable,
 
   AmbientLight: Light,
   DirectionalLight: Light,
@@ -62,6 +84,8 @@ export default {
   SkeletonHelper: Helper,
   SpotLightHelper: Helper,
   VertexNormalsHelper: Helper,
+
+  Scene: Scene,
  
   Skeleton: Bone,
   Bone: Bone,

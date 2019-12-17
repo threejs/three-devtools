@@ -1,21 +1,4 @@
-export const object = [{
-  name: 'Position',
-  prop: 'position',
-  type: 'vec3',
-}, {
-  name: 'Rotation',
-  prop: 'rotation',
-  type: 'vec3',
-}, {
-  name: 'Scale',
-  prop: 'scale',
-  type: 'vec3',
-}, {
-  name: 'Matrix Auto Update',
-  prop: 'matrixAutoUpdate',
-  type: 'boolean',
-  default: true,
-}, {
+export default {
   name: 'Rendering',
   type: 'group',
   props: [{
@@ -49,4 +32,4 @@ export const object = [{
     type: 'number',
     default: 0,
   }],
-}];
+}

@@ -101,7 +101,7 @@ export default class AppElement extends LitElement {
             inspected = html`<texture-view enabled uuid="${this.activeEntity}"></texture-view>`;
             break;
           case 'material':
-            inspected = html`<material-view enabled uuid="${this.activeEntity}"></material-view>`;
+            inspected = html`<parameters-view enabled uuid="${this.activeEntity}" type-hint="${object.typeHint}"></parameters-view>`;
             break;
           case 'geometry':
             inspected = html`<geometry-view enabled uuid="${this.activeEntity}"></geometry-view>`;

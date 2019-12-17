@@ -1,6 +1,7 @@
 import { html } from '../../../web_modules/lit-element.js'
 import BaseElement from './BaseElement.js';
 import ObjectTypes from '../data/objects.js';
+import MaterialTypes from '../data/materials.js';
 
 function propsToElements(object, elements, props) {
   for (let prop of props) {
@@ -27,7 +28,7 @@ function propsToElements(object, elements, props) {
 }
 
 export default class ParametersViewElement extends BaseElement {
-  static get typeHint() { return 'object'; }
+  static get typeHint() { return ''; }
 
   static get properties() {
     return {
@@ -42,10 +43,26 @@ export default class ParametersViewElement extends BaseElement {
       return html`<div>no object selected</div>`;
     }
 
-    const definition = ObjectTypes[object.type];
+    let definition = ObjectTypes[object.type] ||
+                       MaterialTypes[object.type];
+
+    // It's possible the types are unknown e.g. modified
+    // by a user. Use the next best guess.
+    if (!definition) {
+      switch (object.typeHint) {
+        case 'scene':
+          definition = ObjectTypes.Scene; break;
+        case 'object':
+          definition = ObjectTypes.Object3D; break;
+        case 'material':
+          definition = MaterialTypes.Material; break;
+        default:
+          throw new Error(`could not find definition for ${object.type}`);
+      }
+    }
+
     const objectType = '';
     const objectName = object.name || object.type;
-
     const elements = [];
     propsToElements(object, elements, [...definition.props]);
 
