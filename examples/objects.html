@@ -3,8 +3,6 @@
     <body style="margin:0">
 <script type="module">
 import * as THREE from '../web_modules/three.js';
-import RGBELoader from './modules/RGBELoader.js';
-import generateEnvironment from './modules/TextureUtils.js';
 
 window.app = new class App {
   constructor() {
@@ -19,21 +17,42 @@ window.app = new class App {
 
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 100);
-    this.camera.position.z = 5;
+    this.camera.position.z = 3;
+    this.camera.position.y = 3;
+    this.camera.lookAt(0, 0, 0);
     this.updateSize();
 
-    for (let x = 0; x < 5; x++) {
-      const mesh = new THREE.Mesh(new THREE.SphereBufferGeometry(0.5, 64, 64), new THREE.MeshBasicMaterial({
-          color: new THREE.Color(`hsl(${x/5*360},100%,50%)`),
-        }));
-      mesh.position.x = x - 2;
-      mesh.name = `Mesh #${x+1}`;
-      if (x == 4) {
-      mesh.castShadow = true;
-      mesh.receiveShadow = true;
-      mesh.renderOrder = x;
+    let meshMaterial = new THREE.MeshBasicMaterial();
+    let pointsMaterial = new THREE.PointsMaterial({
+      size: 0.1,
+    });
+    let lineMaterial = new THREE.LineBasicMaterial();
+      let geometry = new THREE.SphereBufferGeometry(0.4, 16, 16);
+    for (let z = 0; z < 5; z++) {
+      for (let x = 0; x < 3; x++) {
+        let obj;
+        switch (x) {
+          case 0:
+            obj = new THREE.Mesh(geometry, meshMaterial);
+            obj.name = `Mesh #${z+1}`;
+            break;
+          case 1:
+            obj = new THREE.Points(geometry, pointsMaterial);
+            obj.name = `Points #${z+1}`;
+            break;
+          case 2:
+            obj = new THREE.Line(geometry, lineMaterial);
+            obj.name = `Line #${z+1}`;
+            break;
+        }
+        obj.position.set(x - 1, 0, -z);
+        if (z === 4) {
+          obj.castShadow = true;
+          obj.receiveShadow = true;
+          obj.renderOrder = x;
+        }
+        this.scene.add(obj);
       }
-      this.scene.add(mesh);
     }
 
     this.dLight = new THREE.DirectionalLight(0xffffff,0.7);
@@ -42,14 +61,10 @@ window.app = new class App {
     this.light = new THREE.AmbientLight(0xffffff, 0.3);
     this.scene.add(this.light);
 
-    this.renderer.setAnimationLoop(this.render);
+    this.render();
+    //this.renderer.setAnimationLoop(this.render);
     document.body.appendChild(this.renderer.domElement);
     window.addEventListener('resize', this.updateSize);
-
-    if (window.ThreeDevTools) {
-        window.ThreeDevTools.addRenderer(this.renderer);
-        window.ThreeDevTools.addScene(this.scene);
-    }
   }
 
   render() {

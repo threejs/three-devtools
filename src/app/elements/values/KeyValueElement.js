@@ -46,6 +46,9 @@ export default class KeyValueElement extends LitElement {
       case 'material':
         valueElement = html`<material-value .uuid="${this.value}"></material-value>`;
         break;
+      case 'geometry':
+        valueElement = html`<geometry-value .uuid="${this.value}"></geometry-value>`;
+        break;
       case 'color':
         valueElement = html`<input type="color" .value="${hexNumberToCSSString(+this.value)}" />`;
         break;

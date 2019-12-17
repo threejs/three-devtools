@@ -108,7 +108,7 @@ export default class AppElement extends LitElement {
             break;
           case 'object':
           default:
-            inspected = html`<object-view enabled uuid="${this.activeEntity}"></object-view>`;
+            inspected = html`<parameters-view enabled uuid="${this.activeEntity}"></parameters-view>`;
             break;
         }
       } else {

@@ -1,6 +1,5 @@
 import { html } from '../../../web_modules/lit-element.js'
 import BaseElement from './BaseElement.js';
-import { objectTypeToCategory } from '../utils.js';
 import ChromeSelectStyle from './shared-styles/chrome-select.js';
 
 const $onSceneSelect = Symbol('onSceneSelect');
@@ -68,7 +67,6 @@ export default class SceneViewElement extends BaseElement {
     `;
     }
 
-    console.log('render scene graph');
     return html`
 <style>
   :host {
