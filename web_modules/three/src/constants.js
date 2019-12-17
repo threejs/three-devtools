@@ -1,18 +1,6 @@
-var REVISION = '107';
-var MOUSE = {
-  LEFT: 0,
-  MIDDLE: 1,
-  RIGHT: 2,
-  ROTATE: 0,
-  DOLLY: 1,
-  PAN: 2
-};
-var TOUCH = {
-  ROTATE: 0,
-  PAN: 1,
-  DOLLY_PAN: 2,
-  DOLLY_ROTATE: 3
-};
+var REVISION = '111';
+var MOUSE = { LEFT: 0, MIDDLE: 1, RIGHT: 2, ROTATE: 0, DOLLY: 1, PAN: 2 };
+var TOUCH = { ROTATE: 0, PAN: 1, DOLLY_PAN: 2, DOLLY_ROTATE: 3 };
 var CullFaceNone = 0;
 var CullFaceBack = 1;
 var CullFaceFront = 2;
@@ -22,6 +10,7 @@ var FrontFaceDirectionCCW = 1;
 var BasicShadowMap = 0;
 var PCFShadowMap = 1;
 var PCFSoftShadowMap = 2;
+var VSMShadowMap = 3;
 var FrontSide = 0;
 var BackSide = 1;
 var DoubleSide = 2;
@@ -69,6 +58,7 @@ var ReinhardToneMapping = 2;
 var Uncharted2ToneMapping = 3;
 var CineonToneMapping = 4;
 var ACESFilmicToneMapping = 5;
+
 var UVMapping = 300;
 var CubeReflectionMapping = 301;
 var CubeRefractionMapping = 302;
@@ -158,6 +148,7 @@ var BasicDepthPacking = 3200;
 var RGBADepthPacking = 3201;
 var TangentSpaceNormalMap = 0;
 var ObjectSpaceNormalMap = 1;
+
 var ZeroStencilOp = 0;
 var KeepStencilOp = 7680;
 var ReplaceStencilOp = 7681;
@@ -166,6 +157,7 @@ var DecrementStencilOp = 7683;
 var IncrementWrapStencilOp = 34055;
 var DecrementWrapStencilOp = 34056;
 var InvertStencilOp = 5386;
+
 var NeverStencilFunc = 512;
 var LessStencilFunc = 513;
 var EqualStencilFunc = 514;
@@ -175,4 +167,14 @@ var NotEqualStencilFunc = 517;
 var GreaterEqualStencilFunc = 518;
 var AlwaysStencilFunc = 519;
 
-export { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveBlending, AlphaFormat, AlwaysDepth, AlwaysStencilFunc, BackSide, BasicDepthPacking, BasicShadowMap, ByteType, CineonToneMapping, ClampToEdgeWrapping, CubeReflectionMapping, CubeRefractionMapping, CubeUVReflectionMapping, CubeUVRefractionMapping, CullFaceBack, CullFaceFront, CullFaceFrontBack, CullFaceNone, CustomBlending, DecrementStencilOp, DecrementWrapStencilOp, DepthFormat, DepthStencilFormat, DoubleSide, DstAlphaFactor, DstColorFactor, EqualDepth, EqualStencilFunc, EquirectangularReflectionMapping, EquirectangularRefractionMapping, FaceColors, FlatShading, FloatType, FrontFaceDirectionCCW, FrontFaceDirectionCW, FrontSide, GammaEncoding, GreaterDepth, GreaterEqualDepth, GreaterEqualStencilFunc, GreaterStencilFunc, HalfFloatType, IncrementStencilOp, IncrementWrapStencilOp, IntType, InterpolateDiscrete, InterpolateLinear, InterpolateSmooth, InvertStencilOp, KeepStencilOp, LessDepth, LessEqualDepth, LessEqualStencilFunc, LessStencilFunc, LinearEncoding, LinearFilter, LinearMipMapLinearFilter, LinearMipMapNearestFilter, LinearMipmapLinearFilter, LinearMipmapNearestFilter, LinearToneMapping, LogLuvEncoding, LoopOnce, LoopPingPong, LoopRepeat, LuminanceAlphaFormat, LuminanceFormat, MOUSE, MaxEquation, MinEquation, MirroredRepeatWrapping, MixOperation, MultiplyBlending, MultiplyOperation, NearestFilter, NearestMipMapLinearFilter, NearestMipMapNearestFilter, NearestMipmapLinearFilter, NearestMipmapNearestFilter, NeverDepth, NeverStencilFunc, NoBlending, NoColors, NoToneMapping, NormalBlending, NotEqualDepth, NotEqualStencilFunc, ObjectSpaceNormalMap, OneFactor, OneMinusDstAlphaFactor, OneMinusDstColorFactor, OneMinusSrcAlphaFactor, OneMinusSrcColorFactor, PCFShadowMap, PCFSoftShadowMap, REVISION, RGBADepthPacking, RGBAFormat, RGBA_ASTC_10x10_Format, RGBA_ASTC_10x5_Format, RGBA_ASTC_10x6_Format, RGBA_ASTC_10x8_Format, RGBA_ASTC_12x10_Format, RGBA_ASTC_12x12_Format, RGBA_ASTC_4x4_Format, RGBA_ASTC_5x4_Format, RGBA_ASTC_5x5_Format, RGBA_ASTC_6x5_Format, RGBA_ASTC_6x6_Format, RGBA_ASTC_8x5_Format, RGBA_ASTC_8x6_Format, RGBA_ASTC_8x8_Format, RGBA_PVRTC_2BPPV1_Format, RGBA_PVRTC_4BPPV1_Format, RGBA_S3TC_DXT1_Format, RGBA_S3TC_DXT3_Format, RGBA_S3TC_DXT5_Format, RGBDEncoding, RGBEEncoding, RGBEFormat, RGBFormat, RGBM16Encoding, RGBM7Encoding, RGB_ETC1_Format, RGB_PVRTC_2BPPV1_Format, RGB_PVRTC_4BPPV1_Format, RGB_S3TC_DXT1_Format, RedFormat, ReinhardToneMapping, RepeatWrapping, ReplaceStencilOp, ReverseSubtractEquation, ShortType, SmoothShading, SphericalReflectionMapping, SrcAlphaFactor, SrcAlphaSaturateFactor, SrcColorFactor, SubtractEquation, SubtractiveBlending, TOUCH, TangentSpaceNormalMap, TriangleFanDrawMode, TriangleStripDrawMode, TrianglesDrawMode, UVMapping, Uncharted2ToneMapping, UnsignedByteType, UnsignedInt248Type, UnsignedIntType, UnsignedShort4444Type, UnsignedShort5551Type, UnsignedShort565Type, UnsignedShortType, VertexColors, WrapAroundEnding, ZeroCurvatureEnding, ZeroFactor, ZeroSlopeEnding, ZeroStencilOp, sRGBEncoding };
+var StaticDrawUsage = 35044;
+var DynamicDrawUsage = 35048;
+var StreamDrawUsage = 35040;
+var StaticReadUsage = 35045;
+var DynamicReadUsage = 35049;
+var StreamReadUsage = 35041;
+var StaticCopyUsage = 35046;
+var DynamicCopyUsage = 35050;
+var StreamCopyUsage = 35042;
+
+export { ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveBlending, AlphaFormat, AlwaysDepth, AlwaysStencilFunc, BackSide, BasicDepthPacking, BasicShadowMap, ByteType, CineonToneMapping, ClampToEdgeWrapping, CubeReflectionMapping, CubeRefractionMapping, CubeUVReflectionMapping, CubeUVRefractionMapping, CullFaceBack, CullFaceFront, CullFaceFrontBack, CullFaceNone, CustomBlending, DecrementStencilOp, DecrementWrapStencilOp, DepthFormat, DepthStencilFormat, DoubleSide, DstAlphaFactor, DstColorFactor, DynamicCopyUsage, DynamicDrawUsage, DynamicReadUsage, EqualDepth, EqualStencilFunc, EquirectangularReflectionMapping, EquirectangularRefractionMapping, FaceColors, FlatShading, FloatType, FrontFaceDirectionCCW, FrontFaceDirectionCW, FrontSide, GammaEncoding, GreaterDepth, GreaterEqualDepth, GreaterEqualStencilFunc, GreaterStencilFunc, HalfFloatType, IncrementStencilOp, IncrementWrapStencilOp, IntType, InterpolateDiscrete, InterpolateLinear, InterpolateSmooth, InvertStencilOp, KeepStencilOp, LessDepth, LessEqualDepth, LessEqualStencilFunc, LessStencilFunc, LinearEncoding, LinearFilter, LinearMipMapLinearFilter, LinearMipMapNearestFilter, LinearMipmapLinearFilter, LinearMipmapNearestFilter, LinearToneMapping, LogLuvEncoding, LoopOnce, LoopPingPong, LoopRepeat, LuminanceAlphaFormat, LuminanceFormat, MOUSE, MaxEquation, MinEquation, MirroredRepeatWrapping, MixOperation, MultiplyBlending, MultiplyOperation, NearestFilter, NearestMipMapLinearFilter, NearestMipMapNearestFilter, NearestMipmapLinearFilter, NearestMipmapNearestFilter, NeverDepth, NeverStencilFunc, NoBlending, NoColors, NoToneMapping, NormalBlending, NotEqualDepth, NotEqualStencilFunc, ObjectSpaceNormalMap, OneFactor, OneMinusDstAlphaFactor, OneMinusDstColorFactor, OneMinusSrcAlphaFactor, OneMinusSrcColorFactor, PCFShadowMap, PCFSoftShadowMap, REVISION, RGBADepthPacking, RGBAFormat, RGBA_ASTC_10x10_Format, RGBA_ASTC_10x5_Format, RGBA_ASTC_10x6_Format, RGBA_ASTC_10x8_Format, RGBA_ASTC_12x10_Format, RGBA_ASTC_12x12_Format, RGBA_ASTC_4x4_Format, RGBA_ASTC_5x4_Format, RGBA_ASTC_5x5_Format, RGBA_ASTC_6x5_Format, RGBA_ASTC_6x6_Format, RGBA_ASTC_8x5_Format, RGBA_ASTC_8x6_Format, RGBA_ASTC_8x8_Format, RGBA_PVRTC_2BPPV1_Format, RGBA_PVRTC_4BPPV1_Format, RGBA_S3TC_DXT1_Format, RGBA_S3TC_DXT3_Format, RGBA_S3TC_DXT5_Format, RGBDEncoding, RGBEEncoding, RGBEFormat, RGBFormat, RGBM16Encoding, RGBM7Encoding, RGB_ETC1_Format, RGB_PVRTC_2BPPV1_Format, RGB_PVRTC_4BPPV1_Format, RGB_S3TC_DXT1_Format, RedFormat, ReinhardToneMapping, RepeatWrapping, ReplaceStencilOp, ReverseSubtractEquation, ShortType, SmoothShading, SphericalReflectionMapping, SrcAlphaFactor, SrcAlphaSaturateFactor, SrcColorFactor, StaticCopyUsage, StaticDrawUsage, StaticReadUsage, StreamCopyUsage, StreamDrawUsage, StreamReadUsage, SubtractEquation, SubtractiveBlending, TOUCH, TangentSpaceNormalMap, TriangleFanDrawMode, TriangleStripDrawMode, TrianglesDrawMode, UVMapping, Uncharted2ToneMapping, UnsignedByteType, UnsignedInt248Type, UnsignedIntType, UnsignedShort4444Type, UnsignedShort5551Type, UnsignedShort565Type, UnsignedShortType, VSMShadowMap, VertexColors, WrapAroundEnding, ZeroCurvatureEnding, ZeroFactor, ZeroSlopeEnding, ZeroStencilOp, sRGBEncoding };

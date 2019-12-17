@@ -15,153 +15,182 @@ import { OrthographicCamera, Scene, ShaderMaterial, Vector3, NoBlending, RGBEEnc
  * The arrangement of the faces is fixed, as assuming this arrangement, the sampling function has been written.
  */
 
-var PMREMCubeUVPacker = function () {
-  var camera = new OrthographicCamera();
-  var scene = new Scene();
-  var shader = getShader();
+var PMREMCubeUVPacker = ( function () {
 
-  var PMREMCubeUVPacker = function PMREMCubeUVPacker(cubeTextureLods) {
-    this.cubeLods = cubeTextureLods;
-    var size = cubeTextureLods[0].width * 4;
-    var sourceTexture = cubeTextureLods[0].texture;
-    var params = {
-      format: sourceTexture.format,
-      magFilter: sourceTexture.magFilter,
-      minFilter: sourceTexture.minFilter,
-      type: sourceTexture.type,
-      generateMipmaps: sourceTexture.generateMipmaps,
-      anisotropy: sourceTexture.anisotropy,
-      encoding: sourceTexture.encoding === RGBEEncoding ? RGBM16Encoding : sourceTexture.encoding
-    };
+	var camera = new OrthographicCamera();
+	var scene = new Scene();
+	var shader = getShader();
 
-    if (params.encoding === RGBM16Encoding) {
-      params.magFilter = LinearFilter;
-      params.minFilter = LinearFilter;
-    }
+	var PMREMCubeUVPacker = function ( cubeTextureLods ) {
 
-    this.CubeUVRenderTarget = new WebGLRenderTarget(size, size, params);
-    this.CubeUVRenderTarget.texture.name = "PMREMCubeUVPacker.cubeUv";
-    this.CubeUVRenderTarget.texture.mapping = CubeUVReflectionMapping;
-    this.objects = [];
-    var geometry = new PlaneBufferGeometry(1, 1);
-    var faceOffsets = [];
-    faceOffsets.push(new Vector2(0, 0));
-    faceOffsets.push(new Vector2(1, 0));
-    faceOffsets.push(new Vector2(2, 0));
-    faceOffsets.push(new Vector2(0, 1));
-    faceOffsets.push(new Vector2(1, 1));
-    faceOffsets.push(new Vector2(2, 1));
-    var textureResolution = size;
-    size = cubeTextureLods[0].width;
-    var offset2 = 0;
-    var c = 4.0;
-    this.numLods = Math.log(cubeTextureLods[0].width) / Math.log(2) - 2; // IE11 doesn't support Math.log2
+		this.cubeLods = cubeTextureLods;
+		var size = cubeTextureLods[ 0 ].width * 4;
 
-    for (var i = 0; i < this.numLods; i++) {
-      var offset1 = (textureResolution - textureResolution / c) * 0.5;
-      if (size > 16) c *= 2;
-      var nMips = size > 16 ? 6 : 1;
-      var mipOffsetX = 0;
-      var mipOffsetY = 0;
-      var mipSize = size;
+		var sourceTexture = cubeTextureLods[ 0 ].texture;
+		var params = {
+			format: sourceTexture.format,
+			magFilter: sourceTexture.magFilter,
+			minFilter: sourceTexture.minFilter,
+			type: sourceTexture.type,
+			generateMipmaps: sourceTexture.generateMipmaps,
+			anisotropy: sourceTexture.anisotropy,
+			encoding: ( sourceTexture.encoding === RGBEEncoding ) ? RGBM16Encoding : sourceTexture.encoding
+		};
 
-      for (var j = 0; j < nMips; j++) {
-        // Mip Maps
-        for (var k = 0; k < 6; k++) {
-          // 6 Cube Faces
-          var material = shader.clone();
-          material.uniforms['envMap'].value = this.cubeLods[i].texture;
-          material.envMap = this.cubeLods[i].texture;
-          material.uniforms['faceIndex'].value = k;
-          material.uniforms['mapSize'].value = mipSize;
-          var planeMesh = new Mesh(geometry, material);
-          planeMesh.position.x = faceOffsets[k].x * mipSize - offset1 + mipOffsetX;
-          planeMesh.position.y = faceOffsets[k].y * mipSize - offset1 + offset2 + mipOffsetY;
-          planeMesh.material.side = BackSide;
-          planeMesh.scale.setScalar(mipSize);
-          this.objects.push(planeMesh);
-        }
+		if ( params.encoding === RGBM16Encoding ) {
 
-        mipOffsetY += 1.75 * mipSize;
-        mipOffsetX += 1.25 * mipSize;
-        mipSize /= 2;
-      }
+			params.magFilter = LinearFilter;
+			params.minFilter = LinearFilter;
 
-      offset2 += 2 * size;
-      if (size > 16) size /= 2;
-    }
-  };
+		}
 
-  PMREMCubeUVPacker.prototype = {
-    constructor: PMREMCubeUVPacker,
-    update: function update(renderer) {
-      var size = this.cubeLods[0].width * 4; // top and bottom are swapped for some reason?
+		this.CubeUVRenderTarget = new WebGLRenderTarget( size, size, params );
+		this.CubeUVRenderTarget.texture.name = "PMREMCubeUVPacker.cubeUv";
+		this.CubeUVRenderTarget.texture.mapping = CubeUVReflectionMapping;
 
-      camera.left = -size * 0.5;
-      camera.right = size * 0.5;
-      camera.top = -size * 0.5;
-      camera.bottom = size * 0.5;
-      camera.near = 0;
-      camera.far = 1;
-      camera.updateProjectionMatrix();
+		this.objects = [];
 
-      for (var i = 0; i < this.objects.length; i++) {
-        scene.add(this.objects[i]);
-      }
+		var geometry = new PlaneBufferGeometry( 1, 1 );
 
-      var gammaInput = renderer.gammaInput;
-      var gammaOutput = renderer.gammaOutput;
-      var toneMapping = renderer.toneMapping;
-      var toneMappingExposure = renderer.toneMappingExposure;
-      var currentRenderTarget = renderer.getRenderTarget();
-      renderer.gammaInput = false;
-      renderer.gammaOutput = false;
-      renderer.toneMapping = LinearToneMapping;
-      renderer.toneMappingExposure = 1.0;
-      renderer.setRenderTarget(this.CubeUVRenderTarget);
-      renderer.render(scene, camera);
-      renderer.setRenderTarget(currentRenderTarget);
-      renderer.toneMapping = toneMapping;
-      renderer.toneMappingExposure = toneMappingExposure;
-      renderer.gammaInput = gammaInput;
-      renderer.gammaOutput = gammaOutput;
+		var faceOffsets = [];
+		faceOffsets.push( new Vector2( 0, 0 ) );
+		faceOffsets.push( new Vector2( 1, 0 ) );
+		faceOffsets.push( new Vector2( 2, 0 ) );
+		faceOffsets.push( new Vector2( 0, 1 ) );
+		faceOffsets.push( new Vector2( 1, 1 ) );
+		faceOffsets.push( new Vector2( 2, 1 ) );
 
-      for (var i = 0; i < this.objects.length; i++) {
-        scene.remove(this.objects[i]);
-      }
-    },
-    dispose: function dispose() {
-      for (var i = 0, l = this.objects.length; i < l; i++) {
-        this.objects[i].material.dispose();
-      }
+		var textureResolution = size;
+		size = cubeTextureLods[ 0 ].width;
 
-      this.objects[0].geometry.dispose();
-    }
-  };
+		var offset2 = 0;
+		var c = 4.0;
+		this.numLods = Math.log( cubeTextureLods[ 0 ].width ) / Math.log( 2 ) - 2; // IE11 doesn't support Math.log2
+		for ( var i = 0; i < this.numLods; i ++ ) {
 
-  function getShader() {
-    var shaderMaterial = new ShaderMaterial({
-      uniforms: {
-        "faceIndex": {
-          value: 0
-        },
-        "mapSize": {
-          value: 0
-        },
-        "envMap": {
-          value: null
-        },
-        "testColor": {
-          value: new Vector3(1, 1, 1)
-        }
-      },
-      vertexShader: "precision highp float;\
+			var offset1 = ( textureResolution - textureResolution / c ) * 0.5;
+			if ( size > 16 ) c *= 2;
+			var nMips = size > 16 ? 6 : 1;
+			var mipOffsetX = 0;
+			var mipOffsetY = 0;
+			var mipSize = size;
+
+			for ( var j = 0; j < nMips; j ++ ) {
+
+				// Mip Maps
+				for ( var k = 0; k < 6; k ++ ) {
+
+					// 6 Cube Faces
+					var material = shader.clone();
+					material.uniforms[ 'envMap' ].value = this.cubeLods[ i ].texture;
+					material.envMap = this.cubeLods[ i ].texture;
+					material.uniforms[ 'faceIndex' ].value = k;
+					material.uniforms[ 'mapSize' ].value = mipSize;
+
+					var planeMesh = new Mesh( geometry, material );
+					planeMesh.position.x = faceOffsets[ k ].x * mipSize - offset1 + mipOffsetX;
+					planeMesh.position.y = faceOffsets[ k ].y * mipSize - offset1 + offset2 + mipOffsetY;
+					planeMesh.material.side = BackSide;
+					planeMesh.scale.setScalar( mipSize );
+					this.objects.push( planeMesh );
+
+				}
+				mipOffsetY += 1.75 * mipSize;
+				mipOffsetX += 1.25 * mipSize;
+				mipSize /= 2;
+
+			}
+			offset2 += 2 * size;
+			if ( size > 16 ) size /= 2;
+
+		}
+
+	};
+
+	PMREMCubeUVPacker.prototype = {
+
+		constructor: PMREMCubeUVPacker,
+
+		update: function ( renderer ) {
+
+			var size = this.cubeLods[ 0 ].width * 4;
+			// top and bottom are swapped for some reason?
+			camera.left = - size * 0.5;
+			camera.right = size * 0.5;
+			camera.top = - size * 0.5;
+			camera.bottom = size * 0.5;
+			camera.near = 0;
+			camera.far = 1;
+			camera.updateProjectionMatrix();
+
+			for ( var i = 0; i < this.objects.length; i ++ ) {
+
+				scene.add( this.objects[ i ] );
+
+			}
+
+			var gammaInput = renderer.gammaInput;
+			var gammaOutput = renderer.gammaOutput;
+			var toneMapping = renderer.toneMapping;
+			var toneMappingExposure = renderer.toneMappingExposure;
+			var currentRenderTarget = renderer.getRenderTarget();
+
+			renderer.gammaInput = false;
+			renderer.gammaOutput = false;
+			renderer.toneMapping = LinearToneMapping;
+			renderer.toneMappingExposure = 1.0;
+			renderer.setRenderTarget( this.CubeUVRenderTarget );
+			renderer.render( scene, camera );
+
+			renderer.setRenderTarget( currentRenderTarget );
+			renderer.toneMapping = toneMapping;
+			renderer.toneMappingExposure = toneMappingExposure;
+			renderer.gammaInput = gammaInput;
+			renderer.gammaOutput = gammaOutput;
+
+			for ( var i = 0; i < this.objects.length; i ++ ) {
+
+				scene.remove( this.objects[ i ] );
+
+			}
+
+		},
+
+		dispose: function () {
+
+			for ( var i = 0, l = this.objects.length; i < l; i ++ ) {
+
+				this.objects[ i ].material.dispose();
+
+			}
+
+			this.objects[ 0 ].geometry.dispose();
+
+		}
+
+	};
+
+	function getShader() {
+
+		var shaderMaterial = new ShaderMaterial( {
+
+			uniforms: {
+				"faceIndex": { value: 0 },
+				"mapSize": { value: 0 },
+				"envMap": { value: null },
+				"testColor": { value: new Vector3( 1, 1, 1 ) }
+			},
+
+			vertexShader:
+        "precision highp float;\
         varying vec2 vUv;\
         void main() {\
           vUv = uv;\
           gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );\
         }",
-      fragmentShader: "precision highp float;\
+
+			fragmentShader:
+        "precision highp float;\
         varying vec2 vUv;\
         uniform samplerCube envMap;\
         uniform float mapSize;\
@@ -189,13 +218,20 @@ var PMREMCubeUVPacker = function () {
           vec4 color = envMapTexelToLinear( textureCube( envMap, sampleDirection ) );\
           gl_FragColor = linearToOutputTexel( color );\
         }",
-      blending: NoBlending
-    });
-    shaderMaterial.type = 'PMREMCubeUVPacker';
-    return shaderMaterial;
-  }
 
-  return PMREMCubeUVPacker;
-}();
+			blending: NoBlending
+
+		} );
+
+		shaderMaterial.type = 'PMREMCubeUVPacker';
+
+		return shaderMaterial;
+
+	}
+
+
+	return PMREMCubeUVPacker;
+
+} )();
 
 export { PMREMCubeUVPacker };
