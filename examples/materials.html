@@ -73,15 +73,26 @@ window.app = new class App {
       new THREE.MeshToonMaterial({
         color: 0xffaacc,
       }),
+      new THREE.PointsMaterial({
+        color: 0xffaacc,
+      }),
+      new THREE.RawShaderMaterial({
+      }),
+      new THREE.ShaderMaterial({
+      }),
+      new THREE.ShadowMaterial(),
+      new THREE.SpriteMaterial(),
+      new THREE.LineBasicMaterial(),
+      new THREE.LineDashedMaterial(),
     ];
 
     for (let material of materials) {
-      const mesh = new THREE.Mesh(geometry, material);
+      const constructor = /Line/.test(material.type) ? THREE.Line : THREE.Mesh;
+      const mesh = new constructor(geometry, material);
       mesh.position.x = -Math.floor(materials.length / 2);
       material.name = material.type.replace(/Mesh/, '');
       this.scene.add(mesh);
     }
-    // PointsMaterial, RawShaderMaterial, ShaderMaterial, ShadowMaterial, SpriteMaterial, LineBasicMaterial, LineDashedMaterial
 
     generateEnvironment(this.renderer, 'textures/studio_small_03_1k.hdr').then(texture => {
       for (let material of materials) {

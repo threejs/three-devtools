@@ -3,21 +3,22 @@ import * as prop from './material-shared.js';
 import blending from './material-blending.js';
 import polygonOffset from './material-polygon-offset.js';
 import { line, lineDashed } from './material-line.js';
-import { metalness, roughness, clearCoat, bumpMap, normalMap } from './material-pbr.js';
+import { metalness, roughness, clearCoat } from './material-pbr.js';
 
 const standard = [
   {
     name: 'Environment',
     type: 'group',
     props: [prop.envMap, prop.envMapIntensity].map(p => {
-      p.name = p.name.replace(/Environment /, '');
-      return p;
+      return Object.assign({}, p, {
+        name: p.name.replace(/Environment /, ''),
+      });
     }),
   },
   metalness,
   roughness,
-  bumpMap,
-  normalMap,
+  prop.normalMap,
+  prop.bumpMap,
   prop.displacement, 
   prop.ao, 
   prop.lightMap, 
@@ -46,8 +47,8 @@ export default {
       prop.envMap,
       prop.reflectivity,
       prop.refractionRatio,
-      prop.morphTargets,
       prop.specularMap,
+      prop.morphTargets,
       prop.skinning,
       prop.wireframe,
       prop.ao, 
@@ -69,6 +70,11 @@ export default {
   MeshDistanceMaterial: {
     type: 'material',
     props: [
+      prop.diffuseMap,
+      prop.alphaMap,
+      prop.morphTargets,
+      prop.skinning,
+      prop.distance,
       prop.displacement,
       ...base
     ],
@@ -84,8 +90,8 @@ export default {
       prop.refractionRatio,
       prop.morphNormals,
       prop.morphTargets,
-      prop.specularMap,
       prop.skinning,
+      prop.specularMap,
       prop.wireframe,
       prop.emissive,
       prop.ao, 
@@ -93,9 +99,59 @@ export default {
       ...base
     ],
   },
-  MeshMatcapMaterial: GenericMaterial,
-  MeshNormalMaterial: GenericMaterial,
-  MeshPhongMaterial: GenericMaterial,
+  MeshMatcapMaterial: {
+    type: 'material',
+    props: [
+      prop.color,
+      prop.matcap,
+      prop.diffuseMap,
+      prop.alphaMap,
+      prop.morphNormals,
+      prop.morphTargets,
+      prop.skinning,
+      prop.normalMap,
+      prop.bumpMap,
+      prop.displacement,
+      ...base
+    ],
+  },
+  MeshNormalMaterial: {
+    type: 'material',
+    props: [
+      prop.morphNormals,
+      prop.morphTargets,
+      prop.skinning,
+      prop.wireframe,
+      prop.normalMap,
+      prop.bumpMap,
+      prop.displacement,
+      ...base
+    ],
+  },
+  MeshPhongMaterial: {
+    type: 'material',
+    props: [
+      prop.color,
+      prop.specular,
+      prop.alphaMap,
+      prop.ao,
+      prop.diffuseMap,
+      prop.refractionRatio,
+      prop.reflectivity,
+      prop.morphNormals,
+      prop.morphTargets,
+      prop.skinning,
+      prop.lightMap,
+      prop.wireframe,
+      prop.envMap,
+      prop.emissive,
+      prop.normalMap,
+      prop.bumpMap,
+      prop.displacement,
+      prop.combine,
+      ...base
+    ],
+  },
   MeshPhysicalMaterial: {
     type: 'material',
     props: [
@@ -127,15 +183,71 @@ export default {
     type: 'material',
     props: [
       prop.color,
+      prop.diffuseMap,
+      prop.combine,
       prop.gradientMap,
+      prop.alphaMap,
+      prop.refractionRatio,
+      prop.reflectivity,
+      prop.envMap,
+      prop.morphNormals,
+      prop.morphTargets,
+      prop.skinning,
+      prop.specular,
+      prop.ao,
+      prop.lightMap,
+      prop.wireframe,
+      prop.emissive,
+      prop.normalMap,
+      prop.bumpMap,
+      prop.displacement,
       ...base
     ],
   },
-  PointsMaterial: GenericMaterial,
-  RawShaderMaterial: GenericMaterial,
-  ShaderMaterial: GenericMaterial,
+  PointsMaterial: {
+    type: 'material',
+    props: [
+      prop.color,
+      prop.alphaMap,
+      prop.diffuseMap,
+      prop.morphTargets,
+      prop.point,
+      ...base
+    ]
+  },
+  RawShaderMaterial: {
+    type: 'material',
+    props: [
+      prop.clipping,
+      prop.morphNormals,
+      prop.morphTargets,
+      prop.skinning,
+      prop.wireframe,
+      ...base
+    ],
+  },
+  ShaderMaterial: {
+    type: 'material',
+    props: [
+      prop.clipping,
+      prop.morphNormals,
+      prop.morphTargets,
+      prop.skinning,
+      prop.wireframe,
+      ...base
+    ],
+  },
   ShadowMaterial: GenericMaterial,
-  SpriteMaterial: GenericMaterial,
+  SpriteMaterial: {
+    type: 'material',
+    props: [
+      prop.color,
+      prop.diffuseMap,
+      prop.rotation,
+      prop.sizeAttenuation,
+      ...base
+    ],
+  },
   LineBasicMaterial: {
     type: 'material',
     props: [
@@ -149,7 +261,7 @@ export default {
     props: [
       prop.color,
       line,
-      lineDashed,
+      ...lineDashed,
       ...base
     ],
   },
