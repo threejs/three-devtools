@@ -83,6 +83,7 @@ export default class KeyValueElement extends LitElement {
         valueElement = html`<input type="checkbox" .checked="${this.value}" />`;
         break;
       case 'number':
+      case 'int':
         valueElement = html`<input type="type" value="${this.value}" />`;
         break;
       case 'string':

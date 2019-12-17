@@ -1,55 +1,13 @@
 
-export const entityTypeToTypeHint = type => {
-
+export const getEntityType = entity => {
+  return entity.typeHint === 'texture' ?
+           entity.textureType :
+           entity.type;
 };
 
-export const objectTypeToCategory = type => {
-  switch (type) {
-    case 'Mesh':
-      return 'mesh';
-    case 'Line':
-    case 'LineLoop':
-    case 'LineSegments':
-      return 'line';
-    case 'AmbientLight':
-    case 'DirectionalLight':
-    case 'HemisphereLight':
-    case 'PointLight':
-    case 'RectAreaLight':
-    case 'SpotLight':
-      return 'light';
-    case 'ArrowHelper':
-    case 'AxesHelper':
-    case 'BoxHelper':
-    case 'Box3Helper':
-    case 'CameraHelper':
-    case 'DirectionalLightHelper':
-    case 'FaceNormalsHelper':
-    case 'GridHelper':
-    case 'PolarGridHelper':
-    case 'PositionalAudioHelper':
-    case 'HemisphereLightHelper':
-    case 'PlaneHelper':
-    case 'PointLightHelper':
-    case 'RectAreaLightHelper':
-    case 'SkeletonHelper':
-    case 'SpotLightHelper':
-    case 'VertexNormalsHelper':
-      return 'helper';
-    case 'Skeleton':
-    case 'Bone':
-      return 'bone';
-    case 'Group':
-      return 'group';
-    default:
-      return /light/i.test(type) ? 'light' :
-             /mesh/i.test(type) ? 'mesh' :
-             /bone/i.test(type) ? 'bone' :
-             /line/i.test(type) ? 'line' :
-             /group/i.test(type) ? 'group' :
-             /helper/i.test(type) ? 'helper' : 'unknown';
-  }
-}
+export const getEntityName = entity => {
+  return entity.name || getEntityType(entity);
+};
 
 // These color conversions should be way more robust..
 // @TODO use THREE.Color

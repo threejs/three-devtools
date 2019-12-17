@@ -1,5 +1,5 @@
 import { LitElement, html } from '../../../web_modules/lit-element.js'
-import { objectTypeToCategory } from '../utils.js';
+import { getEntityName } from '../utils.js';
 
 const $onContentUpdate = Symbol('onContentUpdate');
 const $onTreeItemSelect = Symbol('onTreeItemSelect');
@@ -64,6 +64,7 @@ export default class ResourcesViewElement extends LitElement {
     const createNode = (obj, i) => {
       let selected = obj.uuid && this.selected && this.selected === obj.uuid;
       let unique = obj.uuid || `${this.filter}-${i}`;
+      let name = getEntityName(obj);
       return html`
       <tree-item
         unique="${unique}"
@@ -71,7 +72,7 @@ export default class ResourcesViewElement extends LitElement {
         depth="0"
         type-hint="${obj.typeHint}"
       >
-      <div slot="content">${obj.typeHint==='texture'?'<Texture>':(obj.name || obj.type)}</div>
+      <div slot="content">${name}</div>
       </tree-item>
       `;
     }

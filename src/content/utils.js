@@ -6,6 +6,26 @@ const materialMaps = [
   'displacementMap', 'normalMap', 'bumpMap', 'roughnessMap',
   'metalnessMap', 'emissiveMap'
 ];
+const textureTypes = [
+  'CanvasTexture',
+  'CompressedTexture',
+  'CubeTexture',
+  'DataTexture',
+  'DataTexture2DArray',
+  'DataTexture3D',
+  'DepthTexture',
+  'VideoTexture',
+  'Texture',
+];
+const textureToTextureType = entity => {
+  for (let type of textureTypes) {
+    if (entity[`is${type}`]) {
+      return type;
+    }
+  }
+  return 'Texture';
+}
+
 const utils = {
   hideObjectFromTools: (object) => {
     object.userData.fromDevtools = true;
@@ -119,6 +139,10 @@ const utils = {
           if (textureData) {
             this.image = textureData;
           }
+
+          // We lose information like "CanvasTexture" upon
+          // serialization
+          data.textureType = textureToTextureType(this);
 
           return data;
         }

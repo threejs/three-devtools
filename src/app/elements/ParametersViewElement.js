@@ -3,6 +3,8 @@ import BaseElement from './BaseElement.js';
 import ObjectTypes from '../data/objects.js';
 import MaterialTypes from '../data/materials.js';
 import GeometryTypes from '../data/geometry.js';
+import TextureTypes from '../data/textures.js';
+import { getEntityType, getEntityName } from '../utils.js';
 
 function propsToElements(object, elements, props) {
   for (let prop of props) {
@@ -68,6 +70,7 @@ export default class ParametersViewElement extends BaseElement {
     let definition = ObjectTypes[object.type] ||
                        MaterialTypes[object.type] ||
                        GeometryTypes[object.type];
+                       TextureTypes[object.textureType];
 
     // It's possible the types are unknown e.g. modified
     // by a user. Use the next best guess.
@@ -81,13 +84,15 @@ export default class ParametersViewElement extends BaseElement {
           definition = MaterialTypes.Material; break;
         case 'geometry':
           definition = GeometryTypes.Geometry; break;
+        case 'texture':
+          definition = TextureTypes.Texture; break;
         default:
           throw new Error(`could not find definition for ${object.type}`);
       }
     }
 
     const objectType = '';
-    const objectName = object.name || object.type;
+    const objectName = getEntityName(object);
     const elements = [];
     propsToElements(object, elements, [...definition.props]);
 
@@ -113,7 +118,7 @@ export default class ParametersViewElement extends BaseElement {
   <devtools-icon-button icon="refresh" @click="${this.refresh}">
 </title-bar>
 <div class="properties" object-hint="${objectType}">
-  <key-value uuid=${this.uuid} key-name="Type" .value="${object.type}" type="string" property="type"></key-value>
+  <key-value uuid=${this.uuid} key-name="Type" .value="${getEntityType(object)}" type="string" property="type"></key-value>
   <key-value uuid=${this.uuid} key-name="UUID" .value="${object.uuid}" type="string" property="uuid"></key-value>
   <key-value uuid=${this.uuid} key-name="Name" .value="${object.name}" type="string" property="name"></key-value>
   ${elements} 
