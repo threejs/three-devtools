@@ -207,6 +207,13 @@ export const specular = {
   }],
 };
 
+export const clipping = {
+  name: 'Clipping',
+  type: 'boolean',
+  prop: 'clipping',
+  default: false,
+}
+
 export const wireframe = {
   name: 'Wireframe',
   type: 'group',

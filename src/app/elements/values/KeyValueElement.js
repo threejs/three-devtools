@@ -2,7 +2,7 @@ import { LitElement, html } from '../../../../web_modules/lit-element.js'
 import { cssStringToHexNumber, hexNumberToCSSString } from '../../utils.js';
 
 const $onChange = Symbol('onChange');
-
+const anchor = document.createElement('a');
 let kvIterator = 0;
 
 export default class KeyValueElement extends LitElement {
@@ -26,11 +26,38 @@ export default class KeyValueElement extends LitElement {
     this._id = `key-value-element-${kvIterator++}`;
   }
 
+  onDataURLClick(e) {
+    try {
+      let stringified = JSON.stringify(this.value, null, 2);
+      let blob = new Blob([stringified], { type: 'application/json' });
+      let url = window.URL.createObjectURL(blob);
+      anchor.setAttribute('href', url);
+      anchor.setAttribute('target', '_window');
+      anchor.click();
+      // Clean it up immediately so we're not storing
+      // large buffers for the lifetime of the tools
+      window.URL.revokeObjectURL(url);
+    } catch (e) {
+    }
+    e.preventDefault();
+  }
+
   render() {
 
     let valueElement;
 
     switch (this.type) {
+      case 'array':
+        if (this.value) {
+          valueElement = html`
+          <a href="#" @click=${e => this.onDataURLClick(e)}>
+            array
+          </a>`;
+        }
+        else {
+          valueElement = html`[]`;
+        }
+        break;
       case 'enum':
         valueElement = html`<enum-value .uuid="${this.uuid}" .type="${this.property}" .value="${this.value}"></enum-value>`;
         break;

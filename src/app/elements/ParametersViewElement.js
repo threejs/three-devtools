@@ -2,20 +2,42 @@ import { html } from '../../../web_modules/lit-element.js'
 import BaseElement from './BaseElement.js';
 import ObjectTypes from '../data/objects.js';
 import MaterialTypes from '../data/materials.js';
+import GeometryTypes from '../data/geometry.js';
 
 function propsToElements(object, elements, props) {
   for (let prop of props) {
-    const { name, type, prop: propName, default: def } = prop;
-    if (type === 'group') {
+    if (typeof prop === 'function') {
+      const result = prop(object);
+      if (result) {
+        prop = result;
+      } else {
+        continue;
+      }
+    }
+    
+    if (prop.type === 'group') {
       const subProps = [];
       propsToElements(object, subProps, [...prop.props]);
       elements.push(html`<accordion-view>
-        <div slot="content">${name}</div>
+        <div slot="content">${prop.name}</div>
         ${subProps}
       </accordion-view>`);
       continue;
     } else {
-      const value = (propName in object) ? object[propName] : def;
+      const { name, type, prop: propName, default: def } = prop;
+      let path = propName.split('.');
+      let target = object;
+      let key = path.shift();
+      // Support nested properties, like 'data.attributes'
+      while (path.length) {
+        if (!(key in target)) {
+          break;
+        }
+        target = target[key];
+        key = path.shift();
+      }
+
+      const value = (key in target ) ? target[key] : def;
       elements.push(html`
         <key-value uuid=${object.uuid}
           key-name="${name}"
@@ -44,7 +66,8 @@ export default class ParametersViewElement extends BaseElement {
     }
 
     let definition = ObjectTypes[object.type] ||
-                       MaterialTypes[object.type];
+                       MaterialTypes[object.type] ||
+                       GeometryTypes[object.type];
 
     // It's possible the types are unknown e.g. modified
     // by a user. Use the next best guess.
@@ -56,6 +79,8 @@ export default class ParametersViewElement extends BaseElement {
           definition = ObjectTypes.Object3D; break;
         case 'material':
           definition = MaterialTypes.Material; break;
+        case 'geometry':
+          definition = GeometryTypes.Geometry; break;
         default:
           throw new Error(`could not find definition for ${object.type}`);
       }
