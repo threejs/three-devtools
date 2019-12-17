@@ -1,0 +1,122 @@
+<html>
+    <head></head>
+    <body style="margin:0">
+<script type="module">
+import * as THREE from '../web_modules/three.js';
+import RGBELoader from './modules/RGBELoader.js';
+import generateEnvironment from './modules/TextureUtils.js';
+
+window.app = new class App {
+  constructor() {
+    this.render = this.render.bind(this);
+    this.updateSize = this.updateSize.bind(this);
+
+    this.textureLoader = new THREE.TextureLoader();
+    this.renderer = new THREE.WebGLRenderer({
+      antialias: true,
+    });
+    this.renderer.setPixelRatio(window.devicePixelRatio);
+
+    this.scene = new THREE.Scene();
+    this.camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 10);
+    this.camera.position.z = 20;
+    this.updateSize();
+
+    const envMap = this.textureLoader.load('textures/studio_small_03_1k.hdr');
+
+    const geometry = new THREE.SphereBufferGeometry(0.5, 64, 64);
+
+    const materials = [
+      new THREE.MeshBasicMaterial({
+        aoMap: this.textureLoader.load('textures/marble/marble_01_AO_1k.jpg'),
+        aoMapIntensity: 0.5,
+        specularMap: this.textureLoader.load('textures/marble/marble_01_spec_1k.jpg'),
+        color: 0xaaffff,
+      }),
+      new THREE.MeshDepthMaterial({
+      }),
+      new THREE.MeshDistanceMaterial({
+      }),
+      new THREE.MeshLambertMaterial({
+        color: 0xffaacc,
+      }),
+      new THREE.MeshMatcapMaterial(),
+      new THREE.MeshNormalMaterial(),
+      new THREE.MeshPhongMaterial({
+        color: 0xffaacc,
+      }),
+      new THREE.MeshPhysicalMaterial({
+        clearCoat: 1,
+        map: this.textureLoader.load('textures/marble/marble_01_diff_1k.jpg'),
+        envMapIntensity: 0.3,
+        aoMap: this.textureLoader.load('textures/marble/marble_01_AO_1k.jpg'),
+        normalMap: this.textureLoader.load('textures/marble/marble_01_nor_1k.jpg'),
+        displacementMap: this.textureLoader.load('textures/marble/marble_01_disp_1k.jpg'),
+        displacementScale: 0.2,
+        roughnessMap: this.textureLoader.load('textures/marble/marble_01_rough_1k.jpg'),
+        // Need to actually convert textures to metal/roughness flow...
+        metalnessMap: this.textureLoader.load('textures/marble/marble_01_spec_1k.jpg'),
+        color: 0xffffff,
+      }),
+      new THREE.MeshStandardMaterial({
+        map: this.textureLoader.load('textures/marble/marble_01_diff_1k.jpg'),
+        envMapIntensity: 0.3,
+        aoMap: this.textureLoader.load('textures/marble/marble_01_AO_1k.jpg'),
+        normalMap: this.textureLoader.load('textures/marble/marble_01_nor_1k.jpg'),
+        displacementMap: this.textureLoader.load('textures/marble/marble_01_disp_1k.jpg'),
+        displacementScale: 0.2,
+        roughnessMap: this.textureLoader.load('textures/marble/marble_01_rough_1k.jpg'),
+        // Need to actually convert textures to metal/roughness flow...
+        metalnessMap: this.textureLoader.load('textures/marble/marble_01_spec_1k.jpg'),
+        color: 0xffffff,
+      }),
+      new THREE.MeshToonMaterial({
+        color: 0xffaacc,
+      }),
+    ];
+
+    for (let material of materials) {
+      const mesh = new THREE.Mesh(geometry, material);
+      mesh.position.x = -Math.floor(materials.length / 2);
+      material.name = material.type.replace(/Mesh/, '');
+      this.scene.add(mesh);
+    }
+    // PointsMaterial, RawShaderMaterial, ShaderMaterial, ShadowMaterial, SpriteMaterial, LineBasicMaterial, LineDashedMaterial
+
+    generateEnvironment(this.renderer, 'textures/studio_small_03_1k.hdr').then(texture => {
+      for (let material of materials) {
+        if (['MeshBasicMaterial', 'MeshLambertMaterial', 'MeshPhysicalMaterial', 'MeshStandardMaterial'].indexOf(material.type) !== -1) {
+          material.envMap = texture;
+          material.needsUpdate = true;
+        }
+      }
+    });
+
+    this.dLight = new THREE.DirectionalLight(0xffffff,0.7);
+    this.dLight.position.y = 5;
+    this.scene.add(this.dLight);
+    this.light = new THREE.AmbientLight(0xffffff, 1.3);
+    this.scene.add(this.light);
+
+    this.renderer.setAnimationLoop(this.render);
+    document.body.appendChild(this.renderer.domElement);
+    window.addEventListener('resize', this.updateSize);
+  }
+
+  render() {
+    //this.meshes.forEach(x => x.rotation.y += 0.01);
+    this.renderer.render(this.scene, this.camera);
+  }
+
+  updateSize() {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    this.camera.aspect = w/h;
+    this.camera.updateProjectionMatrix();
+    this.renderer.setSize(w, h);
+  }
+}
+
+</script>
+    </body>
+</html>
