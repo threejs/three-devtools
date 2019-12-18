@@ -85,29 +85,12 @@ export default class AppElement extends LitElement {
   }
 
   render() {
-
-    let inspected;
-
     const isReady = this.activeScene && this.activeRenderer;
     // scene, geometry, material, texture, rendering
     const preset = this.preset || 'scene';
     const showResourceView = ['geometry', 'material', 'texture'].indexOf(preset) !== -1;
-    if (this.activeEntity) {
-      const object = this.content.get(this.activeEntity);
-
-      if (object) {
-        switch (object.typeHint) {
-          case 'geometry':
-          case 'texture':
-          case 'object':
-          case 'material':
-            inspected = html`<parameters-view enabled uuid="${this.activeEntity}"></parameters-view>`;
-            break;
-        }
-      } else {
-        console.log('could not find activeEntity', this.activeEntity);
-      }
-    }
+    const showInspector = this.activeEntity && this.preset !== 'rendering';
+    //const object = this.content.get(this.activeEntity);
 
     return html`
 <style>
@@ -119,40 +102,41 @@ export default class AppElement extends LitElement {
   /* Vertical */
 
   #container {
-    display: flex;
     width: 100%;
     height: 100%;
-    flex-direction: column;
     user-select: none;
   }
   #container > * {
-    flex: 1;
-    overflow: hidden;
     border-top: 1px solid var(--view-border-color);
+    border-left: 0px;
   }
   #container > devtools-message {
     border: 0px;
   }
   #container > tab-bar {
-    flex: 0 1 auto;
     border: 0px;
   }
-  tab-bar {
+  .flex {
+    display: flex;
+    flex-direction: column;
+  }
+  .flex > * {
+    flex: 1;
+    overflow: hidden;
+  }
+  .flex.inverse {
     flex-direction: row;
   }
+  .collapsible {
+    flex: 0 1 auto;
+  }
 
-  @media (min-aspect-ratio: 1/1) {
-    #container {
-      flex-direction: row;
-    }
-    #container > * {
-      border-left: 1px solid var(--view-border-color);
-      border-top: 0px;
-    }
-    tab-bar {
-      flex-direction: column;
-      height: 100%;
-    }
+  .inspector-frame {
+    max-height: 50%;
+    flex: 0 1 auto;
+  }
+  .inspector-frame[show-inspector] {
+    flex: 1;
   }
 
   /* @TODO turn these into generic flex components? */
@@ -162,28 +146,43 @@ export default class AppElement extends LitElement {
   .frame > [enabled] {
     display: inherit;
   }
-  .frame {
-    display: flex;
-    flex-direction: row;
+
+  /* Horizontal frames */
+
+  @media (min-aspect-ratio: 1/1) {
+    .flex {
+      flex-direction: row;
+    }
+    .flex.inverse {
+      flex-direction: column;
+    }
+    #container > * {
+      border-left: 1px solid var(--view-border-color);
+      border-top: 0px;
+    }
+    tab-bar {
+      flex-direction: column;
+      height: 100%;
+    }
+    .inspector-frame {
+      max-height: 100%;
+      max-width: 50%;
+    }
   }
-  .frame > * {
-    flex: 1;
-  }
-  .flex-inherit {
-    flex: inherit !important;
-  }
+
+  /* Animations and visibility handling */
 
   [state] [visible-when] {
     display: none;
   }
   [state='ready'] [visible-when='ready'] {
-    display: flex;
+    display: inherit;
   }
   [state='needs-reload'] [visible-when='needs-reload'] {
-    display: flex;
+    display: inherit;
   }
   [state='waiting'] [visible-when='waiting'] {
-    display: flex;
+    display: inherit;
   }
   .loading {
     animation: loading 1s infinite;
@@ -197,7 +196,7 @@ export default class AppElement extends LitElement {
     }
   }
 </style>
-<div state=${isReady ? 'ready' : this.needsReload ? 'needs-reload' : 'waiting'} id="container">
+<div class="flex" state=${isReady ? 'ready' : this.needsReload ? 'needs-reload' : 'waiting'} id="container">
   <!-- Reload panes -->
   <devtools-message visible-when='needs-reload'>
     <span>Three Devtools requires a page reload.</span>
@@ -211,15 +210,15 @@ export default class AppElement extends LitElement {
   </devtools-message>
 
   <!-- Application panes -->
-  <tab-bar visible-when='ready' @click=${this[$onPresetClick]}>
-    <x-icon title="Scene" ?active=${preset === 'scene'} icon="cubes" fill></x-icon>
-    <x-icon title="Geometries" ?active=${preset === 'geometry'} icon="dice-d20" fill></x-icon>
-    <x-icon title="Materials" ?active=${preset === 'material'} icon="paint-brush" fill></x-icon>
-    <x-icon title="Textures" ?active=${preset === 'texture'} icon="chess-board" fill></x-icon>
-    <x-icon title="Rendering" ?active=${preset === 'rendering'} icon="video" fill></x-icon>
+  <tab-bar class="flex inverse collapsible" visible-when='ready' @click=${this[$onPresetClick]}>
+    <x-icon class="collapsible" title="Scene" ?active=${preset === 'scene'} icon="cubes" fill></x-icon>
+    <x-icon class="collapsible" title="Geometries" ?active=${preset === 'geometry'} icon="dice-d20" fill></x-icon>
+    <x-icon class="collapsible" title="Materials" ?active=${preset === 'material'} icon="paint-brush" fill></x-icon>
+    <x-icon class="collapsible" title="Textures" ?active=${preset === 'texture'} icon="chess-board" fill></x-icon>
+    <x-icon class="collapsible" title="Rendering" ?active=${preset === 'rendering'} icon="video" fill></x-icon>
   </tab-bar>
 
-  <div class="frame" visible-when='ready'> 
+  <div class="frame flex" visible-when='ready'> 
     <scene-view
       uuid="${ifDefined(this.activeScene)}"
       selected="${ifDefined(this.activeEntity)}"
@@ -237,8 +236,11 @@ export default class AppElement extends LitElement {
       ?enabled=${preset === 'rendering'}
       ></renderer-view>
   </div>
-  <div class="frame" visible-when='ready'>
-    ${inspected}
+  <div ?show-inspector=${showInspector} class="inspector-frame frame flex inverse"
+    visible-when='ready'>
+      <parameters-view ?enabled=${showInspector}
+        uuid="${this.activeEntity}">
+      </parameters-view>
   </div>
 </div>
 `;
