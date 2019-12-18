@@ -84,7 +84,7 @@ export default class KeyValueElement extends LitElement {
         break;
       case 'number':
       case 'int':
-        valueElement = html`<input type="type" value="${this.value}" />`;
+        valueElement = html`<input type="number" value="${this.value}" />`;
         break;
       case 'string':
         valueElement = this.value;
