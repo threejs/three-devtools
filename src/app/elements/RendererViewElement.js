@@ -11,6 +11,7 @@ export default class RendererViewElement extends BaseElement {
   static get properties() {
     return {
       id: { type: String, reflect: true },
+      enabled: { type: Boolean, reflect: true },
     };
   }
 
@@ -23,10 +24,11 @@ export default class RendererViewElement extends BaseElement {
   connectedCallback() {
     super.connectedCallback();
     this.app.content.addEventListener('renderer-update', this[$onRendererUpdate]);
-    this[$onPoll].timer = window.setInterval(this[$onPoll], RENDERER_POLL_INTERVAL);
   }
   disconnectedCallback() {
-    window.clearInterval(this[$onPoll].timer);
+    if (this[$onPoll].timer) {
+      window.clearInterval(this[$onPoll].timer);
+    }
     this.app.content.removeEventListener('renderer-update', this[$onRendererUpdate]);
     super.disconnectedCallback();
   }
@@ -41,6 +43,17 @@ export default class RendererViewElement extends BaseElement {
     if (this.id && e.detail.info && e.detail.id === this.id) {
       this.requestUpdate();
     }
+  }
+
+  shouldUpdate(props) {
+    if (props.has('enabled')) {
+      if (this.enabled) {
+        this[$onPoll].timer = window.setInterval(this[$onPoll], RENDERER_POLL_INTERVAL); 
+      } else {
+        window.clearInterval(this[$onPoll].timer);
+      }
+    }
+    return true;
   }
 
   render() {
