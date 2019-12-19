@@ -20,6 +20,14 @@ cat node_modules/three/build/three.min.js >> src/content/three.js
 echo '  return exports;'                  >> src/content/three.js
 echo '};'                              >> src/content/three.js
 
+# Replace all instances of __THREE_DEVTOOLS__ in
+# the internal three.js so we're not recursively
+# complicating things, for example, we get a 'registration'
+# event from the internal version and can't determine
+# whether its the internal version, or a content version
+# that should be debugged.
+sed -i -e 's/__THREE_DEVTOOLS__/__INTERNAL_THREE_DEVTOOLS__/g' src/content/three.js
+
 # Copy over the non-modified version of TransformControls
 echo 'export default (THREE) => {'        > src/content/TransformControls.js
 cat node_modules/three/examples/js/controls/TransformControls.js >> src/content/TransformControls.js
