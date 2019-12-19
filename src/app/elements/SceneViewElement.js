@@ -91,7 +91,7 @@ export default class SceneViewElement extends BaseElement {
 </style>
 <title-bar title="Scene">
   <select @change="${this[$onSceneSelect]}" class="chrome-select">
-    ${scenes.map(scene => html`<option value="${scene.uuid}">${scene.uuid}</option>`)}
+    ${scenes.map(scene => html`<option value="${scene.uuid}" title="${scene.uuid}">${scene.name || scene.uuid}</option>`)}
   </select>
   <devtools-icon-button icon="refresh" @click="${this.refresh}">
 </title-bar>
