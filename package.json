@@ -43,7 +43,8 @@
       "three/src/constants.js",
       "three/examples/jsm/loaders/GLTFLoader.js",
       "three/examples/jsm/pmrem/PMREMGenerator.js",
-      "three/examples/jsm/pmrem/PMREMCubeUVPacker.js"
+      "three/examples/jsm/pmrem/PMREMCubeUVPacker.js",
+      "three/examples/jsm/geometries/TeapotBufferGeometry.js"
     ]
   }
 }
