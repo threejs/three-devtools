@@ -3,16 +3,21 @@ import { getEntityName } from '../utils.js';
 
 const $onContentUpdate = Symbol('onContentUpdate');
 const $onTreeItemSelect = Symbol('onTreeItemSelect');
-const filters = [
-  'geometry',
-  'material',
-  'texture'
-];
-const filterToTitle = {
-  geometry: 'Geometry',
-  material: 'Materials',
-  texture: 'Textures',
-}
+const filters = {
+  geometry: {
+    title: 'Geometry',
+    resources: 'geometries',
+  },
+  material: {
+    title: 'Material',
+    resources: 'materials',
+  },	
+  texture: {
+    title: 'Texture',
+    resources: 'textures',
+  }
+};
+
 export default class ResourcesViewElement extends LitElement {
   static get properties() {
     return {
@@ -51,15 +56,16 @@ export default class ResourcesViewElement extends LitElement {
   }
 
   render() {
-    const resources = this.app.content.getAllResources();
+    const filter = filters[this.filter];
+    if (!filter) {
+      return html`<div>no filter</div>`;
+    }
 
+    const resources = this.app.content.getEntitiesOfType(filter.resources);
     if (!resources || !this.uuid) {
       return html`<div>no resources</div>`;
     }
 
-    if (filters.indexOf(this.filter) === -1) {
-      return html`<div>no filter</div>`;
-    }
 
     const createNode = (obj, i) => {
       let selected = obj.uuid && this.selected && this.selected === obj.uuid;
@@ -70,7 +76,6 @@ export default class ResourcesViewElement extends LitElement {
         unique="${unique}"
         ?selected="${selected}"
         depth="0"
-        type-hint="${obj.typeHint}"
       >
       <div slot="content">${name}</div>
       </tree-item>
@@ -83,7 +88,7 @@ export default class ResourcesViewElement extends LitElement {
       nodes = entities.map(createNode);  
     }
 
-    const title = filterToTitle[this.filter];
+    const title = filter.title;
     return html`
 <style>
   :host {
@@ -142,11 +147,9 @@ export default class ResourcesViewElement extends LitElement {
     e.stopPropagation();
     const treeItem = e.composedPath()[0];
     const uuid = treeItem.getAttribute('unique');
-    const type = treeItem.getAttribute('type-hint');
     this.dispatchEvent(new CustomEvent('select-entity', {
       detail: {
         uuid,
-        type,
       },
       bubbles: true,
       composed: true,

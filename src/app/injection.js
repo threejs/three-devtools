@@ -1,6 +1,7 @@
 import browser from '../../web_modules/webextension-polyfill/dist/browser-polyfill.js';
 import utils from '../content/utils.js';
 import TransformControls from '../content/TransformControls.js';
+import EntityCache from '../content/EntityCache.js';
 import ThreeDevTools from '../content/ThreeDevTools.js';
 import DevToolsScene from '../content/DevToolsScene.js';
 import THREE from '../content/three.js';
@@ -18,11 +19,12 @@ console.log('%c▲%cthree-devtools%cv${version}',
   'font-size: 110%; background-color: ${blue}; color:#666; padding: 0 5px;');
 (() => {
 
-  const DEBUG = false;
+  const DEBUG = true;
   const utils = (${utils})();
   const THREE = (${THREE})();
   (${TransformControls})(THREE);
   const DevToolsScene = (${DevToolsScene})(THREE);
+  const EntityCache = (${EntityCache})();
   const devtools = new (${ThreeDevTools})(window.__THREE_DEVTOOLS__);
 
   window.__THREE_DEVTOOLS__.dispatchEvent(new CustomEvent('devtools-ready'));

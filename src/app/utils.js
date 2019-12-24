@@ -1,8 +1,6 @@
 
 export const getEntityType = entity => {
-  return entity.typeHint === 'texture' ?
-           entity.textureType :
-           entity.type;
+  return entity.textureType || entity.type;
 };
 
 export const getEntityName = entity => {

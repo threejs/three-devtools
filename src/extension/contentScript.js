@@ -55,11 +55,19 @@ window.addEventListener('message', e => {
     return;
   }
 
-  const { type } = e.data;
-
   // Don't bring in the 35kb polyfill on every page
   // for a single command that doesn't matter if its callback
   // promise; handle this manually.
   const extRoot = globalThis.chrome ? globalThis.chrome : globalThis.browser;
-  extRoot.runtime.sendMessage(e.data);
+
+  try {
+    extRoot.runtime.sendMessage(e.data);
+  } catch (e) {
+    console.error(e);
+    extRoot.runtime.sendMessage({
+      type: 'error',
+      id: data.id,
+      data: e.toString(), 
+    });
+  }
 });

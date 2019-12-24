@@ -1,0 +1,31 @@
+<html>
+    <head></head>
+    <body style="margin:0">
+<script type="module">
+import * as THREE from '../web_modules/three.js';
+import { TeapotBufferGeometry } from '../web_modules/three/examples/jsm/geometries/TeapotBufferGeometry.js';
+
+window.app = new class App {
+  constructor() {
+    this.scenes = [];
+    for (let i = 0; i < 5; i++) {
+      const scene = new THREE.Scene();
+      scene.name = `Scene ${i + 1}`;
+      for (let j = 0; j < 5; j++) {
+        const mesh = new THREE.Mesh(new TeapotBufferGeometry(1, 64, true, true, true, true), new THREE.MeshBasicMaterial({
+	
+	}));
+	mesh.name = `Mesh ${j+1} via Scene ${i + 1}`;
+	mesh.geometry.name = `Geo ${j+1} via Scene ${i + 1}`;
+	mesh.material.name = `Material ${j+1} via Scene ${i + 1}`;
+	console.log('vertices', mesh.geometry.attributes.position);
+        scene.add(mesh);
+      }
+      this.scenes.push(scene);
+    }
+  }
+}
+
+</script>
+    </body>
+</html>

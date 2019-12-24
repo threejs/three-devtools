@@ -4,7 +4,6 @@ import { getEntityName } from '../../utils.js';
 const $onActivate = Symbol('onActivate');
 
 export default class TextureValueElement extends BaseElement {
-  static get typeHint() { return 'texture'; }
 
   static get properties() {
     return {
@@ -57,7 +56,6 @@ export default class TextureValueElement extends BaseElement {
   [$onActivate](e) {
     this.app.dispatchEvent(new CustomEvent('select-entity', { detail: {
       uuid: this.uuid,
-      typeHint: 'texture',
     }}));
   }
 }

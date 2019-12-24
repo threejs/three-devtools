@@ -17,14 +17,6 @@ const textureTypes = [
   'VideoTexture',
   'Texture',
 ];
-const textureToTextureType = entity => {
-  for (let type of textureTypes) {
-    if (entity[`is${type}`]) {
-      return type;
-    }
-  }
-  return 'Texture';
-}
 
 const utils = {
   hideObjectFromTools: (object) => {
@@ -33,6 +25,15 @@ const utils = {
 
   isHiddenFromTools: (object) => {
     return !!(object.userData && object.userData.fromDevtools);
+  },
+
+  textureToTextureType: (entity) => {
+    for (let type of textureTypes) {
+      if (entity[`is${type}`]) {
+        return type;
+      }
+    }
+    return 'Texture';
   },
 
   cacheEntitiesInScene: (scene, map) => {  
@@ -61,21 +62,20 @@ const utils = {
     });
   },
 
-  mergeResources(output, ...sceneResources) {
+  mergeResources(output, sceneResources) {
     ['materials', 'images', 'geometries', 'textures'].forEach(prop => {
-      for (let resources of sceneResources) {
-        if (!Array.isArray(output[prop])) {
-          output[prop] = [];
-        }
-        const newEntities = sceneResources[prop] 
-        const savedEntities = output[prop] 
-        if (!Array.isArray(newEntities) || !newEntities || !newEntities.length) {
-          return output;
-        }
-        output[prop] = savedEntities.push(...newEntities);
+      if (!Array.isArray(output[prop])) {
+        output[prop] = [];
       }
+      const newEntities = sceneResources[prop] 
+      const savedEntities = output[prop] 
+      if (!Array.isArray(newEntities) || !newEntities || !newEntities.length) {
+        return output;
+      }
+      savedEntities.push(...newEntities);
 
       let uuids = [];
+      // Filter out duplicates
       output[prop] = output[prop].filter(entity => {
         if (uuids.indexOf(entity.uuid) !== -1) {
           return false;
@@ -142,7 +142,7 @@ const utils = {
 
           // We lose information like "CanvasTexture" upon
           // serialization
-          data.textureType = textureToTextureType(this);
+          data.textureType = utils.textureToTextureType(this);
 
           return data;
         }
@@ -229,6 +229,7 @@ const utils = {
     try {
       //console.time('toJSON-'+entity.uuid);
       json = meta ? entity.toJSON(meta) : entity.toJSON();
+      console.log(meta, json);
       //console.timeEnd('toJSON-'+entity.uuid);
     } catch (e) {
       // If this throws, it could be because of some object not being serializable.

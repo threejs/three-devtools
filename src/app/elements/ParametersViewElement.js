@@ -52,8 +52,6 @@ function propsToElements(object, elements, props) {
 }
 
 export default class ParametersViewElement extends BaseElement {
-  static get typeHint() { return ''; }
-
   static get properties() {
     return {
       ...BaseElement.properties,
@@ -75,23 +73,20 @@ export default class ParametersViewElement extends BaseElement {
     // It's possible the types are unknown e.g. modified
     // by a user. Use the next best guess.
     if (!definition) {
-      switch (object.typeHint) {
-        case 'scene':
-          definition = ObjectTypes.Scene; break;
-        case 'object':
+      switch (this.app.content.getEntityCategory(object.uuid)) {
+        case 'objects':
           definition = ObjectTypes.Object3D; break;
-        case 'material':
+        case 'materials':
           definition = MaterialTypes.Material; break;
-        case 'geometry':
+        case 'geometries':
           definition = GeometryTypes.Geometry; break;
-        case 'texture':
+        case 'textures':
           definition = TextureTypes.Texture; break;
         default:
           throw new Error(`could not find definition for ${object.type}`);
       }
     }
 
-    const objectType = '';
     const objectName = getEntityName(object);
     const elements = [];
     propsToElements(object, elements, [...definition.props]);
@@ -111,13 +106,11 @@ export default class ParametersViewElement extends BaseElement {
     overflow-x: hidden;
   }
 
-  .mesh { display: none; }
-  [object-hint="mesh"] .mesh { display: flex; }
 </style>
 <title-bar title="${objectName}">
   <devtools-icon-button icon="refresh" @click="${this.refresh}">
 </title-bar>
-<div class="properties" object-hint="${objectType}">
+<div class="properties">
   <key-value uuid=${this.uuid} key-name="Type" .value="${getEntityType(object)}" type="string" property="type"></key-value>
   <key-value uuid=${this.uuid} key-name="UUID" .value="${object.uuid}" type="string" property="uuid"></key-value>
   <key-value uuid=${this.uuid} key-name="Name" .value="${object.name}" type="string" property="name"></key-value>

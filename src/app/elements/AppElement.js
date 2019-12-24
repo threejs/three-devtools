@@ -28,6 +28,7 @@ export default class AppElement extends LitElement {
     super();
 
     this.needsReload = true;
+    this.preset = 'scene';
 
     this[$onSelectScene] = this[$onSelectScene].bind(this);
     this[$onSelectEntity] = this[$onSelectEntity].bind(this);
@@ -84,8 +85,12 @@ export default class AppElement extends LitElement {
     return this;
   }
 
+  firstUpdated() {
+    this.content.setPreset(this.preset);
+  }
+
   render() {
-    const isReady = this.activeScene && this.activeRenderer;
+    const isReady = !!this.activeScene;
     // scene, geometry, material, texture, rendering
     const preset = this.preset || 'scene';
     const showResourceView = ['geometry', 'material', 'texture'].indexOf(preset) !== -1;
@@ -254,6 +259,7 @@ export default class AppElement extends LitElement {
       case 'Textures': this.preset = 'texture'; break;
       case 'Rendering': this.preset = 'rendering'; break;
     }
+    this.content.setPreset(this.preset);
   }
 
   [$onSelectScene](e) {
@@ -270,9 +276,10 @@ export default class AppElement extends LitElement {
 
   [$onContentUpdate](e) {
     // If this is the initial scene, set it as active
-    if (!this.activeScene && e.detail.typeHint === 'scene') {
+    if (!this.activeScene && this.content.getEntityCategory(e.detail.uuid) === 'scenes') {
       this.activeScene = e.detail.uuid;
     }
+    console.log('on content update', e, e.detail)
   }
 
   [$onContentRendererUpdate](e) {

@@ -19,7 +19,7 @@ export default class BaseElement extends LitElement {
   }
 
   getEntity() {
-    return this.app.content.get(this.uuid, this.constructor.typeHint);
+    return this.app.content.get(this.uuid);
   }
 
   connectedCallback() {
@@ -43,7 +43,7 @@ export default class BaseElement extends LitElement {
     this.app.content.addEventListener('update', this[$onContentUpdate]);
 
     if (this.uuid) {
-      this.app.refresh(this.uuid, this.constructor.typeHint);
+      this.app.refresh(this.uuid);
     }
   }
 
@@ -66,7 +66,7 @@ export default class BaseElement extends LitElement {
 
   refresh() {
     if (this.app) {
-      this.app.refresh(this.uuid, this.constructor.typeHint);
+      this.app.refresh(this.uuid);
     }
   }
 

@@ -7,8 +7,6 @@ const $onContentUpdate = Symbol('onContentUpdate');
 const $onTreeItemSelect = Symbol('onTreeItemSelect');
 
 export default class SceneViewElement extends BaseElement {
-  static get typeHint() { return 'scene'; }
-
   static get properties() {
     return {
       selected: { type: String, reflect: true },
@@ -40,8 +38,7 @@ export default class SceneViewElement extends BaseElement {
 
   render() {
     const scene = this.getEntity();
-    const resources = this.app.content.getAllResources();
-    const scenes = resources ? resources.scene : [];
+    const scenes = this.app.content.getEntitiesOfType('scenes');
 
     if (!scene) {
       return html`<div>no scene registered</div>`;
@@ -110,7 +107,7 @@ ${createNode(scene)}
   }
 
   [$onContentUpdate](e) {
-    if (e.detail.typeHint === 'scene') {
+    if (this.app.content.getEntityCategory(e.detail.uuid) === 'scene') {
       // Maybe the selector should be pulled into its own component,
       // this is a bit messy.
       this.requestUpdate();

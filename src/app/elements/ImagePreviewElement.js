@@ -4,8 +4,6 @@ const $onActivate = Symbol('onActivate');
 const $onLoad = Symbol('onLoad');
 
 export default class ImagePreviewElement extends BaseElement {
-  static get typeHint() { return 'image'; }
-
   static get properties() {
     return {
       width: { type: Number, reflect: true },
@@ -58,7 +56,6 @@ export default class ImagePreviewElement extends BaseElement {
     this.dispatchEvent(new CustomEvent('select-entity', {
       detail: {
         uuid: this.uuid,
-        typeHint: 'image',
       },
       bubbles: true,
       composed: true,

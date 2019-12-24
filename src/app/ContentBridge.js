@@ -1,6 +1,8 @@
 import { MaterialTypes } from './constants.js';
 import injection from './injection.js';
 const $db = Symbol('db');
+const $entityIdToCategory = Symbol('entityIdToCategory');
+const $entitiesByCategory = Symbol('entitiesByCategory');
 const $update = Symbol('update');
 const $onMessage = Symbol('onMessage');
 const $processSceneData = Symbol('processSceneData');
@@ -10,7 +12,7 @@ const $dispatchToContent = Symbol('dispatchToContent');
 const $renderers = Symbol('renderers');
 const $forceUpdate = Symbol('forceUpdate');
 
-const VERBOSE_CONTENT_BRIDGE = false;
+const VERBOSE_CONTENT_BRIDGE = true;
 
 export default class ContentBridge extends EventTarget {
   /**
@@ -23,6 +25,8 @@ export default class ContentBridge extends EventTarget {
 
     this[$db] = new Map();
     this[$renderers] = new Map();
+    this[$entityIdToCategory] = new Map();
+    this[$entitiesByCategory] = {};
 
     this.port = browser.runtime.connect({
       name: 'three-devtools',
@@ -63,22 +67,23 @@ export default class ContentBridge extends EventTarget {
     return this[$db].get(uuid);
   }
 
-  getAllResources() {
-    const output = {};
-
-    const ids = [...this[$db].keys()];
-
-    if (!ids.length) {
-      return null;
+  getEntitiesOfType(type) {
+    const ids = this[$entitiesByCategory][type];
+    if (ids) {
+      return ids.map(id => this.get(id));
     }
+    return [];
+  }
 
-    for (let id of ids) {
-      const object = this.get(id);
-      const category = output[object.typeHint] = output[object.typeHint] || [];
-      category.push(object);
-    }
-
-    return output;
+  /**
+   * @TODO This entity categorization is rather messy;
+   * should be a better way of storing original types
+   * and categories on objects, in which case,
+   * elements shouldn't have to reference ContentBridge
+   * to determine the type.
+   */
+  getEntityCategory(uuid) {
+    return this[$entityIdToCategory].get(uuid);
   }
 
   getRenderer(id) {
@@ -111,6 +116,21 @@ export default class ContentBridge extends EventTarget {
     this[$dispatchToContent]('refresh', { uuid });
   }
 
+  setPreset(preset) {
+    let type;
+    switch (preset) {
+      case 'scene': type = 'scenes'; break;
+      case 'geometry': type = 'geometries'; break;
+      case 'material': type = 'materials'; break;
+      case 'texture': type = 'textures'; break;
+      //case 'rendering': type = 'renderers'; break;
+      //case 'shapes': type = 'shapes'; break;
+    }
+    if (type) {
+      this[$dispatchToContent]('_refresh-type', { type });
+    }
+  }
+
   select(uuid) {
     if (!uuid) {
       return;
@@ -123,6 +143,9 @@ export default class ContentBridge extends EventTarget {
 
     this[$log]('>>', type, data);
     switch (type) {
+      case 'error':
+        this[$eval](`console.warn("three-devtools: ${data}")`);
+        break;
       case 'register':
         this.revision = data.revision;
         this[$eval](`console.log("three-devtools: debugging three.js r${this.revision}")`);
@@ -130,6 +153,8 @@ export default class ContentBridge extends EventTarget {
       case 'committed':
         this[$db] = new Map();
         this[$renderers] = new Map();
+        this[$entityIdToCategory] = new Map();
+        this[$entitiesByCategory] = {};
 
         this[$eval](injection);
         this.dispatchEvent(new CustomEvent('load'));
@@ -148,43 +173,48 @@ export default class ContentBridge extends EventTarget {
   }
 
   [$processSceneData](data) {
-    if (data.error) {
-      console.warn(data);
-    }
     if (data.geometries) {
-      data.geometries.forEach(o => this[$update](o));
+      data.geometries.forEach(o => this[$update](o, 'geometries'));
     }
     if (data.materials) {
-      data.materials.forEach(o => this[$update](o));
+      data.materials.forEach(o => this[$update](o, 'materials'));
     }
     if (data.textures) {
-      data.textures.forEach(o => this[$update](o));
+      data.textures.forEach(o => this[$update](o, 'textures'));
     }
     if (data.images) {
-      data.images.forEach(o => this[$update](o));
+      data.images.forEach(o => this[$update](o, 'images'));
     }
     if (data.shapes) {
-      data.shapes.forEach(o => this[$update](o));
-    }
-    if (data.object) {
-      this[$processSceneData](data.object);
+      data.shapes.forEach(o => this[$update](o, 'shapes'));
     }
     if (data.uuid) {
+      // @TODO store real types rather than checking user-modifiable type
+      // to know if this is *actually* a scene.
+      const type = data.type === 'Scene' ? 'scenes' : 'objects';
       if (data.children) {
         const { children, ...filtered } = data;
         // Store the children directly rather than in
         // a potentially out of sync, denormalized way
         filtered.children = children.map(child => child.uuid);
-        this[$update](filtered);
+        this[$update](filtered, type);
         children.forEach(o => this[$processSceneData](o));
       } else {
-        this[$update](data);
+        this[$update](data, type);
       }
     }
   }
 
-  [$update](object) {
+  [$update](object, category) {
     const uuid = object.uuid;
+
+    // Store an array of uuids by type.
+    this[$entityIdToCategory].set(uuid, category);
+    if (!this[$entitiesByCategory][category]) {
+      this[$entitiesByCategory][category] = [];
+    }
+    this[$entitiesByCategory][category].push(uuid);
+
 
     let changed = false;
 
@@ -207,7 +237,6 @@ export default class ContentBridge extends EventTarget {
     this.dispatchEvent(new CustomEvent('update', {
       detail: {
         object,
-        typeHint: object.typeHint,
         uuid: object.uuid,
       },
     }));

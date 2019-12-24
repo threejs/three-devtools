@@ -13,7 +13,7 @@ return class ThreeDevTools {
     this.scenes = new Set();
     this.renderers = new Set();
 
-    this.entityMap = new Map();
+    this.entityCache = new EntityCache();
     this.resources = new Map();
 
     this.devtoolsScene = null;
@@ -32,6 +32,7 @@ return class ThreeDevTools {
     this.target.addEventListener('register', e => this.register(e.detail));
 
     // Underscored events are intended to be private.
+    this.target.addEventListener('_refresh-type', e => this.refreshType(e.detail));
     this.target.addEventListener('_transform-controls-update', e => {
       if (this.devtoolsScene) {
         const { space, mode } = e.detail;
@@ -73,7 +74,8 @@ return class ThreeDevTools {
    * This is the active object in the devtools viewer.
    */
   select(uuid) {
-    const selected = this.entityMap.get(uuid);
+    this.log('select', uuid);
+    const selected = this.entityCache.getEntity(uuid);
 
     if (selected) {
       if (this.devtoolsScene) {
@@ -84,7 +86,8 @@ return class ThreeDevTools {
   }
 
   update({ uuid, property, value, dataType }) {
-    const item = this.entityMap.get(uuid);
+    this.log('update', uuid, property, value, dataType);
+    const item = this.entityCache.getEntity(uuid);
     if (item) {
       switch (dataType) {
         case 'color':
@@ -104,71 +107,46 @@ return class ThreeDevTools {
           }
           break;
         default:
-          this.log('unknown dataType', dataType);
+          this.warn('unknown dataType', dataType);
           item[property] = value;
       }
     }
   }
 
   register({ revision }) {
+    this.log('register', arguments[0]);
     this.send('register', {
       revision, 
     });
   }
 
-  refresh(id) {
-    const entity = this.entityMap.get(id);
-    if (!entity) {
-      return;
-    }
-
-    // Images are entities, via textures, and
-    // probably should not change, so no need
-    // to update.
-    if (entity instanceof Image) {
-      return;	    
-    }
-
-    // The observe call for our own internal scene
-    // fires as soon as the devtools scene superclass
-    // is created, before any signifiers can be added
-    // by the inheriting class. Luckily(?) there is a tick
-    // after observing an object and when it refreshes.
-    // Check here to see if the internal scene should
-    // be removed
-    if (utils.isHiddenFromTools(entity)) {
-      this.entityMap.delete(id);
-      return;
-    }
-
-    let data;
-
-    if (/renderer/.test(id)) {
-      data = {
-        type: 'renderer',
-        id,
-        info: {
-          render: entity.info.render,
-          memory: entity.info.memory,
-        },
-      };
-    } else if (entity.isScene) {
-      data = utils.serializeEntity(entity);
-
-      // Observe all resources in all scenes so we can use
-      // this object as a cache when serializing other entities.
-      utils.mergeResources(this.resources, data);
-
-      // Iterate through scene and tag all entities
-      // (objects, materials, textures, etc.) and store
-      // it in entityMap.
-      utils.cacheEntitiesInScene(entity, this.entityMap);
-    } else {
-      // Hardcoded to use all scenes metadata for now.
-      data = utils.serializeEntity(entity, this.resources);
-    }
-
+  refreshType({ type }) {
+    this.log('refreshType', type);
+    this.entityCache.scan();
+    const data = this.entityCache.getType(type);
     this.send('entity', data);
+  }
+
+  refresh(uuid) {
+    this.log('refresh', uuid);
+    let data = this.entityCache.get(uuid);
+    if (data) {
+      this.send('entity', data);
+    }
+  }
+
+  observe(entity) {
+    this.log('observe', entity);
+    const uuid = this.entityCache.add(entity);
+
+    if (!uuid) {
+      this.warn(`${uuid} is unobservable`);
+      return;
+    }
+
+    // Fire on next tick; otherwise this is called when the scene is created,
+    // which won't have any objects. Will have to explore more in #18.
+    requestAnimationFrame(() => this.refresh(uuid));
   }
 
   send(type, data) {
@@ -194,46 +172,15 @@ return class ThreeDevTools {
     }
   }
 
-  observe(value) {
-    if (!value || utils.isHiddenFromTools(value)) {
-      //console.error('ThreeDevTools#observe must have event detail.');
-      return;
-    }
-
-    let id;
-
-    if (value.isScene) {
-      this.scenes.add(value);
-      id = value.uuid;
-    } else if (typeof value.render === 'function') {
-      if (this.renderers.has(value)) {
-        id = this.entityMap.get(value);
-      } else {
-        id = `renderer-${this.renderers.size}`;
-      }
-      this.renderers.add(value);
-      if (this.renderers.size === 1) {
-        this.setActiveRenderer(value);
-      }
-    } else {
-      //console.error(`Unable to observe ${value}`);
-      return;
-    }
-
-    if (!id) {
-      return;
-    }
-
-    this.entityMap.set(id, value);
-
-    // Fire on next tick; otherwise this is called when the scene is created,
-    // which won't have any objects. Will have to explore more in #18.
-    requestAnimationFrame(() => this.refresh(id));
-  }
-
   log(...message) {
     if (DEBUG) {
       console.log('%c ThreeDevTools:', 'color:red', ...message);
+    }
+  }
+
+  warn(...message) {
+    if (DEBUG) {
+      console.warn('%c ThreeDevTools:', 'color:red', ...message);
     }
   }
 
