@@ -4,6 +4,7 @@ import TransformControls from '../content/TransformControls.js';
 import EntityCache from '../content/EntityCache.js';
 import ThreeDevTools from '../content/ThreeDevTools.js';
 import DevToolsScene from '../content/DevToolsScene.js';
+import InstrumentedToJSON from '../content/toJSON.js';
 import THREE from '../content/three.js';
 
 const version = browser.runtime.getManifest().version;
@@ -22,6 +23,7 @@ console.log('%c▲%cthree-devtools%cv${version}',
   const DEBUG = true;
   const utils = (${utils})();
   const THREE = (${THREE})();
+  const InstrumentedToJSON = (${InstrumentedToJSON})();
   (${TransformControls})(THREE);
   const DevToolsScene = (${DevToolsScene})(THREE);
   const EntityCache = (${EntityCache})();

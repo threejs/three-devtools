@@ -14,7 +14,7 @@ return class ThreeDevTools {
     this.renderers = new Set();
 
     this.entityCache = new EntityCache();
-    this.resources = new Map();
+    this.entitiesRecentlyObserved = new Set();
 
     this.devtoolsScene = null;
 
@@ -121,10 +121,16 @@ return class ThreeDevTools {
   }
 
   refreshType({ type }) {
+    try {
     this.log('refreshType', type);
     this.entityCache.scan();
     const data = this.entityCache.getType(type);
     this.send('entity', data);
+    } catch (e) {
+      // Why must this be wrapped in a try/catch
+      // to report errors? Where's the async??
+      console.error(e);
+    }
   }
 
   refresh(uuid) {
@@ -146,7 +152,18 @@ return class ThreeDevTools {
 
     // Fire on next tick; otherwise this is called when the scene is created,
     // which won't have any objects. Will have to explore more in #18.
-    requestAnimationFrame(() => this.refresh(uuid));
+
+    if (this.entitiesRecentlyObserved.size === 0) {
+      requestAnimationFrame(() => {
+        this.entityCache.scan();
+        for (let entityId of this.entitiesRecentlyObserved.values()) {
+          this.refresh(entityId);
+	}
+        this.entitiesRecentlyObserved.clear();
+      });
+    }
+    this.entityCache.add(entity);
+    this.entitiesRecentlyObserved.add(uuid);
   }
 
   send(type, data) {

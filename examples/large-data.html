@@ -12,7 +12,7 @@ window.app = new class App {
       const scene = new THREE.Scene();
       scene.name = `Scene ${i + 1}`;
       for (let j = 0; j < 5; j++) {
-        const mesh = new THREE.Mesh(new TeapotBufferGeometry(1, 64, true, true, true, true), new THREE.MeshBasicMaterial({
+        const mesh = new THREE.Mesh(new TeapotBufferGeometry(1, 16, true, true, true, true), new THREE.MeshBasicMaterial({
 	
 	}));
 	mesh.name = `Mesh ${j+1} via Scene ${i + 1}`;

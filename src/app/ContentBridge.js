@@ -68,9 +68,9 @@ export default class ContentBridge extends EventTarget {
   }
 
   getEntitiesOfType(type) {
-    const ids = this[$entitiesByCategory][type];
-    if (ids) {
-      return ids.map(id => this.get(id));
+    const idsOfSet = this[$entitiesByCategory][type];
+    if (idsOfSet) {
+      return [...idsOfSet].map(id => this.get(id));
     }
     return [];
   }
@@ -211,9 +211,9 @@ export default class ContentBridge extends EventTarget {
     // Store an array of uuids by type.
     this[$entityIdToCategory].set(uuid, category);
     if (!this[$entitiesByCategory][category]) {
-      this[$entitiesByCategory][category] = [];
+      this[$entitiesByCategory][category] = new Set();
     }
-    this[$entitiesByCategory][category].push(uuid);
+    this[$entitiesByCategory][category].add(uuid);
 
 
     let changed = false;

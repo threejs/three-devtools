@@ -279,7 +279,6 @@ export default class AppElement extends LitElement {
     if (!this.activeScene && this.content.getEntityCategory(e.detail.uuid) === 'scenes') {
       this.activeScene = e.detail.uuid;
     }
-    console.log('on content update', e, e.detail)
   }
 
   [$onContentRendererUpdate](e) {

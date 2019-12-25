@@ -1,10 +1,6 @@
 
-export const getEntityType = entity => {
-  return entity.textureType || entity.type;
-};
-
 export const getEntityName = entity => {
-  return entity.name || getEntityType(entity);
+  return entity.name || entity.baseType;
 };
 
 // These color conversions should be way more robust..

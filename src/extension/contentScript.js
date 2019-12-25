@@ -66,7 +66,7 @@ window.addEventListener('message', e => {
     console.error(e);
     extRoot.runtime.sendMessage({
       type: 'error',
-      id: data.id,
+      id: 'three-devtools',
       data: e.toString(), 
     });
   }

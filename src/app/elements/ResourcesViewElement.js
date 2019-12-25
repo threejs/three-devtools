@@ -67,7 +67,7 @@ export default class ResourcesViewElement extends LitElement {
     }
 
 
-    const createNode = (obj, i) => {
+    let nodes = resources.map((obj, i) => {
       let selected = obj.uuid && this.selected && this.selected === obj.uuid;
       let unique = obj.uuid || `${this.filter}-${i}`;
       let name = getEntityName(obj);
@@ -80,13 +80,7 @@ export default class ResourcesViewElement extends LitElement {
       <div slot="content">${name}</div>
       </tree-item>
       `;
-    }
-
-    let nodes = [];
-    const entities = resources[this.filter];
-    if (entities) {
-      nodes = entities.map(createNode);  
-    }
+    });
 
     const title = filter.title;
     return html`

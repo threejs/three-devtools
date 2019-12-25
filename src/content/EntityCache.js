@@ -1,12 +1,6 @@
 export default (() => {
 
 const PATCHED = '__SERIALIZATION_PATCHED__';
-const toJSONStub = function(){ return {}; };
-const materialMaps = [
-  'map', 'alphaMap', 'specularMap', 'envMap', 'lightMap', 'aoMap',
-  'displacementMap', 'normalMap', 'bumpMap', 'roughnessMap',
-  'metalnessMap', 'emissiveMap'
-];
 
 return class EntityCache {
   constructor() {
@@ -26,7 +20,7 @@ return class EntityCache {
   }
 
   getEntity(id) {
-    this.entityMap.get(id);
+    return this.entityMap.get(id);
   }
 
   /**
@@ -48,12 +42,12 @@ return class EntityCache {
       return;
     }
 
-    this.entityMap.set(id, entity);
-
     if (entity.isScene) {
       this.scenes.add(entity); 
       this._registerEntity(entity);
-    } else if (typeof entity.render !== 'function') {
+    } else if (typeof entity.render === 'function') {
+      this.entityMap.set(id, entity);
+    } else {
       throw new Error('May only observe scenes and renderers currently.');
     }
 
@@ -82,6 +76,7 @@ return class EntityCache {
       results['images'] = Object.values(this.resources.images);
     }
 
+    console.log('resources', this.resources);
     //this._postSerialization(results);
     return results;
   }
@@ -122,11 +117,13 @@ return class EntityCache {
       // If fetching a scene directly, only the object graph
       // is really valuable.
       data = this._serializeEntity(entity, { scan: true });
+      data = data.object;
       resourceType = 'scenes';
     }
     else if (entity.isObject3D) {
       // Can we ignore children? 
       data = this._serializeEntity(entity, { scan: true });
+      data = data.object;
     } else if (entity.isMaterial) {
       data = this._serializeEntity(entity);
       resourceType = 'materials';
@@ -168,7 +165,7 @@ return class EntityCache {
     const scenes = _scene ? [_scene] : this.scenes;
     for (let scene of scenes) {
       this._forEachDependent(scene, d => this._registerEntity(d));
-      const object = this._serializeEntity(s, {
+      const object = this._serializeEntity(scene, {
         scan: true,
       });
       this.resources.scenes[scene.uuid] = object;
@@ -184,11 +181,11 @@ return class EntityCache {
 
       if (entity.material && entity.material.isMaterial) {
         fn(entity.material);
-        this._forEachDependent(entity.material);
+        this._forEachDependent(entity.material, fn);
       }
       if (entity.geometry && (entity.geometry.isGeometry || entity.geometry.isBufferGeometry)) {
         fn(entity.geometry);
-        this._forEachDependent(entity.geometry);
+        this._forEachDependent(entity.geometry, fn);
       }
       if (entity.isScene && entity.background) {
         fn(entity.background);
@@ -201,7 +198,7 @@ return class EntityCache {
     else if (entity.isMaterial) {
       for (let key of Object.keys(entity)) {
         // @TODO cache textures used as uniforms here as well
-        const texture = material[key];
+        const texture = entity[key];
         if (texture && texture.isTexture) {
           fn(texture);
           this._forEachDependent(texture, fn);
@@ -237,66 +234,10 @@ return class EntityCache {
    */
   _patchToJSON(entity) {
     if (!entity[PATCHED]) {
-      // If it's an entity of a known serialization
-      // failure, handle it here.
-      // Parametric geometry cannot be rehydrated
-      // without introducing a vector for code injection.
-      // For serialization, stringifying is fine,
-      // but this geometry is unrehydratable (for good reason,
-      // as this would then get access to privileged extension code).
-      // https://github.com/mrdoob/three.js/issues/17381
-      if (entity.parameters && typeof entity.parameters.func === 'function') {
-        const toJSON = entity.toJSON;
-        entity.toJSON = function () {
-          const data = toJSON.apply(this, arguments);
-          data.func = entity.parameters.func ?
-                      entity.parameters.func.toString() : '';
-          return data;
-        };
-        entity[PATCHED] = true;
-      }
-      else if (entity.isTexture) {
-        const toJSON = entity.toJSON;
-        entity.toJSON = function () {
-          // If `image` is a plain object, probably from DataTexture
-          // or a texture from a render target, hide it during serialization
-          // so an attempt to turn it into a data URL doesn't throw.
-          // Patch for DataTexture.toJSON (https://github.com/mrdoob/three.js/pull/17745)
-          let textureData = null;
-          if (Object.prototype.toString.call(this.image) === '[object Object]') {
-            textureData = this.image;
-            this.image = undefined;
-          }
-
-          // If render target textures had a reference back to their target,
-          // we could attempt to serialize the target into a data URL. TBD.
-          const data = toJSON.apply(this, arguments);
-
-          if (textureData) {
-            this.image = textureData;
-          }
-
-          // We lose information like "CanvasTexture" upon
-          // serialization
-          data.textureType = utils.textureToTextureType(this);
-
-          return data;
-        }
-        entity[PATCHED] = true;
-      }
-      // Render targets shouldn't be in the graph directly
-      // since their textures must be used instead, but this
-      // may still occur in `scene.background`, where an attempt
-      // at serialization occurs and breaks on render targets.
-      // https://github.com/mrdoob/three.js/pull/16764
-      else if (entity.isWebGLRenderTarget) {
-        // Would be great to actually serialize out the render target,
-        // if given a renderer.
-        // https://github.com/mrdoob/three.js/issues/16762
-        entity.toJSON = toJSONStub;
-        entity[PATCHED] = true;
-      }
-    } 
+      // via `src/content/toJSON.js`
+      entity.toJSON = InstrumentedToJSON; 
+      entity[PATCHED] = true;
+    }
 
     // InterleavedBufferAttributes cannot be serialized,
     // nor are they considered entities in this code,
@@ -307,14 +248,7 @@ return class EntityCache {
       for (let key of Object.keys(entity.attributes)) {
         const attr = entity.attributes[key];
         if (attr.isInterleavedBufferAttribute && !attr[PATCHED]) {
-          attr.toJSON = function () {
-            return {
-              count: attr.count,
-              itemSize: attr.itemSize,
-              offset: attr.offset,
-              normalized: attr.normalized,
-            };
-          };
+          attr.toJSON = InstrumentedToJSON;
           attr[PATCHED] = true;
         }
       }
@@ -350,43 +284,7 @@ return class EntityCache {
     }
     meta.scanSerialization = false;
 
-    return json.object || json; 
-  }
-
-  /**
-   * Add extra data to the serialized output from three.
-   * @param {Object} json 
-   */
-  _postSerialization(json) {
-    if (json.geometries) {
-      json.geometries.forEach(geometry => geometry.typeHint = 'geometry');
-    }
-    if (json.materials) {
-      json.materials.forEach(material => material.typeHint = 'material');
-    }
-    if (json.textures) {
-      json.textures.forEach(texture => texture.typeHint = 'texture');
-    }
-    if (json.images) {
-      json.images.forEach(texture => texture.typeHint = 'image');
-    }
-    if (json.shapes) {
-      json.shapes.forEach(texture => texture.typeHint = 'shape');
-    }
-    if (json.object) {
-      json.object.typeHint = json.object.type === 'Scene' ? 'scene' : 'object';
-      if (json.object.children) {
-        let children = [...json.object.children];
-        while (children.length) {
-          let child = children.shift();
-          child.typeHint = 'object';
-          if (child.children) {
-            children.push(...child.children);
-          }
-        }
-      }
-    }
-    return json;
+    return json; 
   }
 
   /**

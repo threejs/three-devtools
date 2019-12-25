@@ -4,7 +4,7 @@ import ObjectTypes from '../data/objects.js';
 import MaterialTypes from '../data/materials.js';
 import GeometryTypes from '../data/geometry.js';
 import TextureTypes from '../data/textures.js';
-import { getEntityType, getEntityName } from '../utils.js';
+import { getEntityName } from '../utils.js';
 
 function propsToElements(object, elements, props) {
   for (let prop of props) {
@@ -111,7 +111,7 @@ export default class ParametersViewElement extends BaseElement {
   <devtools-icon-button icon="refresh" @click="${this.refresh}">
 </title-bar>
 <div class="properties">
-  <key-value uuid=${this.uuid} key-name="Type" .value="${getEntityType(object)}" type="string" property="type"></key-value>
+  <key-value uuid=${this.uuid} key-name="Type" .value="${object.baseType}" type="string" property="type"></key-value>
   <key-value uuid=${this.uuid} key-name="UUID" .value="${object.uuid}" type="string" property="uuid"></key-value>
   <key-value uuid=${this.uuid} key-name="Name" .value="${object.name}" type="string" property="name"></key-value>
   ${elements} 
