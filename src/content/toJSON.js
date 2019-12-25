@@ -144,7 +144,11 @@ export default (() => function InstrumentedToJSON (meta) {
     data.normalized = this.normalized;
   }
 
-  data.baseType = baseType;
+  if (data.object) {
+    data.object.baseType = baseType;
+  } else {
+    data.baseType = baseType;
+  }
 
   return data;
 });
