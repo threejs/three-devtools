@@ -81,12 +81,5 @@ if (agent.os.name === 'window') {
 }
 
 window.addEventListener('error', e => {
-  let error = document.querySelector('#error');
-  if (!error) {
-    error = document.createElement('div');
-    error.style = `position: absolute; width: 100%; bottom: 0; background-color: red; color: white;`
-    document.body.appendChild(error);
-  }
-  error.innerText = e.message;
-  console.log(e);
+  document.querySelector('three-devtools-app').setError(e.message);
 });

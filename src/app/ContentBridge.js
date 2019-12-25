@@ -144,7 +144,9 @@ export default class ContentBridge extends EventTarget {
     this[$log]('>>', type, data);
     switch (type) {
       case 'error':
-        this[$eval](`console.warn("three-devtools: ${data}")`);
+        this.dispatchEvent(new CustomEvent('error', {
+          detail: data,
+        }));
         break;
       case 'register':
         this.revision = data.revision;

@@ -8,6 +8,7 @@ const $onSelectEntity = Symbol('onSelectEntity');
 const $onSelectRenderer = Symbol('onSelectRenderer');
 const $onContentUpdate = Symbol('onContentUpdate');
 const $onContentLoad = Symbol('onContentLoad');
+const $onContentError = Symbol('onContentError');
 const $onContentRendererUpdate = Symbol('onContentRendererUpdate');
 const $onCommand = Symbol('onCommand');
 
@@ -16,6 +17,7 @@ export default class AppElement extends LitElement {
     return {
       // scene, geometry, material, texture, rendering
       preset: { type: String, },
+      errorText: { type: String, },
       activeScene: { type: String, reflect: true, attribute: 'active-scene' },
       activeEntity: { type: String, reflect: true, attribute: 'active-entity' },
       activeRenderer: { type: String, reflect: true, attribute: 'active-renderer' },
@@ -34,6 +36,7 @@ export default class AppElement extends LitElement {
     this[$onSelectEntity] = this[$onSelectEntity].bind(this);
     this[$onContentUpdate] = this[$onContentUpdate].bind(this);
     this[$onContentLoad] = this[$onContentLoad].bind(this);
+    this[$onContentError] = this[$onContentError].bind(this);
     this[$onContentRendererUpdate] = this[$onContentRendererUpdate].bind(this);
     this[$onCommand] = this[$onCommand].bind(this);
     this.content = new ContentBridge();
@@ -41,7 +44,12 @@ export default class AppElement extends LitElement {
     this.content.addEventListener('update', this[$onContentUpdate]);
     this.content.addEventListener('load', this[$onContentLoad]);
     this.content.addEventListener('renderer-update', this[$onContentRendererUpdate]);
+    this.content.addEventListener('error', this[$onContentError]);
     this.addEventListener('command', this[$onCommand]);
+  }
+
+  setError(error) {
+    this.errorText = error;
   }
 
   refresh(uuid) {
@@ -93,6 +101,7 @@ export default class AppElement extends LitElement {
     const isReady = !!this.activeScene;
     // scene, geometry, material, texture, rendering
     const preset = this.preset || 'scene';
+    const errorText = this.errorText || '';
     const showResourceView = ['geometry', 'material', 'texture'].indexOf(preset) !== -1;
     const showInspector = this.activeEntity && this.preset !== 'rendering';
     //const object = this.content.get(this.activeEntity);
@@ -175,6 +184,18 @@ export default class AppElement extends LitElement {
     }
   }
 
+  .error {
+    background-color: red;
+    position: absolute;
+    bottom: 0;
+    color: white;
+    width: 100%;
+    display: none;
+  }
+  .show-error {
+    display: block;
+  }
+
   /* Animations and visibility handling */
 
   [state] [visible-when] {
@@ -247,6 +268,7 @@ export default class AppElement extends LitElement {
         uuid="${this.activeEntity}">
       </parameters-view>
   </div>
+  <title-bar title="${errorText}" class="error ${errorText ? 'show-error' : ''}"></title-bar>
 </div>
 `;
   }
@@ -294,6 +316,10 @@ export default class AppElement extends LitElement {
     this.activeEntity = undefined;
     this.activeRenderer = undefined;
     this.needsReload = false;
+  }
+
+  [$onContentError](e) {
+    this.setError(e.detail);
   }
 
   /**
