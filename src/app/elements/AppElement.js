@@ -2,6 +2,8 @@ import { LitElement, html } from '../../../web_modules/lit-element.js'
 import { ifDefined } from '../../../web_modules/lit-html/directives/if-defined.js';
 import ContentBridge from '../ContentBridge.js';
 
+const ERROR_TIMEOUT = 5000;
+
 const $onPresetClick = Symbol('onPresetClick');
 const $onSelectScene = Symbol('onSelectScene');
 const $onSelectEntity = Symbol('onSelectEntity');
@@ -49,7 +51,14 @@ export default class AppElement extends LitElement {
   }
 
   setError(error) {
+    if (this.errorTimeout) {
+      window.clearTimeout(this.errorTimeout);
+    }
     this.errorText = error;
+    this.errorTimeout = window.setTimeout(() => {
+      this.errorText = '';
+      this.errorTimeout = null;
+    }, ERROR_TIMEOUT);
   }
 
   refresh(uuid) {
