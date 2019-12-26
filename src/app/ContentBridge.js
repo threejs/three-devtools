@@ -1,6 +1,7 @@
 import { MaterialTypes } from './constants.js';
 import injection from './injection.js';
 const $db = Symbol('db');
+const $attributes = Symbol('attributes');
 const $entityIdToCategory = Symbol('entityIdToCategory');
 const $entitiesByCategory = Symbol('entitiesByCategory');
 const $update = Symbol('update');
@@ -24,6 +25,7 @@ export default class ContentBridge extends EventTarget {
     super();
 
     this[$db] = new Map();
+    this[$attributes] = new Map();
     this[$renderers] = new Map();
     this[$entityIdToCategory] = new Map();
     this[$entitiesByCategory] = {};
@@ -154,6 +156,7 @@ export default class ContentBridge extends EventTarget {
         break;
       case 'committed':
         this[$db] = new Map();
+        this[$attributes] = new Map();
         this[$renderers] = new Map();
         this[$entityIdToCategory] = new Map();
         this[$entitiesByCategory] = {};
@@ -175,6 +178,9 @@ export default class ContentBridge extends EventTarget {
   }
 
   [$processSceneData](data) {
+    if (data.attributes) {
+      data.attributes.forEach(o => this[$update](o, 'attributes'));
+    }
     if (data.geometries) {
       data.geometries.forEach(o => this[$update](o, 'geometries'));
     }

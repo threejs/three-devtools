@@ -1,6 +1,9 @@
 export default (() => {
 
 const PATCHED = '__SERIALIZATION_PATCHED__';
+const SERIALIZATION_DEFAULTS = {
+  quickScan: false,
+};
 
 return class EntityCache {
   constructor() {
@@ -14,8 +17,14 @@ return class EntityCache {
       textures: {},
       images: {},
       shapes: {},
+      // The following values are custom to devtools
+      // resource serializations.
       scenes: {},
-      scanSerialization: false,
+      attributes: {},
+      // The resources `meta` object is passed to
+      // toJSON methods, and the only way to reliably
+      // propagate configuration throughout serialization.
+      devtoolsConfig: Object.assign({}, SERIALIZATION_DEFAULTS),
     };
   }
 
@@ -77,7 +86,6 @@ return class EntityCache {
     }
 
     console.log('resources', this.resources);
-    //this._postSerialization(results);
     return results;
   }
 
@@ -116,14 +124,12 @@ return class EntityCache {
     if (entity.isScene) {
       // If fetching a scene directly, only the object graph
       // is really valuable.
-      data = this._serializeEntity(entity, { scan: true });
-      data = data.object;
+      data = this._serializeEntity(entity, { quickScan: true });
       resourceType = 'scenes';
     }
     else if (entity.isObject3D) {
       // Can we ignore children? 
-      data = this._serializeEntity(entity, { scan: true });
-      data = data.object;
+      data = this._serializeEntity(entity, { quickScan: true });
     } else if (entity.isMaterial) {
       data = this._serializeEntity(entity);
       resourceType = 'materials';
@@ -132,6 +138,7 @@ return class EntityCache {
       resourceType = 'geometries';
     } else if (entity.isBufferGeometry) {
       data = this._serializeEntity(entity);
+      resourceType = 'geometries';
     } else if (entity.isTexture) {
       // Should be an option to not use cache here
       data = this._serializeEntity(entity);
@@ -145,6 +152,7 @@ return class EntityCache {
       this.resources[resourceType][data.uuid] = data;
     }
 
+    this._postSerialization();
     return data;
   }
 
@@ -161,15 +169,15 @@ return class EntityCache {
    * for shallower fetching of objects without all of their
    * children.
    */
-  scan(_scene) {
-    const scenes = _scene ? [_scene] : this.scenes;
-    for (let scene of scenes) {
+  scan() {
+    for (let scene of this.scenes) {
       this._forEachDependent(scene, d => this._registerEntity(d));
-      const object = this._serializeEntity(scene, {
-        scan: true,
+      const data = this._serializeEntity(scene, {
+        quickScan: true,
       });
-      this.resources.scenes[scene.uuid] = object;
+      this.resources.scenes[scene.uuid] = data;
     }
+    this._postSerialization();
   }
 
   _forEachDependent(entity, fn, options) {
@@ -233,46 +241,48 @@ return class EntityCache {
    * /!\ This may destructively modify an entity's toJSON method. /!\
    */
   _patchToJSON(entity) {
-    if (!entity[PATCHED]) {
-      // via `src/content/toJSON.js`
-      entity.toJSON = InstrumentedToJSON; 
-      entity[PATCHED] = true;
-    }
-
-    // InterleavedBufferAttributes cannot be serialized,
-    // nor are they considered entities in this code,
-    // so check buffer geometries everytime since
-    // the attribute may change.
+    // Patch BufferGeometry's InterleavedBufferAttributes
+    // since it does not have its own toJSON method.
+    // Attributes can be added and removed as well,
+    // so check everytime.
+    // Note that attribute's `toJSON` does *not*
+    // receive the meta resource object so it's not
+    // possible to customize with config.
     // https://github.com/mrdoob/three.js/pull/17328
     if (entity.isBufferGeometry) {
       for (let key of Object.keys(entity.attributes)) {
         const attr = entity.attributes[key];
-        if (attr.isInterleavedBufferAttribute && !attr[PATCHED]) {
-          attr.toJSON = InstrumentedToJSON;
-          attr[PATCHED] = true;
+        if (attr.isInterleavedBufferAttribute) {
+          this._patchToJSON(attr);
         }
       }
+    }
+
+    if (!entity[PATCHED]) {
+      // via `src/content/toJSON.js`
+      entity.toJSON = InstrumentedToJSON; 
+      entity[PATCHED] = true;
     }
   }
 
   /**
    * This turns a Three entity into something serializable.
    * Mostly the built-in 'toJSON()' method with cached metadata.
+   * 
+   * @param {*} entity
+   * @param {Object} options
+   * @param {Boolean} options.quickScan
    */
   _serializeEntity(entity, options={}) {
     let json;
     const meta = this.resources;
 
-    // `scan` mode is used to skip the serialization of heavier
-    // objects, like buffers and images.
-    // @TODO not yet implemented!
-    if (options.scan) {
-      // Modify the meta object (this.resources) with a flag,
-      // since this is the only object that three propagates through
-      // a scene's entities' serialization. Can respond in the patched
-      // toJSON calls in _patchToJSON().
-      meta.scanSerialization = true;
-    }
+    // Modify the meta object (this.resources) with flags,
+    // since this is the only object that three propagates through
+    // a scene's entities' serialization. Can respond in the patched
+    // toJSON calls.
+    meta.devtoolsConfig = Object.assign({}, SERIALIZATION_DEFAULTS, options || {});
+
     try {
       //console.time('toJSON-'+entity.uuid);
       json = entity.toJSON(meta);
@@ -282,9 +292,8 @@ return class EntityCache {
       // @TODO handle this, throw it for now.
       console.error(`${entity.uuid} does not appear to be serializable.`, e);
     }
-    meta.scanSerialization = false;
-
-    return json; 
+    
+    return json.object || json; 
   }
 
   /**
@@ -298,7 +307,25 @@ return class EntityCache {
       this.entityMap.set(uuid, entity);
     }
   }
-  
+
+  /**
+   * Run after collecting resources. Ensure that this
+   * is executed after merging a newly serialized object
+   * back into the resources.
+   */
+  _postSerialization() {
+    // Moves all Geometry attributes to their own category,
+    // like textures do with images, so that they don't
+    // clog up the data transfer.
+    for (let geo of Object.values(this.resources.geometries)) {
+      if (geo.data) {
+        const id = `attrs-${geo.uuid}`;
+        this.resources.attributes[id] = geo.data;
+        delete geo.data;
+      }
+    }
+  }
+
   getID(entity) {
     // Store any observed renderer so IDs can be synthesized.
     if (typeof entity.render === 'function') {

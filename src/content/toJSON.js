@@ -1,4 +1,9 @@
-export default (() => function InstrumentedToJSON (meta) {
+export default (() => {
+
+const isQuickScan = meta =>
+  !!(meta && meta.devtoolsConfig && meta.devtoolsConfig.quickScan);
+  
+return function InstrumentedToJSON (meta) {
 /**
  * The instrumented version of entity's `toJSON` method,
  * used to patch because:
@@ -10,6 +15,10 @@ export default (() => function InstrumentedToJSON (meta) {
  * instrumentation-only options that can be attached
  * to the `meta` object, like smarter serialization of images.
  */
+
+  // Store our custom flags that are passed in via
+  // the resources.
+  const quickScan = isQuickScan(meta);
 
   // First, discover the `baseType`, which for most
   // entities in three.js core, this is the same as
@@ -151,4 +160,5 @@ export default (() => function InstrumentedToJSON (meta) {
   }
 
   return data;
+}
 });
