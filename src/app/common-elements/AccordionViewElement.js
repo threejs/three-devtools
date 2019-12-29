@@ -13,26 +13,47 @@ export default class AccordionViewElement extends LitElement {
   render() {
     return html`
 <style>
+  /**
+   * Current CSS API:
+   * var(--title-color)
+   * var(--title-background-color)
+   * var(--title-border-color)
+   */
+
   :host {
     width: 100%;
-    display: block;
     cursor: pointer;
+    display: flex; 
+    flex-direction: column;
+    line-height: 15px;
+    white-space: nowrap;
+    align-items: center;
+    overflow: hidden;
   }
+
   .row {
     display: flex;
-    height: 20px;
+    flex: 1;
     width: 100%;
     align-items: center;
     padding-left: 4px;
+    color: var(--title-color);
+    background-color: var(--title-background-color);
+    border-bottom: 1px solid var(--title-border-color);
   }
 
   .arrow {
-    flex: 0 1 24px;
+    height: 14px;
+    width: 14px;
+    flex: 0 1 14px;
     background-color: transparent;
     border: 0;
     padding: 0;
     position: relative;
     pointer-events: none;
+  }
+  .arrow:focus {
+    outline: none;
   }
 
   .arrow::after {
@@ -41,6 +62,7 @@ export default class AccordionViewElement extends LitElement {
     color: #999;
     display: none;
     pointer-events: auto;
+    transform: translateY(-2px);
   }
 
   .arrow::after {
@@ -51,11 +73,14 @@ export default class AccordionViewElement extends LitElement {
   }
 
   slot[name=content] {
+    text-overflow: ellipsis;
+    padding: 2px 0.8em;
     flex: 1;
   }
 
   #children {
     display: none;
+    width: 100%;
   }
 
   :host([open]) #children {

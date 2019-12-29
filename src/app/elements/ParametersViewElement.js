@@ -35,7 +35,7 @@ function propsToElements(entity, elements, props) {
       const subProps = [];
       propsToElements(entity, subProps, [...prop.props]);
       elements.push(html`<accordion-view>
-        <div slot="content">${prop.name}</div>
+        <div class="accordion-title" slot="content">${prop.name}</div>
         ${subProps}
       </accordion-view>`);
       continue;
@@ -116,6 +116,27 @@ export default class ParametersViewElement extends LitElement {
 
   .hide {
     display: none;
+  }
+
+  accordion-view {
+    border-top: 1px solid var(--title-border-color);
+  }
+
+  accordion-view ~ accordion-view {
+    border-top: 0px;
+  }
+
+  accordion-view[open] {
+    border-bottom: 1px solid var(--title-border-color);
+  }
+
+  .accordion-title {
+    line-height: 15px;
+    white-space: nowrap;
+    align-items: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 2px 0.2em;
   }
 
 </style>
