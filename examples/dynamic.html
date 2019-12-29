@@ -1,0 +1,76 @@
+<html>
+    <head></head>
+    <body style="margin:0">
+<script type="module">
+import * as THREE from '../web_modules/three.js';
+
+window.app = new class App {
+  constructor() {
+    this.render = this.render.bind(this);
+    this.updateSize = this.updateSize.bind(this);
+
+    this.scene = new THREE.Scene();
+    this.textureLoader = new THREE.TextureLoader();
+    this.renderer = new THREE.WebGLRenderer({
+      antialias: true,
+    });
+    this.renderer.setPixelRatio(window.devicePixelRatio);
+
+    this.camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 0.1, 100);
+    this.camera.position.z = 3;
+    this.camera.position.y = 3;
+    this.camera.lookAt(0, 0, 0);
+    this.updateSize();
+
+    this.mesh = new THREE.Mesh(new THREE.SphereBufferGeometry(0.4, 16, 16), new THREE.MeshBasicMaterial({
+      color: 0xff0000,
+    }));
+    this.scene.add(this.mesh);
+
+    setTimeout(() => {
+      this.newGroup = new THREE.Group();
+      this.newGroup.add(this.mesh);
+      this.scene.add(this.newGroup);
+    }, 5000);
+
+    setInterval(() => {
+      const secondsAgo = Math.floor(performance.now() / 1000);
+      this.mesh.name = `Mesh, ${secondsAgo}s ago`;
+      this.mesh.material.name = `Mat, ${secondsAgo}s ago`;
+      this.scene.name = `Scene, ${secondsAgo}s ago`;
+    }, 1000);
+
+    this.dLight = new THREE.DirectionalLight(0xffffff,0.7);
+    this.dLight.position.y = 5;
+    this.scene.add(this.dLight);
+    this.light = new THREE.AmbientLight(0xffffff, 0.3);
+    this.scene.add(this.light);
+
+    this.render();
+    this.renderer.setAnimationLoop(this.render);
+    document.body.appendChild(this.renderer.domElement);
+    window.addEventListener('resize', this.updateSize);
+  }
+
+  render() {
+    this.mesh.material.color.b = Math.sin(performance.now()*0.001) * 0.5 + 0.5;
+    this.mesh.material.color.g = Math.sin(performance.now()*0.002) * 0.5 + 0.5;
+    const secondsAgo = (performance.now() / 1000).toFixed(2);
+    this.mesh.name = `Mesh, ${secondsAgo}s ago`;
+    this.mesh.material.name = `Mat, ${secondsAgo}s ago`;
+    this.scene.name = `Scene, ${secondsAgo}s ago`;
+    this.renderer.render(this.scene, this.camera);
+  }
+
+  updateSize() {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    this.camera.aspect = w/h;
+    this.camera.updateProjectionMatrix();
+    this.renderer.setSize(w, h);
+  }
+}
+
+</script>
+    </body>
+</html>

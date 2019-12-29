@@ -2,6 +2,7 @@ import { LitElement, html } from '../../../web_modules/lit-element.js'
 import { getEntityName } from '../utils.js';
 
 const $onTreeItemSelect = Symbol('onTreeItemSelect');
+const $onRefreshClick = Symbol('onRefreshClick');
 
 export default class ResourcesViewElement extends LitElement {
   static get properties() {
@@ -10,11 +11,6 @@ export default class ResourcesViewElement extends LitElement {
       selected: { type: String, reflect: true },
       resources: { type: Array },
     }
-  }
-
-  constructor() {
-    super();
-    this[$onTreeItemSelect] = this[$onTreeItemSelect].bind(this);
   }
 
   connectedCallback() {
@@ -70,6 +66,7 @@ export default class ResourcesViewElement extends LitElement {
   }
 </style>
 <title-bar title="${title}">
+  <devtools-icon-button icon="refresh" @click="${this[$onRefreshClick]}">
 </title-bar>
 <tree-item
   id="tree-root"
@@ -97,6 +94,16 @@ export default class ResourcesViewElement extends LitElement {
     if (selected && selected.parentElement) {
       selected.parentElement.open = true;
     }
+  }
+
+  [$onRefreshClick](e) {
+    this.dispatchEvent(new CustomEvent('command', {
+      detail: {
+        type: 'refresh',
+      },
+      bubbles: true,
+      composed: true,
+    }));
   }
 
   [$onTreeItemSelect](e) {
