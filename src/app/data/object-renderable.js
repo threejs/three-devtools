@@ -26,10 +26,5 @@ export default {
     prop: 'frustumCulled',
     type: 'boolean',
     default: true,
-  },{
-    name: 'Draw Mode',
-    prop: 'drawMode',
-    type: 'number',
-    default: 0,
   }],
 }
