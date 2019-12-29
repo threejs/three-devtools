@@ -77,14 +77,14 @@ export default class KeyValueElement extends LitElement {
         valueElement = html`<geometry-value .uuid="${this.value}"></geometry-value>`;
         break;
       case 'color':
-        valueElement = html`<input type="color" .value="${hexNumberToCSSString(+this.value)}" />`;
+        valueElement = html`<input id="${this._id}" type="color" .value="${hexNumberToCSSString(+this.value)}" />`;
         break;
       case 'boolean':
-        valueElement = html`<input type="checkbox" .checked="${this.value}" />`;
+        valueElement = html`<input id="${this._id}" type="checkbox" .checked="${this.value}" />`;
         break;
       case 'number':
       case 'int':
-        valueElement = html`<input type="number" value="${this.value}" />`;
+        valueElement = html`<input id="${this._id}" type="number" value="${this.value}" />`;
         break;
       case 'string':
         valueElement = this.value;
