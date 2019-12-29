@@ -83,15 +83,15 @@ export default class AppElement extends LitElement {
   }
 
   shouldUpdate(changedProps) {
-    if (changedProps.has('activeEntity')) {
+    if (changedProps.has('activeEntity') && this.activeEntity) {
       this.content.select(this.activeEntity);
       this.content.requestEntity(this.activeEntity);
     }
-    if (changedProps.has('activeScene')) {
+    if (changedProps.has('activeScene') && this.activeScene) {
       this.content.requestSceneGraph(this.activeScene);
     }
     if (changedProps.has('panel') ||
-        changedProps.has('isReady')) {
+        (changedProps.has('isReady') && this.isReady)) {
       this.refreshData();
     }
 

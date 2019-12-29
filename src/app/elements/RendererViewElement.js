@@ -77,7 +77,6 @@ export default class RendererViewElement extends LitElement {
   .properties {
     flex: 1;
     font-size: 1em;
-    padding: 4px 6px;
     box-sizing: border-box;
     width: 100%;
     overflow-y: auto;
