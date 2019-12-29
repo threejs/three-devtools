@@ -106,7 +106,7 @@ export default class AppElement extends LitElement {
   /**
    * Request fresh data for all active views
    */
-  refreshData() {
+  refreshData(config={}) {
     const panelDef = panels[this.panel];
     if (panelDef && panelDef.resource) {
       this.content.requestOverview(panelDef.resource);
@@ -114,7 +114,7 @@ export default class AppElement extends LitElement {
     if (this.activeScene && this.panel === 'scene') {
       this.content.requestSceneGraph(this.activeScene);
     }
-    if (this.activeEntity && this.panel !== 'rendering') {
+    if (config.activeEntity !== false && this.activeEntity && this.panel !== 'rendering') {
       this.content.requestEntity(this.activeEntity);
     }
   }
@@ -142,6 +142,7 @@ export default class AppElement extends LitElement {
         if (!this.activeRenderer && renderer) {
           this.activeRenderer = renderer;
         }
+        this.refreshData({ activeEntity: false });
         break;
       case 'renderer-update':
         // If renderer data was returned and viewing on the rendering panel, rerender
