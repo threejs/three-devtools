@@ -1,7 +1,6 @@
 export default (() => {
 
-const isQuickScan = meta =>
-  !!(meta && meta.devtoolsConfig && meta.devtoolsConfig.quickScan);
+const isDevtoolsSerialization = meta => !!(meta && meta.devtoolsConfig);
   
 return function InstrumentedToJSON (meta) {
 /**
@@ -16,9 +15,19 @@ return function InstrumentedToJSON (meta) {
  * to the `meta` object, like smarter serialization of images.
  */
 
+  const toJSON = this.constructor &&
+                 this.constructor.prototype &&
+                 this.constructor.prototype.toJSON;
+
+  // Short circuit if this is something other than the devtools
+  // serializing.
+  if (!isDevtoolsSerialization(meta)) {
+    return toJSON.apply(this, arguments);
+  }
+
   // Store our custom flags that are passed in via
   // the resources.
-  const quickScan = isQuickScan(meta);
+  const serializeChildren = meta.devtoolsConfig.serializeChildren === false ? false : true;
 
   // First, discover the `baseType`, which for most
   // entities in three.js core, this is the same as
@@ -27,77 +36,10 @@ return function InstrumentedToJSON (meta) {
   // base class.
   // Note, be sure to check subclasses before
   // base classes here.
-  const baseType = // objects
-                   this.isScene ? 'Scene' :
-                   this.isGroup ? 'Group' :
-                   this.isLOD ? 'LOD' :
-                   this.isBone ? 'Bone' :
-                   this.isSkeleton ? 'Skeleton' :
-                   this.isPoints ? 'Points' :
-                   this.isSprite ? 'Sprite' :
-
-                   this.isSkinnedMesh ? 'SkinnedMesh' :
-                   this.isInstancedMesh ? 'InstancedMesh' :
-                   this.isMesh ? 'Mesh' :
-
-                   this.isLineLoop ? 'LineLoop' :
-                   this.isLineSegments ? 'LineSegments' :
-                   this.isLine ? 'Line' :
-
-                   this.isObject3D ? 'Object3D' :
-
-                   // geometries only have `type` property containing
-                   // a reference to its type if a preset like Sphere or Plane.
-                   this.isGeometry ? 'Geometry' :
-                   //@TODO what is DirectGeometry? this.isDirectGeometry ? 'DirectGeometry' :
-                   this.isInstancedBufferGeometry ? 'InstancedBufferGeometry' :
-                   this.isBufferGeometry ? 'BufferGeometry' :
-                   // buffer attributes
-                   this.isInstancedBufferAttribute ? 'InstancedBufferAttribute' :
-                   this.isInterleavedBufferAttribute ? 'InterleavedBufferAttribute' :
-                   this.isBufferAttribute ? 'BufferAttribute' :
-
-                   // materials
-                   this.isLineBasicMaterial ? 'LineBasicMaterial' :
-                   this.isLineDashedMaterial ? 'LineDashedMaterial' :
-                   this.isMeshBasicMaterial ? 'MeshBasicMaterial' :
-                   this.isMeshDepthMaterial ? 'MeshDepthMaterial' :
-                   this.isMeshDistanceMaterial ? 'MeshDistanceMaterial' :
-                   this.isMeshLambertMaterial ? 'MeshLambertMaterial' :
-                   this.isMeshMatcapMaterial ? 'MeshMatcapMaterial' :
-                   this.isMeshNormalMaterial ? 'MeshNormalMaterial' :
-                   this.isMeshPhongMaterial ? 'MeshPhongMaterial' :
-                   this.isMeshToonMaterial ? 'MeshToonMaterial' :
-                   this.isPointsMaterial ? 'PointsMaterial' :
-                   this.isShadowMaterial ? 'ShadowMaterial' :
-                   this.isSpriteMaterial ? 'SpriteMaterial' :
-
-                   this.isMeshPhysicalMaterial ? 'MeshPhysicalMaterial' :
-                   this.isMeshStandardMaterial ? 'MeshStandardMaterial' :
-
-                   this.isRawShaderMaterial ? 'RawShaderMaterial' :
-                   this.isShaderMaterial ? 'ShaderMaterial' :
-
-                   this.isMaterial ? 'Material' :
-
-                   // textures 
-                   this.isCanvasTexture ? 'CanvasTexture' :
-                   this.isCompressedTexture ? 'CompressedTexture' :
-                   this.isCubeTexture ? 'CubeTexture' :
-                   this.isDataTexture2DArray ? 'DataTexture2DArray' :
-                   this.isDataTexture3D ? 'DataTexture3D' :
-                   this.isDataTexture ? 'DataTexture' :
-                   this.isDepthTexture ? 'DepthTexture' :
-                   this.isVideoTexture ? 'VideoTexture' :
-                   this.isTexture ? 'Texture' :
-
-                   // Not yet supported fully, but tag it accordingly
-                   this.isWebGLRenderTarget ? 'WebGLRenderTarget' :
-                   // If nothing matches...
-                   'Unknown';
+  const baseType = utils.getBaseType(this);
 
   let textureData;
-  if (/Texture/.test(baseType)) {
+  if (this.isTexture) {
     // If `image` is a plain object, probably from DataTexture
     // or a texture from a render target, hide it during serialization
     // so an attempt to turn it into a data URL doesn't throw.
@@ -108,14 +50,20 @@ return function InstrumentedToJSON (meta) {
     }
   }
   
+
+  let children;
+  if (this.isObject3D && !serializeChildren) {
+    // Swap out the children array before serialization if
+    // it's to be avoided.
+    children = this.children;
+    this.children = [];
+  }
+
   // Call the original serialization method.
   // Note that this can fail if the toJSON was manually
   // overwritten e.g. not a part of a prototype. Check for its existence
   // first since some do not have any toJSON method,
   // like WebGLRenderTarget
-  const toJSON = this.constructor &&
-                 this.constructor.prototype &&
-                 this.constructor.prototype.toJSON;
   let data = toJSON ? toJSON.apply(this, arguments) : {};
 
   // If an image was hidden to avoid serialization,
@@ -123,6 +71,11 @@ return function InstrumentedToJSON (meta) {
   if (textureData) {
     this.image = textureData;
   }
+  // Reattach children
+  if (children) {
+    this.children = children;
+  }
+
   // Parametric geometry cannot be rehydrated
   // without introducing a vector for code injection.
   // For serialization, stringifying is fine,

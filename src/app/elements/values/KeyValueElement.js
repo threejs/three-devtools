@@ -165,7 +165,6 @@ export default class KeyValueElement extends LitElement {
     if (value !== null) {
       this.dispatchEvent(new CustomEvent('command', { detail: {
         type: 'update-property',
-
         uuid: this.uuid,
         property: this.property,
         dataType,

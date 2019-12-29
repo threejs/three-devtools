@@ -62,12 +62,12 @@ window.addEventListener('message', e => {
 
   try {
     extRoot.runtime.sendMessage(e.data);
-  } catch (e) {
-    console.error(e);
+  } catch (error) {
+    console.error(error);
     extRoot.runtime.sendMessage({
       type: 'error',
       id: 'three-devtools',
-      data: e.toString(), 
+      data: error.toString(), 
     });
   }
 });

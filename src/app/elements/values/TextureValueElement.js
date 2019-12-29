@@ -1,18 +1,17 @@
-import BaseElement, { html } from '../BaseElement.js';
+import { LitElement, html } from '../../../../web_modules/lit-element.js'
 import { getEntityName } from '../../utils.js';
 
 const $onActivate = Symbol('onActivate');
 
-export default class TextureValueElement extends BaseElement {
+export default class TextureValueElement extends LitElement {
 
   static get properties() {
     return {
-      ...BaseElement.properties,
     }
   }
 
   render() {
-    const texture = this.getEntity();
+    const texture = null;
 
     if (!texture) {
       return null;

@@ -1,15 +1,29 @@
-import { html } from '../../../web_modules/lit-element.js'
-import BaseElement from './BaseElement.js';
+import { LitElement, html } from '../../../web_modules/lit-element.js'
 import ObjectTypes from '../data/objects.js';
 import MaterialTypes from '../data/materials.js';
 import GeometryTypes from '../data/geometry.js';
 import TextureTypes from '../data/textures.js';
 import { getEntityName } from '../utils.js';
 
-function propsToElements(object, elements, props) {
+const $onRefresh = Symbol('onRefresh');
+const commonProps = [{
+  name: 'Type',
+  type: 'string',
+  prop: 'baseType',
+}, {
+  name: 'UUID',
+  type: 'string',
+  prop: 'uuid',
+}, {
+  name: 'Name',
+  type: 'string',
+  prop: 'name',
+}];
+
+function propsToElements(entity, elements, props) {
   for (let prop of props) {
     if (typeof prop === 'function') {
-      const result = prop(object);
+      const result = prop(entity);
       if (result) {
         prop = result;
       } else {
@@ -19,7 +33,7 @@ function propsToElements(object, elements, props) {
     
     if (prop.type === 'group') {
       const subProps = [];
-      propsToElements(object, subProps, [...prop.props]);
+      propsToElements(entity, subProps, [...prop.props]);
       elements.push(html`<accordion-view>
         <div slot="content">${prop.name}</div>
         ${subProps}
@@ -28,7 +42,7 @@ function propsToElements(object, elements, props) {
     } else {
       const { name, type, prop: propName, default: def } = prop;
       let path = propName.split('.');
-      let target = object;
+      let target = entity;
       let key = path.shift();
       // Support nested properties, like 'data.attributes'
       while (path.length) {
@@ -41,7 +55,7 @@ function propsToElements(object, elements, props) {
 
       const value = (key in target ) ? target[key] : def;
       elements.push(html`
-        <key-value uuid=${object.uuid}
+        <key-value uuid=${entity.uuid}
           key-name="${name}"
           .value="${value}"
           type="${type}"
@@ -51,45 +65,39 @@ function propsToElements(object, elements, props) {
   }
 }
 
-export default class ParametersViewElement extends BaseElement {
+export default class ParametersViewElement extends LitElement {
   static get properties() {
     return {
-      ...BaseElement.properties,
+      entity: { type: Object },
     }
   }
 
+  [$onRefresh](e) {
+    this.dispatchEvent(new CustomEvent('command', {
+      detail: {
+        type: 'refresh',
+      },
+      bubbles: true,
+      composed: true,
+    }));
+  }
+
   render() {
-    const object = this.getEntity();
-
-    if (!object) {
-      return html`<div>no object selected</div>`;
-    }
-
-    let definition = ObjectTypes[object.type] ||
-                       MaterialTypes[object.type] ||
-                       GeometryTypes[object.type];
-                       TextureTypes[object.textureType];
-
-    // It's possible the types are unknown e.g. modified
-    // by a user. Use the next best guess.
-    if (!definition) {
-      switch (this.app.content.getEntityCategory(object.uuid)) {
-        case 'objects':
-          definition = ObjectTypes.Object3D; break;
-        case 'materials':
-          definition = MaterialTypes.Material; break;
-        case 'geometries':
-          definition = GeometryTypes.Geometry; break;
-        case 'textures':
-          definition = TextureTypes.Texture; break;
-        default:
-          throw new Error(`could not find definition for ${object.type}`);
-      }
-    }
-
-    const objectName = getEntityName(object);
+    const entityTitle = this.entity ? getEntityName(this.entity) : '';
     const elements = [];
-    propsToElements(object, elements, [...definition.props]);
+
+    if (this.entity) {
+      const entity = this.entity;
+      let definition = ObjectTypes[entity.baseType] ||
+                        MaterialTypes[entity.baseType] ||
+                        GeometryTypes[entity.baseType];
+                        TextureTypes[entity.baseType];
+      if (!definition) {
+        definition = ObjectTypes.Object3D;
+      }
+
+      propsToElements(entity, elements, [...commonProps, ...definition.props]);
+    }
 
     return html`
 <style>
@@ -106,14 +114,15 @@ export default class ParametersViewElement extends BaseElement {
     overflow-x: hidden;
   }
 
+  .hide {
+    display: none;
+  }
+
 </style>
-<title-bar title="${objectName}">
-  <devtools-icon-button icon="refresh" @click="${this.refresh}">
+<title-bar title="${entityTitle}">
+  <devtools-icon-button icon="refresh" class="${!this.entity ? 'hide' : ''}" @click="${this[$onRefresh]}">
 </title-bar>
 <div class="properties">
-  <key-value uuid=${this.uuid} key-name="Type" .value="${object.baseType}" type="string" property="type"></key-value>
-  <key-value uuid=${this.uuid} key-name="UUID" .value="${object.uuid}" type="string" property="uuid"></key-value>
-  <key-value uuid=${this.uuid} key-name="Name" .value="${object.name}" type="string" property="name"></key-value>
   ${elements} 
 </div>
 `;

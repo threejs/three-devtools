@@ -1,17 +1,17 @@
-import BaseElement, { html } from '../BaseElement.js';
+import { LitElement, html } from '../../../../web_modules/lit-element.js'
 import { hexNumberToCSSString } from '../../utils.js';
 
 const $onActivate = Symbol('onActivate');
 
-export default class MaterialValueElement extends BaseElement {
+export default class MaterialValueElement extends LitElement {
   static get properties() {
     return {
-      ...BaseElement.properties,
+      
     }
   }
 
   render() {
-    const material = this.getEntity();
+    const material = null;
 
     if (!material) {
       return null;

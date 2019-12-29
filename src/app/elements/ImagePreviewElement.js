@@ -1,14 +1,13 @@
-import BaseElement, { html } from './BaseElement.js';
+import { LitElement, html } from '../../../../web_modules/lit-element.js'
 
 const $onActivate = Symbol('onActivate');
 const $onLoad = Symbol('onLoad');
 
-export default class ImagePreviewElement extends BaseElement {
+export default class ImagePreviewElement extends LitElement {
   static get properties() {
     return {
       width: { type: Number, reflect: true },
       height: { type: Number, reflect: true },
-      ...BaseElement.properties,
     }
   }
 
@@ -19,7 +18,7 @@ export default class ImagePreviewElement extends BaseElement {
   }
 
   render() {
-    const image = this.getEntity();
+    const image = null;//this.getEntity();
 
     if (!image) {
       return html`None`;

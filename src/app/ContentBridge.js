@@ -1,17 +1,14 @@
 import { MaterialTypes } from './constants.js';
 import injection from './injection.js';
 const $db = Symbol('db');
-const $attributes = Symbol('attributes');
-const $entityIdToCategory = Symbol('entityIdToCategory');
-const $entitiesByCategory = Symbol('entitiesByCategory');
+const $sceneGraphs = Symbol('sceneGraphs');
+const $overviews = Symbol('overviews');
 const $update = Symbol('update');
 const $onMessage = Symbol('onMessage');
-const $processSceneData = Symbol('processSceneData');
 const $log = Symbol('log');
 const $eval = Symbol('eval');
 const $dispatchToContent = Symbol('dispatchToContent');
 const $renderers = Symbol('renderers');
-const $forceUpdate = Symbol('forceUpdate');
 
 const VERBOSE_CONTENT_BRIDGE = true;
 
@@ -19,16 +16,18 @@ export default class ContentBridge extends EventTarget {
   /**
    * Events:
    * 'load'
-   * 'update'
+   * 'entity-update' { object, uuid }
+   * 'scene-graph-update' { uuid, graph }
+   * 'overview-update' { type, entities }
+   * 'renderer-update' {}
    */
   constructor() {
     super();
 
     this[$db] = new Map();
-    this[$attributes] = new Map();
+    this[$overviews] = new Map();
+    this[$sceneGraphs] = new Map();
     this[$renderers] = new Map();
-    this[$entityIdToCategory] = new Map();
-    this[$entitiesByCategory] = {};
 
     this.port = browser.runtime.connect({
       name: 'three-devtools',
@@ -65,36 +64,21 @@ export default class ContentBridge extends EventTarget {
     browser.devtools.inspectedWindow.reload();
   }
 
-  get(uuid) {
-    return this[$db].get(uuid);
+  getEntity(uuid) {
+    return /renderer/.test(uuid) ? this[$renderers].get(uuid) : this[$db].get(uuid);
   }
 
-  getEntitiesOfType(type) {
-    const idsOfSet = this[$entitiesByCategory][type];
-    if (idsOfSet) {
-      return [...idsOfSet].map(id => this.get(id));
-    }
-    return [];
+  getResourcesOverview(type) {
+    return this[$overviews].get(type);
   }
 
-  /**
-   * @TODO This entity categorization is rather messy;
-   * should be a better way of storing original types
-   * and categories on objects, in which case,
-   * elements shouldn't have to reference ContentBridge
-   * to determine the type.
-   */
-  getEntityCategory(uuid) {
-    return this[$entityIdToCategory].get(uuid);
-  }
-
-  getRenderer(id) {
-    return this[$renderers].get(id);
+  getSceneGraph(uuid) {
+    return this[$sceneGraphs].get(uuid);
   }
 
   updateProperty(uuid, property, value, dataType) {
-    const object = this.get(uuid);
-    this[$dispatchToContent]('update', {
+    const object = this.getEntity(uuid);
+    this[$dispatchToContent]('entity-update', {
       uuid,
       property,
       value,
@@ -107,30 +91,23 @@ export default class ContentBridge extends EventTarget {
     // with LitElement.
 
     object[property] = value;
-    this[$forceUpdate](object);
+    this[$update](object);
   }
 
   /**
    * Request latest data from content for the object
    * with UUID.
    */
-  refresh(uuid) {
-    this[$dispatchToContent]('refresh', { uuid });
+  requestEntity(uuid) {
+    this[$dispatchToContent]('_request-entity', { uuid });
   }
 
-  setPreset(preset) {
-    let type;
-    switch (preset) {
-      case 'scene': type = 'scenes'; break;
-      case 'geometry': type = 'geometries'; break;
-      case 'material': type = 'materials'; break;
-      case 'texture': type = 'textures'; break;
-      //case 'rendering': type = 'renderers'; break;
-      //case 'shapes': type = 'shapes'; break;
-    }
-    if (type) {
-      this[$dispatchToContent]('_refresh-type', { type });
-    }
+  requestOverview(type) {
+    this[$dispatchToContent]('_request-overview', { type });
+  }
+  
+  requestSceneGraph(uuid) {
+    this[$dispatchToContent]('_request-scene-graph', { uuid });
   }
 
   select(uuid) {
@@ -155,14 +132,38 @@ export default class ContentBridge extends EventTarget {
         this[$eval](`console.log("three-devtools: debugging three.js r${this.revision}")`);
         break;
       case 'committed':
-        this[$db] = new Map();
-        this[$attributes] = new Map();
-        this[$renderers] = new Map();
-        this[$entityIdToCategory] = new Map();
-        this[$entitiesByCategory] = {};
+        this[$db].clear();
+        this[$overviews].clear();
+        this[$sceneGraphs].clear();
+        this[$renderers].clear();
 
         this[$eval](injection);
         this.dispatchEvent(new CustomEvent('load'));
+        break;
+      case 'observe':
+        this.dispatchEvent(new CustomEvent('observe', {
+          detail: {
+            uuids: data.uuids,
+          },
+        }));
+        break;
+      case 'scene-graph':
+        this[$sceneGraphs].set(data.uuid, data.graph);
+        this.dispatchEvent(new CustomEvent('scene-graph-update', {
+          detail: {
+            uuid: data.uuid,
+            graph: data.graph,
+          },
+        }));
+        break;
+      case 'overview':
+        this[$overviews].set(data.type, data.entities);
+        this.dispatchEvent(new CustomEvent('overview-update', {
+          detail: {
+            type: data.type,
+            entities: data.entities,
+          },
+        }));
         break;
       case 'entity':
         if (data.type === 'renderer') {
@@ -170,82 +171,21 @@ export default class ContentBridge extends EventTarget {
           this.dispatchEvent(new CustomEvent('renderer-update', {
             detail: data,
           }));
-        } else {
-          this[$processSceneData](data);
+        } else if (Array.isArray(data)) {
+          for (let entity of data) {
+            this[$update](entity);
+          }
         }
         break;
     }
   }
 
-  [$processSceneData](data) {
-    if (data.attributes) {
-      data.attributes.forEach(o => this[$update](o, 'attributes'));
-    }
-    if (data.geometries) {
-      data.geometries.forEach(o => this[$update](o, 'geometries'));
-    }
-    if (data.materials) {
-      data.materials.forEach(o => this[$update](o, 'materials'));
-    }
-    if (data.textures) {
-      data.textures.forEach(o => this[$update](o, 'textures'));
-    }
-    if (data.images) {
-      data.images.forEach(o => this[$update](o, 'images'));
-    }
-    if (data.shapes) {
-      data.shapes.forEach(o => this[$update](o, 'shapes'));
-    }
-    if (data.uuid) {
-      // @TODO store real types rather than checking user-modifiable type
-      // to know if this is *actually* a scene.
-      const type = data.type === 'Scene' ? 'scenes' : 'objects';
-      if (data.children) {
-        const { children, ...filtered } = data;
-        // Store the children directly rather than in
-        // a potentially out of sync, denormalized way
-        filtered.children = children.map(child => child.uuid);
-        this[$update](filtered, type);
-        children.forEach(o => this[$processSceneData](o));
-      } else {
-        this[$update](data, type);
-      }
-    }
-  }
-
-  [$update](object, category) {
-    const uuid = object.uuid;
-
-    // Store an array of uuids by type.
-    this[$entityIdToCategory].set(uuid, category);
-    if (!this[$entitiesByCategory][category]) {
-      this[$entitiesByCategory][category] = new Set();
-    }
-    this[$entitiesByCategory][category].add(uuid);
-
-
-    let changed = false;
-
-    if (this[$db].has(uuid)) {
-      const pastState = this[$db].get(uuid);
-      if (JSON.stringify(pastState) !== JSON.stringify(object)) {
-        changed = true;
-      }
-    } else {
-      changed = true;
-    }
-
-    if (changed) {
-      this[$forceUpdate](object);
-    }
-  }
-
-  [$forceUpdate](object) {
-    this[$db].set(object.uuid, object);
-    this.dispatchEvent(new CustomEvent('update', {
+  [$update](entity) {
+    this[$db].set(entity.uuid, entity);
+    this.dispatchEvent(new CustomEvent('entity-update', {
       detail: {
-        object,
-        uuid: object.uuid,
+        entity,
+        uuid: entity.uuid,
       },
     }));
   }

@@ -1,21 +1,26 @@
-import { html } from '../../../web_modules/lit-element.js'
-import BaseElement from './BaseElement.js';
+import { LitElement, html } from '../../../web_modules/lit-element.js'
+import { getEntityName } from '../utils.js';
 import ChromeSelectStyle from './shared-styles/chrome-select.js';
 
+const $createSceneGraphNode = Symbol('createSceneGraphNode');
+const $onRefreshClick = Symbol('onRefreshClick');
 const $onSceneSelect = Symbol('onSceneSelect');
 const $onContentUpdate = Symbol('onContentUpdate');
 const $onTreeItemSelect = Symbol('onTreeItemSelect');
 
-export default class SceneViewElement extends BaseElement {
+export default class SceneViewElement extends LitElement {
   static get properties() {
     return {
-      selected: { type: String, reflect: true },
-      ...BaseElement.properties,
+      graph: { type: Object},
+      scenes: { type: Array },
+      activeScene: { type: String, },
+      activeEntity: { type: String, },
     }
   }
 
   constructor() {
     super();
+    this[$onRefreshClick] = this[$onRefreshClick].bind(this);
     this[$onTreeItemSelect] = this[$onTreeItemSelect].bind(this);
     this[$onContentUpdate] = this[$onContentUpdate].bind(this);
   }
@@ -23,45 +28,23 @@ export default class SceneViewElement extends BaseElement {
   connectedCallback() {
     super.connectedCallback();
     this.addEventListener('tree-item-select', this[$onTreeItemSelect]);
-    // This is redundant as this is a BaseElement, so it's already listening
-    // to this, specifically the selected scene.
-    // @TODO need to rethink this, possibly something like Redux's selectors
-    // to handle this.
-    this.app.content.addEventListener('update', this[$onContentUpdate]);
   }
 
   disconnectedCallback() {
     super.disconnectedCallback();
     this.removeEventListener('tree-item-select', this[$onTreeItemSelect]);
-    this.app.content.removeEventListener('update', this[$onContentUpdate]);
   }
 
   render() {
-    const scene = this.getEntity();
-    const scenes = this.app.content.getEntitiesOfType('scenes');
+    const { activeScene, activeEntity, scenes, graph } = this;
 
-    if (!scene) {
-      return html`<div>no scene registered</div>`;
+    if (!scenes) {
+      return html`<div></div>`;
     }
 
-    const createNode = (obj, depth=0) => {
-      const children = obj.children ? obj.children.map(uuid => this.app.content.get(uuid)) : [];
-
-      return html`
-      <tree-item
-        tabindex="${depth === 0 ? 0 : ''}"
-        unique="${obj.uuid}"
-        ?root="${depth === 0}"
-        ?selected="${obj.uuid && this.selected && this.selected === obj.uuid}"
-        ?open="${obj.type === 'Scene'}"
-        ?show-arrow="${children.length > 0}"
-        depth="${depth}"
-        uuid="${obj.uuid}"
-        >
-        <div slot="content">${obj.name || obj.type}</div>
-        ${children.map(c => createNode(c, depth + 1))}
-      </tree-item>
-    `;
+    let sceneGraphNode;
+    if (graph && activeScene) {
+      sceneGraphNode = this[$createSceneGraphNode](graph, activeScene, activeEntity);
     }
 
     return html`
@@ -90,15 +73,49 @@ export default class SceneViewElement extends BaseElement {
   <select @change="${this[$onSceneSelect]}" class="chrome-select">
     ${scenes.map(scene => html`<option value="${scene.uuid}" title="${scene.uuid}">${scene.name || scene.uuid}</option>`)}
   </select>
-  <devtools-icon-button icon="refresh" @click="${this.refresh}">
+  <devtools-icon-button icon="refresh" @click="${this[$onRefreshClick]}">
 </title-bar>
-${createNode(scene)}
+${sceneGraphNode}
 `;
   }
- 
+
+  [$createSceneGraphNode](graph, uuid, selected, depth=0) {
+    const obj = graph[uuid];
+
+    return html`
+    <tree-item
+      tabindex="${depth === 0 ? 0 : ''}"
+      unique="${obj.uuid}"
+      ?root="${depth === 0}"
+      ?selected="${obj.uuid && selected && selected === obj.uuid}"
+      ?open="${obj.baseType === 'Scene'}"
+      ?show-arrow="${obj.children.length > 0}"
+      depth="${depth}"
+      uuid="${obj.uuid}"
+      >
+      <div slot="content">${getEntityName(obj)}</div>
+      ${obj.children.map(uuid => this[$createSceneGraphNode](graph, uuid, selected, depth + 1))}
+    </tree-item>
+  `;
+  }
+
+
+  [$onRefreshClick](e) {
+    if (this.selected) {
+      this.dispatchEvent(new CustomEvent('command', {
+        detail: {
+          type: 'refresh',
+        },
+        bubbles: true,
+        composed: true,
+      }));
+    }
+  }
+
   [$onSceneSelect](e) {
-    this.dispatchEvent(new CustomEvent('select-scene', {
+    this.dispatchEvent(new CustomEvent('command', {
       detail: {
+        type: 'select-scene',
         uuid: e.target.value,
       },
       bubbles: true,
@@ -118,11 +135,10 @@ ${createNode(scene)}
     e.stopPropagation();
     const treeItem = e.composedPath()[0];
     const uuid = treeItem.getAttribute('uuid');
-    const type = 'object';
-    this.dispatchEvent(new CustomEvent('select-entity', {
+    this.dispatchEvent(new CustomEvent('command', {
       detail: {
+        type: 'select-entity',
         uuid,
-        type,
       },
       bubbles: true,
       composed: true,

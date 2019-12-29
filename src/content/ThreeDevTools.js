@@ -24,15 +24,16 @@ return class ThreeDevTools {
     // by the three.js library itself. Content could
     // also listen to these events and respond accordingly.
     this.target.addEventListener('observe', e => this.observe(e.detail));
-    this.target.addEventListener('refresh', e => this.refresh(e.detail && e.detail.uuid));
+    this.target.addEventListener('register', e => this.register(e.detail && e.detail.revision));
     this.target.addEventListener('select', e => this.select(e.detail && e.detail.uuid));
-    // @TODO "update" is too general (and similar to "refresh") -- maybe
-    // something like "set-property"?
-    this.target.addEventListener('update', e => this.update(e.detail));
-    this.target.addEventListener('register', e => this.register(e.detail));
+    // @TODO "update" is too general -- maybe something like "set-property"?
+    this.target.addEventListener('entity-update', e => this.update(e.detail));
+    window.ctor = this.target.constructor;
 
     // Underscored events are intended to be private.
-    this.target.addEventListener('_refresh-type', e => this.refreshType(e.detail));
+    this.target.addEventListener('_request-entity', e => this.requestEntity(e.detail && e.detail.uuid));
+    this.target.addEventListener('_request-overview', e => this.requestOverview(e.detail && e.detail.type));
+    this.target.addEventListener('_request-scene-graph', e => this.requestSceneGraph(e.detail && e.detail.uuid));
     this.target.addEventListener('_transform-controls-update', e => {
       if (this.devtoolsScene) {
         const { space, mode } = e.detail;
@@ -113,19 +114,21 @@ return class ThreeDevTools {
     }
   }
 
-  register({ revision }) {
+  register(revision) {
     this.log('register', arguments[0]);
     this.send('register', {
       revision, 
     });
   }
 
-  refreshType({ type }) {
+  requestSceneGraph(uuid) {
+    this.log('requestSceneGraph', uuid);
     try {
-    this.log('refreshType', type);
-    this.entityCache.scan();
-    const data = this.entityCache.getType(type);
-    this.send('entity', data);
+      const data = this.entityCache.getSceneGraph(uuid);
+      this.send('scene-graph', {
+        uuid,
+        graph: data,
+      });
     } catch (e) {
       // Why must this be wrapped in a try/catch
       // to report errors? Where's the async??
@@ -133,11 +136,32 @@ return class ThreeDevTools {
     }
   }
 
-  refresh(uuid) {
-    this.log('refresh', uuid);
-    let data = this.entityCache.get(uuid);
-    if (data) {
-      this.send('entity', data);
+  requestOverview(type) {
+    this.log('requestOverview', type);
+    try {
+      const data = this.entityCache.getOverview(type);
+      this.send('overview', {
+        type,
+        entities: data,
+      });
+    } catch (e) {
+      // Why must this be wrapped in a try/catch
+      // to report errors? Where's the async??
+      console.error(e);
+    }
+  }
+
+  requestEntity(uuid) {
+    this.log('requestEntity', uuid);
+    try {
+      let data = this.entityCache.get(uuid);
+      if (data) {
+        this.send('entity', data);
+      }
+    } catch (e) {
+      // Why must this be wrapped in a try/catch
+      // to report errors? Where's the async??
+      console.error(e);
     }
   }
 
@@ -152,17 +176,16 @@ return class ThreeDevTools {
 
     // Fire on next tick; otherwise this is called when the scene is created,
     // which won't have any objects. Will have to explore more in #18.
-
+    // Batch up multiple scenes added in the same tick.
     if (this.entitiesRecentlyObserved.size === 0) {
       requestAnimationFrame(() => {
-        this.entityCache.scan();
-        for (let entityId of this.entitiesRecentlyObserved.values()) {
-          this.refresh(entityId);
-	}
+	      this.send('observe', {
+          uuids: [...this.entitiesRecentlyObserved],
+        });
         this.entitiesRecentlyObserved.clear();
       });
     }
-    this.entityCache.add(entity);
+ 
     this.entitiesRecentlyObserved.add(uuid);
   }
 

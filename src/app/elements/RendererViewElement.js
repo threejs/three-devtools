@@ -1,16 +1,13 @@
-import { html } from '../../../web_modules/lit-element.js'
-import BaseElement from './BaseElement.js';
+import { LitElement, html } from '../../../web_modules/lit-element.js'
 
-const $onRendererUpdate = Symbol('onRendererUpdate');
 const $onPoll = Symbol('onPoll');
 const RENDERER_POLL_INTERVAL = 1000; // ms
 
-export default class RendererViewElement extends BaseElement {
-  // Note that BaseElement is only used for the `app.content`
-  // connection, not the auto-updating via UUID.
+export default class RendererViewElement extends LitElement {
   static get properties() {
     return {
-      id: { type: String, reflect: true },
+      rendererId: { type: String, },
+      rendererData: { type: Object, },
       enabled: { type: Boolean, reflect: true },
     };
   }
@@ -18,30 +15,25 @@ export default class RendererViewElement extends BaseElement {
   constructor() {
     super();
     this[$onPoll] = this[$onPoll].bind(this);
-    this[$onRendererUpdate] = this[$onRendererUpdate].bind(this);
   }
 
-  connectedCallback() {
-    super.connectedCallback();
-    this.app.content.addEventListener('renderer-update', this[$onRendererUpdate]);
-  }
   disconnectedCallback() {
     if (this[$onPoll].timer) {
       window.clearInterval(this[$onPoll].timer);
     }
-    this.app.content.removeEventListener('renderer-update', this[$onRendererUpdate]);
     super.disconnectedCallback();
   }
 
   [$onPoll]() {
-    if (this.id) {
-      this.app.content.refresh(this.id);
-    }
-  }
-
-  [$onRendererUpdate](e) {
-    if (this.id && e.detail.info && e.detail.id === this.id) {
-      this.requestUpdate();
+    if (this.rendererId) {
+      this.dispatchEvent(new CustomEvent('command', {
+        detail: {
+          type: 'request-entity',
+          uuid: this.rendererId,
+        },
+        bubbles: true,
+        composed: true,
+      }));
     }
   }
 
@@ -57,13 +49,22 @@ export default class RendererViewElement extends BaseElement {
   }
 
   render() {
-    const renderer = this.app.content.getRenderer(this.id);
+    const activeRenderer = this.rendererId;
+    const hasRenderData = !!this.rendererData;
 
-    if (!renderer || !renderer.info) {
-      return html`<div>no renderer</div>`;
-    }
-
-    const info = renderer.info;
+    const info = this.rendererData ? this.rendererData.info : {
+      render: {
+        frame: 0,
+        calls: 0,
+        triangles: 0,
+        points: 0,
+        lines: 0,
+      },
+      memory: {
+        geometry: 0,
+        textures: 0,
+      }
+    };
 
     return html`
 <style>
@@ -81,14 +82,17 @@ export default class RendererViewElement extends BaseElement {
     width: 100%;
     overflow-y: auto;
     overflow-x: hidden;
+    display: none;
   }
-
   .properties td:last-child {
     text-align: right;
   }
+  .properties.show-render-data {
+    display: table;
+  }
 </style>
 <title-bar title="Renderer"></title-bar>
-<table class="properties">
+<table class="properties${hasRenderData ? ' show-render-data' : ''}">
   <tbody>
     <tr>
       <td>frame</td><td>${info.render.frame}</td>

@@ -4,26 +4,45 @@ import ContentBridge from '../ContentBridge.js';
 
 const ERROR_TIMEOUT = 5000;
 
-const $onPresetClick = Symbol('onPresetClick');
-const $onSelectScene = Symbol('onSelectScene');
-const $onSelectEntity = Symbol('onSelectEntity');
-const $onSelectRenderer = Symbol('onSelectRenderer');
+const $onPanelClick = Symbol('onPanelClick');
 const $onContentUpdate = Symbol('onContentUpdate');
 const $onContentLoad = Symbol('onContentLoad');
 const $onContentError = Symbol('onContentError');
-const $onContentRendererUpdate = Symbol('onContentRendererUpdate');
 const $onCommand = Symbol('onCommand');
+
+const panels = {
+  scene: {
+    title: 'Scene',
+    resource: 'scenes',
+  },
+  geometries: {
+    title: 'Geometries',
+    resource: 'geometries',
+  },
+  materials: {
+    title: 'Materials',
+    resource: 'materials',
+  },
+  textures: {
+    title: 'Textures',
+    resource: 'textures',
+  },
+  rendering: {
+    title: 'Rendering',
+  },
+};
 
 export default class AppElement extends LitElement {
   static get properties() {
     return {
-      // scene, geometry, material, texture, rendering
-      preset: { type: String, },
       errorText: { type: String, },
-      activeScene: { type: String, reflect: true, attribute: 'active-scene' },
-      activeEntity: { type: String, reflect: true, attribute: 'active-entity' },
-      activeRenderer: { type: String, reflect: true, attribute: 'active-renderer' },
-      needsReload: { type: Boolean, reflect: true, attribute: 'needs-reload' },
+      needsReload: { type: Boolean, },
+      isReady: { type: Boolean },
+      // scene, geometries, materials, textures, rendering
+      panel: { type: String, },
+      activeScene: { type: String, },
+      activeEntity: { type: String, },
+      activeRenderer: { type: String, },
     }
   }
 
@@ -32,21 +51,23 @@ export default class AppElement extends LitElement {
     super();
 
     this.needsReload = true;
-    this.preset = 'scene';
+    this.isReady = false;
+    this.panel = 'scene';
 
-    this[$onSelectScene] = this[$onSelectScene].bind(this);
-    this[$onSelectEntity] = this[$onSelectEntity].bind(this);
+    this[$onPanelClick] = this[$onPanelClick].bind(this);
     this[$onContentUpdate] = this[$onContentUpdate].bind(this);
     this[$onContentLoad] = this[$onContentLoad].bind(this);
     this[$onContentError] = this[$onContentError].bind(this);
-    this[$onContentRendererUpdate] = this[$onContentRendererUpdate].bind(this);
     this[$onCommand] = this[$onCommand].bind(this);
     this.content = new ContentBridge();
 
-    this.content.addEventListener('update', this[$onContentUpdate]);
     this.content.addEventListener('load', this[$onContentLoad]);
-    this.content.addEventListener('renderer-update', this[$onContentRendererUpdate]);
     this.content.addEventListener('error', this[$onContentError]);
+    this.content.addEventListener('renderer-update', this[$onContentUpdate]);
+    this.content.addEventListener('entity-update', this[$onContentUpdate]);
+    this.content.addEventListener('scene-graph-update', this[$onContentUpdate]);
+    this.content.addEventListener('overview-update', this[$onContentUpdate]);
+    this.content.addEventListener('observe', this[$onContentUpdate]);
     this.addEventListener('command', this[$onCommand]);
   }
 
@@ -61,59 +82,162 @@ export default class AppElement extends LitElement {
     }, ERROR_TIMEOUT);
   }
 
-  refresh(uuid) {
-    this.content.refresh(uuid);
-  }
-
-  /**
-   * Lifecycle methods
-   */
-
-  /**
-   * On connect, setup the initial views
-   */
-  async connectedCallback() {
-    super.connectedCallback && super.connectedCallback();
-    this.addEventListener('select-scene', this[$onSelectScene]);
-    this.addEventListener('select-entity', this[$onSelectEntity]);
-    this.addEventListener('select-renderer', this[$onSelectRenderer]);
-  }
-
-  disconnectedCallback() {
-    this.removeEventListener('select-scene', this[$onSelectScene]);
-    this.removeEventListener('select-entity', this[$onSelectEntity]);
-    this.removeEventListener('select-renderer', this[$onSelectRenderer]);
-    super.disconnectedCallback && super.disconnectedCallback();
-  }
-
   shouldUpdate(changedProps) {
     if (changedProps.has('activeEntity')) {
-      // @TODO this selects it in the client which
-      // refreshes the entity, while it's probably
-      // being selected from this event as well, resulting
-      // in multiple refreshes
       this.content.select(this.activeEntity);
+      this.content.requestEntity(this.activeEntity);
+    }
+    if (changedProps.has('activeScene')) {
+      this.content.requestSceneGraph(this.activeScene);
+    }
+    if (changedProps.has('panel') ||
+        changedProps.has('isReady')) {
+      this.refreshData();
     }
 
     return true;
   }
 
   createRenderRoot() {
+    // Is this necessary?
     return this;
   }
 
-  firstUpdated() {
-    this.content.setPreset(this.preset);
+  /**
+   * Request fresh data for all active views
+   */
+  refreshData() {
+    const panelDef = panels[this.panel];
+    if (panelDef && panelDef.resource) {
+      this.content.requestOverview(panelDef.resource);
+    }
+    if (this.activeScene && this.panel === 'scene') {
+      this.content.requestSceneGraph(this.activeScene);
+    }
+    if (this.activeEntity && this.panel !== 'rendering') {
+      this.content.requestEntity(this.activeEntity);
+    }
+  }
+
+  /**
+   * UI Event Handlers
+   */
+
+  [$onPanelClick](e) {
+    this.panel = e.target.getAttribute('panel');
+  }
+
+  /**
+   * Content Event Handlers
+   */
+
+  [$onContentUpdate](e) {
+    switch(e.type) {
+      case 'observe':
+        // New scenes have been added
+        this.isReady = true;
+
+        // Set the first renderer if none selected
+        const renderer = e.detail.uuids.find(id => /renderer/.test(id));
+        if (!this.activeRenderer && renderer) {
+          this.activeRenderer = renderer;
+        }
+        break;
+      case 'renderer-update':
+        // If renderer data was returned and viewing on the rendering panel, rerender
+        if (this.panel === 'rendering' && this.activeRenderer === e.detail.id) {
+          this.requestUpdate();
+        }
+        break;
+      case 'entity-update':
+        // @TODO figure out when this should be updated
+        this.requestUpdate();
+        break;
+      case 'scene-graph-update':
+        if (this.panel === 'scene' && this.activeScene === e.detail.uuid) {
+          this.requestUpdate();
+        }
+        break;
+      case 'overview-update':
+        // Set the first scene if none selected
+        if (!this.activeScene && e.detail.type === 'scenes' && e.detail.entities[0]) {
+            this.activeScene = e.detail.entities[0].uuid;
+        }
+        // If an overview was updated and currently being displayed, rerender
+        else if (this.panel && panels[this.panel].resource === e.detail.type) {
+          this.requestUpdate();
+        }
+        break;
+    }
+  }
+
+  // Fired when content is initially loaded
+  [$onContentLoad](e) {
+    this.activeScene = undefined;
+    this.activeEntity = undefined;
+    this.activeRenderer = undefined;
+    this.isReady = false;
+    this.needsReload = false;
+  }
+
+  [$onContentError](e) {
+    this.setError(e.detail);
+  }
+
+  /**
+   * API for Components Event Handlers
+   */
+  [$onCommand](e) {
+    const { type } = e.detail;
+
+    switch (type) {
+      case 'refresh':
+        this.refreshData();
+        break;
+      case 'select-scene':
+        this.activeScene = e.detail.uuid;
+        break;
+      case 'select-entity':
+        this.activeEntity = e.detail.uuid;
+        break;
+      case 'select-renderer':
+        this.activeRenderer = e.detail.id;
+        break;
+      case 'select-panel':
+        this.panel = e.detail.panel;
+        break;
+      case 'request-entity':
+        this.content.requestEntity(e.detail.uuid);
+        break;
+      case 'request-overview':
+        this.content.requestOverview(e.detail.resourceType);
+        break;
+      case 'request-scene-graph':
+        this.content.requestSceneGraph(e.detail.uuid);
+        break;
+      case 'update-property':
+        const { uuid, property, value, dataType } = e.detail;
+        this.content.updateProperty(uuid, property, value, dataType);
+        break;
+      default:
+        console.warn(`Unknown command ${type}`);
+    }
   }
 
   render() {
-    const isReady = !!this.activeScene;
-    // scene, geometry, material, texture, rendering
-    const preset = this.preset || 'scene';
+    const panel = this.panel || 'scene';
+    const panelDef = panels[panel];
     const errorText = this.errorText || '';
-    const showResourceView = ['geometry', 'material', 'texture'].indexOf(preset) !== -1;
-    const showInspector = this.activeEntity && this.preset !== 'rendering';
-    //const object = this.content.get(this.activeEntity);
+
+    const graph = panel === 'scene' && this.activeScene ? this.content.getSceneGraph(this.activeScene) : void 0;
+    const scenes = panel === 'scene' && this.activeScene ? this.content.getResourcesOverview('scenes') : void 0;
+    const showResourceView = !!(panelDef.resource && panel !== 'scene');
+    const resources = showResourceView ? this.content.getResourcesOverview(panelDef.resource) : [];
+
+    const showInspector = this.activeEntity && panel !== 'rendering';
+    const activeEntityData = showInspector ? this.content.getEntity(this.activeEntity) : void 0;
+
+    const rendererData = panel === 'rendering' && this.activeRenderer ? this.content.getEntity(this.activeRenderer) : void 0;
 
     return html`
 <style>
@@ -231,7 +355,7 @@ export default class AppElement extends LitElement {
     }
   }
 </style>
-<div class="flex" state=${isReady ? 'ready' : this.needsReload ? 'needs-reload' : 'waiting'} id="container">
+<div class="flex" state=${this.isReady ? 'ready' : this.needsReload ? 'needs-reload' : 'waiting'} id="container">
   <!-- Reload panes -->
   <devtools-message visible-when='needs-reload'>
     <span>Three Devtools requires a page reload.</span>
@@ -240,108 +364,47 @@ export default class AppElement extends LitElement {
     </devtools-button>
   </devtools-message>
   <devtools-message visible-when='waiting'>
-    <span>Waiting for a scene and renderer to be observed...</span>
+    <span>Waiting for a scene to be observed...</span>
     <span class="loading">▲</span>
   </devtools-message>
 
   <!-- Application panes -->
-  <tab-bar class="flex inverse collapsible" visible-when='ready' @click=${this[$onPresetClick]}>
-    <x-icon class="collapsible" title="Scene" ?active=${preset === 'scene'} icon="cubes" fill></x-icon>
-    <x-icon class="collapsible" title="Geometries" ?active=${preset === 'geometry'} icon="dice-d20" fill></x-icon>
-    <x-icon class="collapsible" title="Materials" ?active=${preset === 'material'} icon="paint-brush" fill></x-icon>
-    <x-icon class="collapsible" title="Textures" ?active=${preset === 'texture'} icon="chess-board" fill></x-icon>
-    <x-icon class="collapsible" title="Rendering" ?active=${preset === 'rendering'} icon="video" fill></x-icon>
+  <tab-bar class="flex inverse collapsible" visible-when='ready' @click=${this[$onPanelClick]}>
+    <x-icon class="collapsible" panel="scene" title="${panels.scene.title}" ?active=${panel === 'scene'} icon="cubes" fill></x-icon>
+    <x-icon class="collapsible" panel="geometries" title="${panels.geometries.title}" ?active=${panel === 'geometries'} icon="dice-d20" fill></x-icon>
+    <x-icon class="collapsible" panel="materials" title="${panels.materials.title}" ?active=${panel === 'materials'} icon="paint-brush" fill></x-icon>
+    <x-icon class="collapsible" panel="textures" title="${panels.textures.title}" ?active=${panel === 'textures'} icon="chess-board" fill></x-icon>
+    <x-icon class="collapsible" panel="rendering" title="${panels.rendering.title}" ?active=${panel === 'rendering'} icon="video" fill></x-icon>
   </tab-bar>
 
   <div class="frame flex" visible-when='ready'> 
     <scene-view
-      uuid="${ifDefined(this.activeScene)}"
-      selected="${ifDefined(this.activeEntity)}"
-      ?enabled=${preset === 'scene'}
+      .graph="${graph}"
+      .scenes="${scenes}"
+      .activeScene="${ifDefined(this.activeScene)}"
+      .activeEntity="${ifDefined(this.activeEntity)}"
+      ?enabled=${panel === 'scene'}
       ></scene-view>
     <resources-view
-      filter="${showResourceView ? preset : ''}"
-      uuid="${ifDefined(this.activeScene)}"
+      title="${panelDef.title}"
       selected="${ifDefined(this.activeEntity)}"
+      .resources="${resources}"
       ?enabled=${showResourceView}
       ></resources-view>
     <renderer-view
-      id="${ifDefined(this.activeRenderer)}"
-      selected="${ifDefined(this.activeRenderer)}"
-      ?enabled=${preset === 'rendering'}
+      .rendererId="${this.activeRenderer}"
+      .rendererData="${rendererData}"
+      ?enabled=${panel === 'rendering'}
       ></renderer-view>
   </div>
   <div ?show-inspector=${showInspector} class="inspector-frame frame flex inverse"
     visible-when='ready'>
       <parameters-view ?enabled=${showInspector}
-        uuid="${this.activeEntity}">
+        .entity="${activeEntityData}">
       </parameters-view>
   </div>
   <title-bar title="${errorText}" class="error ${errorText ? 'show-error' : ''}"></title-bar>
 </div>
 `;
-  }
-
-  [$onPresetClick](e) {
-    switch(e.target.title) {
-      case 'Scene': this.preset = 'scene'; break;
-      case 'Geometries': this.preset = 'geometry'; break;
-      case 'Materials': this.preset = 'material'; break;
-      case 'Textures': this.preset = 'texture'; break;
-      case 'Rendering': this.preset = 'rendering'; break;
-    }
-    this.content.setPreset(this.preset);
-  }
-
-  [$onSelectScene](e) {
-    this.activeScene = e.detail.uuid || undefined;
-  }
-
-  [$onSelectEntity](e) {
-    this.activeEntity = e.detail.uuid || undefined;
-  }
-
-  [$onSelectRenderer](e) {
-    this.activeRenderer = e.detail.id || undefined;
-  }
-
-  [$onContentUpdate](e) {
-    // If this is the initial scene, set it as active
-    if (!this.activeScene && this.content.getEntityCategory(e.detail.uuid) === 'scenes') {
-      this.activeScene = e.detail.uuid;
-    }
-  }
-
-  [$onContentRendererUpdate](e) {
-    // If this is the initial renderer, set it as active
-    if (!this.activeRenderer && e.detail.id) {
-      this.activeRenderer = e.detail.id;
-    }
-  }
-
-  // Fired when content is initially loaded
-  [$onContentLoad](e) {
-    this.activeScene = undefined;
-    this.activeEntity = undefined;
-    this.activeRenderer = undefined;
-    this.needsReload = false;
-  }
-
-  [$onContentError](e) {
-    this.setError(e.detail);
-  }
-
-  /**
-   * A command from a descendant node. Process here.
-   */
-  [$onCommand](e) {
-    const { type } = e.detail;
-
-    switch (type) {
-      case 'update-property':
-        const { uuid, property, value, dataType } = e.detail;
-        this.content.updateProperty(uuid, property, value, dataType);
-        break;
-    }
   }
 }
