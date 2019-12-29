@@ -101,6 +101,26 @@ const utils = {
            entity.isLineSegments ? 'LineSegments' :
            entity.isLine ? 'Line' :
 
+           // lights
+           entity.isAmbientLightProbe ? 'AmbientLightProbe' :
+           entity.isHemisphereLightProbe ? 'HemisphereLightProbe' :
+           entity.isLightProbe ? 'LightProbe' :
+
+           entity.isAmbientLight ? 'AmbientLight' :
+           entity.isDirectionalLight ? 'DirectionalLight' :
+           entity.isHemisphereLight ? 'HemisphereLight' :
+           entity.isPointLight ? 'PointLight' :
+           entity.isRectAreaLight ? 'RectAreaLight' :
+           entity.isSpotLight ? 'SpotLight' :
+           entity.isLight ? 'Light' :
+
+           // cameras
+           entity.isArrayCamera ? 'ArrayCamera' :
+           entity.isPerspectiveCamera ? 'PerspectiveCamera' :
+           entity.isOrthographicCamera ? 'OrthographicCamera' :
+           entity.isCubeCamera ? 'CubeCamera' :
+           entity.isCamera ? 'Camera' :
+
            entity.isObject3D ? 'Object3D' :
 
            // geometries only have `type` property containing
