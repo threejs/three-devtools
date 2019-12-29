@@ -101,7 +101,7 @@ ${sceneGraphNode}
 
 
   [$onRefreshClick](e) {
-    if (this.selected) {
+    if (this.activeScene) {
       this.dispatchEvent(new CustomEvent('command', {
         detail: {
           type: 'refresh',
