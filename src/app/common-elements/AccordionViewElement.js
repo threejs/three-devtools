@@ -59,7 +59,7 @@ export default class AccordionViewElement extends LitElement {
   .arrow::after {
     content: '▸';
     font-size: 14px;
-    color: #999;
+    color: rgb(110, 110, 110);
     display: none;
     pointer-events: auto;
     transform: translateY(-2px);
