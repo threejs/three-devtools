@@ -20,7 +20,7 @@ console.log('%c▲%cthree-devtools%cv${version}',
   'font-size: 110%; background-color: ${blue}; color:#666; padding: 0 5px;');
 (() => {
 
-  const DEBUG = true;
+  const DEBUG = false;
   const utils = (${utils})();
   const THREE = (${THREE})();
   const InstrumentedToJSON = (${InstrumentedToJSON})();
