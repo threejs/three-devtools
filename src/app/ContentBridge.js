@@ -1,4 +1,3 @@
-import { MaterialTypes } from './constants.js';
 import injection from './injection.js';
 const $db = Symbol('db');
 const $sceneGraphs = Symbol('sceneGraphs');
@@ -10,7 +9,7 @@ const $eval = Symbol('eval');
 const $dispatchToContent = Symbol('dispatchToContent');
 const $renderers = Symbol('renderers');
 
-const VERBOSE_CONTENT_BRIDGE = true;
+const VERBOSE_CONTENT_BRIDGE = false;
 
 export default class ContentBridge extends EventTarget {
   /**

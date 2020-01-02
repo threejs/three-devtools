@@ -15,6 +15,11 @@ export default class KeyValueElement extends LitElement {
       value: { type: String, reflect: true },
       type: { type: String, reflect: true },
       property: { type: String, reflect: true },
+      // For number types only
+      min: { type: Number, reflect: true },
+      max: { type: Number, reflect: true },
+      step: { type: Number, reflect: true },
+      precision: { type: Number, reflect: true },
     }
   }
 
@@ -24,6 +29,10 @@ export default class KeyValueElement extends LitElement {
     // across shadow boundaries? Can this be handled better?
     // https://github.com/whatwg/html/issues/3219
     this._id = `key-value-element-${kvIterator++}`;
+    this.precision = 1;
+    this.step = 1;
+    this.min = -Infinity;
+    this.max = Infinity;
   }
 
   onDataURLClick(e) {
@@ -62,7 +71,15 @@ export default class KeyValueElement extends LitElement {
         valueElement = html`<enum-value .uuid="${this.uuid}" .type="${this.property}" .value="${this.value}"></enum-value>`;
         break;
       case 'vec3':
-        valueElement = this.value;
+        valueElement = [...new Array(3)].map((_, i) => html`<number-input
+          .id="${i === 0 ? this._id : ''}"
+          axis="${i === 0 ? 'x' : i === 1 ? 'y' : 'z'}"
+          .value="${this.value[i]}"
+          .min="${this.min}"
+          .max="${this.max}"
+          .step="${this.step}"
+          .precision="${this.precision}"
+          />`);
         break;
       case 'image':
         valueElement = html`<image-value .uuid="${this.value}"></image-value>`;
@@ -84,7 +101,14 @@ export default class KeyValueElement extends LitElement {
         break;
       case 'number':
       case 'int':
-        valueElement = html`<input id="${this._id}" type="number" value="${this.value}" />`;
+        valueElement = html`<number-input
+          .id="${this._id}"
+          .value="${this.value}"
+          .min="${this.min}"
+          .max="${this.max}"
+          .step="${this.step}"
+          .precision="${this.precision}"
+          />`;
         break;
       case 'string':
         valueElement = this.value;
@@ -125,9 +149,15 @@ export default class KeyValueElement extends LitElement {
     padding-left: var(--key-value-padding-left, 10px);
   }
 
+  #value[type="vec3"] number-input {
+    width: 33%;
+  }
+
 </style>
 <label for="${this._id}">${this.keyName}</label>
-<div @change="${this[$onChange]}" id="value">${valueElement}</div>
+<div name="${this.keyName}" @change="${this[$onChange]}" id="value" type="${this.type}">
+  ${valueElement}
+</div>
 `;
   }
 
@@ -137,36 +167,39 @@ export default class KeyValueElement extends LitElement {
 
     let value = null;
     let dataType = null;
-    if (e.detail && e.detail.value) {
-      console.log('not yet implemented');
-    } else if (target.tagName === 'INPUT') {
-      switch (target.getAttribute('type')) {
-        case 'color':
-          value = target.value ? cssStringToHexNumber(target.value) : 0;
-          dataType = 'color';
-          break;
-        case 'checkbox':
-          value = !!target.checked;
-          dataType = 'boolean';
-          break;
-        case 'number':
-          dataType = 'number';
-        default:
-          value = target.value;
-      }
-    } else if (target.tagName === 'SELECT') {
-      const selected = [...target.querySelector('option')].filter(o => o.selected);
-      if (selected) {
-        dataType = 'number'; // Is <select> only for enums?
-        value = selected.value;
-      }
+    let property = this.property;
+    switch (this.type) {
+      case 'color':
+        value = target.value ? cssStringToHexNumber(target.value) : 0;
+        dataType = 'color';
+        break;
+      case 'checkbox':
+        value = !!target.checked;
+        dataType = 'boolean';
+        break;
+      case 'number':
+        dataType = 'number';
+        value = target.value;
+        break;
+      case 'enum':
+        dataType = 'number';
+        value = e.detail.value;
+        break;
+      case 'vec3':
+        dataType = 'vec3';
+        value = e.detail.value;
+        // Add 'x', 'y' or 'z' to the property name
+        property = `${this.property}.${target.getAttribute('axis')}`;
+        break;
+      default:
+        value = target.value;
     }
 
     if (value !== null) {
       this.dispatchEvent(new CustomEvent('command', { detail: {
         type: 'update-property',
         uuid: this.uuid,
-        property: this.property,
+        property,
         dataType,
         value,
       },

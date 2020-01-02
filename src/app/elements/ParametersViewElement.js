@@ -53,13 +53,25 @@ function propsToElements(entity, elements, props) {
         key = path.shift();
       }
 
+      // For number/int types
+      let min = 'min' in prop ? prop.min : -Infinity;
+      let max = 'max' in prop ? prop.max : Infinity;
+      let step = 'step' in prop ? prop.step : 0.01;
+      let precision = 'precision' in prop ? prop.precision :
+                      type === 'int' ? 1 : 3; 
+
       const value = (key in target ) ? target[key] : def;
       elements.push(html`
         <key-value uuid=${entity.uuid}
           key-name="${name}"
           .value="${value}"
           type="${type}"
-          property="${propName}">
+          property="${propName}"
+          .min="${min}"
+          .max="${max}"
+          .step="${step}"
+          .precision="${precision}"
+          >
         </key-value>`);
     }
   }

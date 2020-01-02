@@ -88,29 +88,27 @@ return class ThreeDevTools {
 
   update({ uuid, property, value, dataType }) {
     this.log('update', uuid, property, value, dataType);
-    const item = this.entityCache.getEntity(uuid);
-    if (item) {
-      switch (dataType) {
-        case 'color':
-          if (item[property] && item[property].isColor) {
-            item[property].setHex(value);
-          } else if (THREE) {
-            // TODO is there a better way doing this?
-            // We can require devs to provide a THREE object,
-            // or we can side load our own instance of things like
-            // Color.
-            item[property] = {
-              isColor: true,
-              r: (value >> 16 & 255) / 255,
-              g: (value >> 8 & 255) / 255,
-              b: (value & 255) / 255,
-            };
-          }
-          break;
-        default:
-          this.warn('unknown dataType', dataType);
-          item[property] = value;
-      }
+    const entity = this.entityCache.getEntity(uuid);
+
+    if (!entity) {
+      return;
+    }
+
+    const { target, key } = utils.getTargetAndKey(entity, property);
+
+    if (dataType === 'color') {
+      if (target[key] && target[key].isColor) {
+        target[key].setHex(value);
+      } else {
+        // Use our own loaded version of THREE; using just
+        // as a color data type, it shouldn't have any conflicts.
+          target[key] = new Color((value >> 16 & 255) / 255,
+                                  (value >> 8 & 255) / 255,
+                                  (value & 255) / 255);
+      } 
+    }
+    else {
+      target[key] = value;
     }
   }
 

@@ -1,6 +1,26 @@
 export default (() => {
 
 const utils = {
+  /**
+   * Find the corresponding target and property given
+   * an object and a string including object accessor's
+   * (e.g. "."), like "position.x" to return the
+   * "position" object as target, and "x" as the key.
+   * 
+   * @param {THREE.*} entity
+   * @param {String} property
+   */
+  getTargetAndKey: (entity, property) => {
+    const path = property.split('.');
+    let target = entity;
+    let key = path.shift();
+    while (path.length) {
+      target = target[key];
+      key = path.shift();
+    }
+    return { target, key };
+  },
+
   hideObjectFromTools: (object) => {
     object.userData.fromDevtools = true;
   },

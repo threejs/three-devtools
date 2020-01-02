@@ -1,7 +1,11 @@
 export default (() => {
 
 const isDevtoolsSerialization = meta => !!(meta && meta.devtoolsConfig);
-  
+const tempPosition = new THREE.Vector3();
+const tempRotation = new THREE.Quaternion();
+const tempScale = new THREE.Vector3();
+const tempEuler = new THREE.Euler();
+
 return function InstrumentedToJSON (meta) {
 /**
  * The instrumented version of entity's `toJSON` method,
@@ -108,6 +112,15 @@ return function InstrumentedToJSON (meta) {
 
   if (data.object) {
     data.object.baseType = baseType;
+
+    if (this.matrix) {
+      // Objects should also decompose their matrix for editing
+      // in the tools
+      this.matrix.decompose(tempPosition, tempRotation, tempScale);
+      data.object.position = tempPosition.toArray();
+      data.object.rotation = tempEuler.setFromQuaternion(tempRotation).toArray();
+      data.object.scale = tempScale.toArray();
+    }
   } else {
     data.baseType = baseType;
   }

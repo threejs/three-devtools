@@ -16,6 +16,7 @@ import TextureValueElement from './elements/values/TextureValueElement.js';
 import EnumValueElement from './elements/values/EnumValueElement.js';
 import TabBarElement from './elements/TabBarElement.js';
 
+import NumberInputElement from './common-elements/NumberInputElement.js';
 import TreeItemElement from './common-elements/TreeItemElement.js';
 import AccordionViewElement from './common-elements/AccordionViewElement.js';
 import DevtoolsMessageElement from './common-elements/DevtoolsMessageElement.js';
@@ -43,6 +44,7 @@ window.customElements.define('texture-value', TextureValueElement);
 window.customElements.define('enum-value', EnumValueElement);
 window.customElements.define('tab-bar', TabBarElement);
 
+window.customElements.define('number-input', NumberInputElement);
 window.customElements.define('tree-item', TreeItemElement);
 window.customElements.define('accordion-view', AccordionViewElement);
 window.customElements.define('devtools-message', DevtoolsMessageElement);
