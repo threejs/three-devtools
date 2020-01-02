@@ -28,7 +28,13 @@ export default class EnumValueElement extends LitElement {
     }
 
     const options = ConstantTypes[this.type].map((c,i) => {
-      const value = constants[c];
+      let value = constants[c];
+
+      // Let 'null' be a special enum that is -1
+      if (c === 'null') {
+        value = -1;
+      }
+
       if (typeof value !== 'number') {
         throw new Error(`invalid constant value for ${c}`);
       }
@@ -58,7 +64,7 @@ ${ChromeSelectStyle}
 
         uuid: this.uuid,
         property: this.type,
-        dataType: 'number',
+        dataType: 'enum',
         value,
       },
         bubbles: true,

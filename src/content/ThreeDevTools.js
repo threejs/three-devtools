@@ -107,6 +107,9 @@ return class ThreeDevTools {
                                   (value & 255) / 255);
       } 
     }
+    else if (dataType === 'enum') {
+      target[key] = value === -1 ? null : value;
+    }
     else {
       target[key] = value;
     }

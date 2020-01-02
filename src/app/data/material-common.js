@@ -19,6 +19,8 @@ export default {
     name: 'Opacity',
     prop: 'opacity',
     type: 'number',
+    min: 0,
+    max: 1,
     default: 1,
   }, {
     name: 'Color Write',

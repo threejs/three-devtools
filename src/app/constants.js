@@ -202,6 +202,9 @@ const ConstantTypes = {
 ConstantTypes.shadowSide = ConstantTypes.side;
 ConstantTypes.wrapS = ConstantTypes.wrapping;
 ConstantTypes.wrapT = ConstantTypes.wrapping;
+ConstantTypes.blendSrcAlpha = ['null', ...ConstantTypes.blendSrc];
+ConstantTypes.blendDstAlpha = ['null', ...ConstantTypes.blendDst];
+ConstantTypes.blendEquationAlpha = ['null', ...ConstantTypes.blendEquation];
 // Change default (first in order) when encoding is used as `depthPacking`
 ConstantTypes.depthPacking = [...ConstantTypes.encoding];
 ConstantTypes.depthPacking[ConstantTypes.depthPacking.indexOf('BasicDepthPacking')] =
