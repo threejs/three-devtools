@@ -8,12 +8,12 @@ export default {
     default: false,
   }, {
     name: 'Offset Factor',
-    type: 'number',
+    type: 'int',
     prop: 'polygonOffsetFactor',
     default: 0,
   }, {
     name: 'Offset Units',
-    type: 'number',
+    type: 'int',
     prop: 'polygonOffsetUnits',
     default: 0,
   }]

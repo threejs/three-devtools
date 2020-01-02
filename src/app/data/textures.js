@@ -85,6 +85,7 @@ const Texture = {
     name: 'Anisotropy',
     prop: 'anisotropy',
     type: 'number',
+    min: 0,
   }, {
     name: 'Flip Y',
     prop: 'flipY',

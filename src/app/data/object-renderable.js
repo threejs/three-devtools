@@ -4,7 +4,7 @@ export default {
   props: [{
     name: 'Render Order',
     prop: 'renderOrder',
-    type: 'number',
+    type: 'int',
     default: 0,
   }, {
     name: 'Visible',

@@ -17,7 +17,7 @@ export default {
   }, {
     name: 'Source Alpha',
     prop: 'blendSrcAlpha',
-    type: 'number',
+    type: 'enum',
     default: 0,
   }, {
     name: 'Destination',
@@ -26,7 +26,7 @@ export default {
   }, {
     name: 'Destination Alpha',
     prop: 'blendDstAlpha',
-    type: 'number',
+    type: 'enum',
     default: 0,
   }, {
     name: 'Blend Equation',
@@ -35,12 +35,12 @@ export default {
   }, {
     name: 'Blend Equation Alpha',
     prop: 'blendEquationAlpha',
-    type: 'number',
+    type: 'enum',
     default: 0,
   }, {
     name: 'Premultiplied Alpha',
     prop: 'premultipliedAlpha',
-    type: 'number',
-    default: 0,
+    type: 'boolean',
+    default: false,
   }],
 };

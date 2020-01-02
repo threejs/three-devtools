@@ -97,11 +97,13 @@ export const displacement = {
     name: 'Scale',
     type: 'number',
     prop: 'displacementScale',
+    min: 0,
     default: 1,
   }, {
     name: 'Bias',
     type: 'number',
     prop: 'displacementBias',
+    min: 0,
     default: 0,
   }]
 };
@@ -123,6 +125,7 @@ export const ao = {
     name: 'Intensity',
     prop: 'aoMapIntensity',
     type: 'number',
+    min: 0,
     default: 1,
   }],
 };
@@ -150,6 +153,8 @@ export const lightMap = {
     name: 'Intensity',
     prop: 'lightMapIntensity',
     type: 'number',
+    min: 0,
+    default: 1,
   }],
 };
 
@@ -170,6 +175,8 @@ export const reflectivity = {
   name: 'Reflectivity',
   type: 'number',
   prop: 'reflectivity',
+  min: 0,
+  max: 1,
   default: 1,
 }
 
@@ -178,6 +185,7 @@ export const refractionRatio = {
   type: 'number',
   prop: 'refractionRatio',
   default: 0.98,
+  min: 0,
 }
 
 export const skinning = {
@@ -225,6 +233,7 @@ export const wireframe = {
     name: 'Line Width',
     type: 'number',
     prop: 'wireframeLinewidth',
+    default: 1,
   }, {
     name: 'Line Cap',
     type: 'string',
@@ -279,7 +288,8 @@ export const emissive = {
     prop: 'emissiveMap',
   }, {
     name: 'Emissive Intensity',
-    type: 'number',
     prop: 'emissiveIntensity',
+    type: 'number',
+    default: 1,
   }]
 };
