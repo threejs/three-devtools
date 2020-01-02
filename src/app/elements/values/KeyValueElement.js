@@ -70,10 +70,14 @@ export default class KeyValueElement extends LitElement {
       case 'enum':
         valueElement = html`<enum-value .uuid="${this.uuid}" .type="${this.property}" .value="${this.value}"></enum-value>`;
         break;
+      case 'vec2':
       case 'vec3':
-        valueElement = [...new Array(3)].map((_, i) => html`<number-input
+      case 'vec4':
+        const arity = this.type === 'vec2' ? 2 :
+                      this.type === 'vec3' ? 3 : 4;
+        valueElement = [...new Array(arity)].map((_, i) => html`<number-input
           .id="${i === 0 ? this._id : ''}"
-          axis="${i === 0 ? 'x' : i === 1 ? 'y' : 'z'}"
+          axis="${i === 0 ? 'x' : i === 1 ? 'y' : i === 2 ? 'z' : 'w'}"
           .value="${this.value[i]}"
           .min="${this.min}"
           .max="${this.max}"
@@ -149,8 +153,14 @@ export default class KeyValueElement extends LitElement {
     padding-left: var(--key-value-padding-left, 10px);
   }
 
+  #value[type="vec4"] number-input {
+    width: 25%;
+  }
   #value[type="vec3"] number-input {
     width: 33%;
+  }
+  #value[type="vec2"] number-input {
+    width: 50%;
   }
 
 </style>
@@ -185,10 +195,12 @@ export default class KeyValueElement extends LitElement {
         dataType = 'number';
         value = e.detail.value;
         break;
+      case 'vec2':
       case 'vec3':
-        dataType = 'vec3';
+      case 'vec4':
+        dataType = this.type;
         value = e.detail.value;
-        // Add 'x', 'y' or 'z' to the property name
+        // Add 'x', 'y', 'z', 'w' to the property name
         property = `${this.property}.${target.getAttribute('axis')}`;
         break;
       default:

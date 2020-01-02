@@ -102,7 +102,7 @@ export default class ParametersViewElement extends LitElement {
       const entity = this.entity;
       let definition = ObjectTypes[entity.baseType] ||
                         MaterialTypes[entity.baseType] ||
-                        GeometryTypes[entity.baseType];
+                        GeometryTypes[entity.baseType] ||
                         TextureTypes[entity.baseType];
       if (!definition) {
         definition = ObjectTypes.Object3D;
