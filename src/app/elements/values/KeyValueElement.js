@@ -1,7 +1,8 @@
 import { LitElement, html } from '../../../../web_modules/lit-element.js'
-import { cssStringToHexNumber, hexNumberToCSSString } from '../../utils.js';
+import { getEntityName, cssStringToHexNumber, hexNumberToCSSString } from '../../utils.js';
 
 const $onChange = Symbol('onChange');
+const $onDependencyClick = Symbol('onDependencyClick');
 const anchor = document.createElement('a');
 let kvIterator = 0;
 
@@ -20,6 +21,8 @@ export default class KeyValueElement extends LitElement {
       max: { type: Number, reflect: true },
       step: { type: Number, reflect: true },
       precision: { type: Number, reflect: true },
+      // Optional data for data types (material, geometry)
+      data: { type: Object },
     }
   }
 
@@ -55,70 +58,71 @@ export default class KeyValueElement extends LitElement {
 
     let valueElement;
 
-    switch (this.type) {
-      case 'array':
-        if (this.value) {
-          valueElement = html`
-          <a href="#" @click=${e => this.onDataURLClick(e)}>
-            array
-          </a>`;
-        }
-        else {
-          valueElement = html`[]`;
-        }
-        break;
-      case 'enum':
-        valueElement = html`<enum-value .uuid="${this.uuid}" .type="${this.property}" .value="${this.value}"></enum-value>`;
-        break;
-      case 'vec2':
-      case 'vec3':
-      case 'vec4':
-        const arity = this.type === 'vec2' ? 2 :
-                      this.type === 'vec3' ? 3 : 4;
-        valueElement = [...new Array(arity)].map((_, i) => html`<number-input
-          .id="${i === 0 ? this._id : ''}"
-          axis="${i === 0 ? 'x' : i === 1 ? 'y' : i === 2 ? 'z' : 'w'}"
-          .value="${this.value[i]}"
-          .min="${this.min}"
-          .max="${this.max}"
-          .step="${this.step}"
-          .precision="${this.precision}"
-          />`);
-        break;
-      case 'image':
-        valueElement = html`<image-value .uuid="${this.value}"></image-value>`;
-        break;
-      case 'texture':
-        valueElement = html`<texture-value .uuid="${this.value}"></texture-value>`;
-        break;
-      case 'material':
-        valueElement = html`<material-value .uuid="${this.value}"></material-value>`;
-        break;
-      case 'geometry':
-        valueElement = html`<geometry-value .uuid="${this.value}"></geometry-value>`;
-        break;
-      case 'color':
-        valueElement = html`<input id="${this._id}" type="color" .value="${hexNumberToCSSString(+this.value)}" />`;
-        break;
-      case 'boolean':
-        valueElement = html`<input id="${this._id}" type="checkbox" .checked="${this.value}" />`;
-        break;
-      case 'number':
-      case 'int':
-        valueElement = html`<number-input
-          .id="${this._id}"
-          .value="${this.value}"
-          .min="${this.min}"
-          .max="${this.max}"
-          .step="${this.step}"
-          .precision="${this.precision}"
-          />`;
-        break;
-      case 'string':
-        valueElement = this.value;
-        break;
-      default:
-        valueElement = this.value;
+    if (this.value == null) {
+      valueElement = html``;
+    } else {
+      switch (this.type) {
+        case 'array':
+          if (this.value) {
+            valueElement = html`
+            <a href="#" @click=${e => this.onDataURLClick(e)}>
+              array
+            </a>`;
+          }
+          else {
+            valueElement = html`[]`;
+          }
+          break;
+        case 'enum':
+          valueElement = html`<enum-value .uuid="${this.uuid}" .type="${this.property}" .value="${this.value}"></enum-value>`;
+          break;
+        case 'vec2':
+        case 'vec3':
+        case 'vec4':
+          const arity = this.type === 'vec2' ? 2 :
+                        this.type === 'vec3' ? 3 : 4;
+          valueElement = [...new Array(arity)].map((_, i) => html`<number-input
+            .id="${i === 0 ? this._id : ''}"
+            axis="${i === 0 ? 'x' : i === 1 ? 'y' : i === 2 ? 'z' : 'w'}"
+            .value="${this.value[i]}"
+            .min="${this.min}"
+            .max="${this.max}"
+            .step="${this.step}"
+            .precision="${this.precision}"
+            />`);
+          break;
+        case 'image':
+        case 'texture':
+        case 'material':
+        case 'geometry':
+          if (this.data) {
+            const name = getEntityName(this.data);
+            valueElement = html`<div class="badge" data-uuid="${this.value}" @click="${this[$onDependencyClick]}">${name}</div>`;
+          } 
+          break;
+        case 'color':
+          valueElement = html`<input id="${this._id}" type="color" .value="${hexNumberToCSSString(+this.value)}" />`;
+          break;
+        case 'boolean':
+          valueElement = html`<input id="${this._id}" type="checkbox" .checked="${this.value}" />`;
+          break;
+        case 'number':
+        case 'int':
+          valueElement = html`<number-input
+            .id="${this._id}"
+            .value="${this.value}"
+            .min="${this.min}"
+            .max="${this.max}"
+            .step="${this.step}"
+            .precision="${this.precision}"
+            />`;
+          break;
+        case 'string':
+          valueElement = this.value;
+          break;
+        default:
+          valueElement = this.value;
+      }
     }
 
     return html`
@@ -153,6 +157,7 @@ export default class KeyValueElement extends LitElement {
     padding-left: var(--key-value-padding-left, 10px);
   }
 
+  #value 
   #value[type="vec4"] number-input {
     width: 25%;
   }
@@ -162,6 +167,10 @@ export default class KeyValueElement extends LitElement {
   #value[type="vec2"] number-input {
     width: 50%;
   }
+  .badge {
+    background-color: var(--tab-selected-bg-color);
+    padding: 1px 5px;
+  }
 
 </style>
 <label for="${this._id}">${this.keyName}</label>
@@ -169,6 +178,20 @@ export default class KeyValueElement extends LitElement {
   ${valueElement}
 </div>
 `;
+  }
+
+  [$onDependencyClick](e) {
+    const target = e.composedPath()[0];
+    const uuid = target.getAttribute('data-uuid');
+    if (uuid !== null) {
+      this.dispatchEvent(new CustomEvent('command', { detail: {
+        type: 'select-entity',
+        uuid,
+      },
+        bubbles: true,
+        composed: true,
+      }));
+    }
   }
 
   [$onChange](e) {

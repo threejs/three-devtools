@@ -20,7 +20,7 @@ const commonProps = [{
   prop: 'name',
 }];
 
-function propsToElements(entity, elements, props) {
+function propsToElements(entity, elements, props, entities) {
   for (let prop of props) {
     if (typeof prop === 'function') {
       const result = prop(entity);
@@ -53,6 +53,8 @@ function propsToElements(entity, elements, props) {
         key = path.shift();
       }
 
+      const value = (key in target ) ? target[key] : def;
+
       // For number/int types
       let min = 'min' in prop ? prop.min : -Infinity;
       let max = 'max' in prop ? prop.max : Infinity;
@@ -60,7 +62,12 @@ function propsToElements(entity, elements, props) {
       let precision = 'precision' in prop ? prop.precision :
                       type === 'int' ? 1 : 3; 
 
-      const value = (key in target ) ? target[key] : def;
+      // For object types (geometry, material, texture)
+      let associatedData = {};
+      if (value && entities && ['geometry', 'material', 'texture'].indexOf(prop.type) !== -1) {
+        associatedData = entities[value] || {};
+      }
+
       elements.push(html`
         <key-value uuid=${entity.uuid}
           key-name="${name}"
@@ -71,6 +78,7 @@ function propsToElements(entity, elements, props) {
           .max="${max}"
           .step="${step}"
           .precision="${precision}"
+          .data="${associatedData}"
           >
         </key-value>`);
     }
@@ -80,7 +88,12 @@ function propsToElements(entity, elements, props) {
 export default class ParametersViewElement extends LitElement {
   static get properties() {
     return {
-      entity: { type: Object },
+      uuid: { type: String },
+      // Object with uuids as keys to entity data. Most objects will
+      // only contain the selected entity's data (matching the uuid),
+      // however things like Mesh will also contain any associated
+      // material or geometry, etc.
+      entities: { type: Object },
     }
   }
 
@@ -95,20 +108,20 @@ export default class ParametersViewElement extends LitElement {
   }
 
   render() {
-    const entityTitle = this.entity ? getEntityName(this.entity) : '';
+    const entityData = (this.entities && this.entities[this.uuid]) || null;
+    const entityTitle = entityData ? getEntityName(entityData) : '';
     const elements = [];
 
-    if (this.entity) {
-      const entity = this.entity;
-      let definition = ObjectTypes[entity.baseType] ||
-                        MaterialTypes[entity.baseType] ||
-                        GeometryTypes[entity.baseType] ||
-                        TextureTypes[entity.baseType];
+    if (entityData) {
+      let definition = ObjectTypes[entityData.baseType] ||
+                        MaterialTypes[entityData.baseType] ||
+                        GeometryTypes[entityData.baseType] ||
+                        TextureTypes[entityData.baseType];
       if (!definition) {
         definition = ObjectTypes.Object3D;
       }
 
-      propsToElements(entity, elements, [...commonProps, ...definition.props]);
+      propsToElements(entityData, elements, [...commonProps, ...definition.props], this.entities);
     }
 
     return html`

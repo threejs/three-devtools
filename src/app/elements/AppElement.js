@@ -237,6 +237,7 @@ export default class AppElement extends LitElement {
 
     const showInspector = this.activeEntity && panel !== 'rendering';
     const activeEntityData = showInspector ? this.content.getEntity(this.activeEntity) : void 0;
+    const associatedEntityData = showInspector ? this.content.getEntityAndDependencies(this.activeEntity) : void 0;
 
     const rendererData = panel === 'rendering' && this.activeRenderer ? this.content.getEntity(this.activeRenderer) : void 0;
 
@@ -401,7 +402,8 @@ export default class AppElement extends LitElement {
   <div ?show-inspector=${showInspector} class="inspector-frame frame flex inverse"
     visible-when='ready'>
       <parameters-view ?enabled=${showInspector}
-        .entity="${activeEntityData}">
+        .uuid="${this.activeEntity}"
+        .entities="${associatedEntityData}">
       </parameters-view>
   </div>
   <title-bar title="${errorText}" class="error ${errorText ? 'show-error' : ''}"></title-bar>

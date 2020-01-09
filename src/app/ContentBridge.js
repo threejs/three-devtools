@@ -1,4 +1,5 @@
 import injection from './injection.js';
+import { isUUID } from './utils.js';
 const $db = Symbol('db');
 const $sceneGraphs = Symbol('sceneGraphs');
 const $overviews = Symbol('overviews');
@@ -65,6 +66,29 @@ export default class ContentBridge extends EventTarget {
 
   getEntity(uuid) {
     return /renderer/.test(uuid) ? this[$renderers].get(uuid) : this[$db].get(uuid);
+  }
+
+  getEntityAndDependencies(rootUUID) {
+    const data = {};
+    const uuids = [rootUUID];
+    while (uuids.length) {
+      const uuid = uuids.shift();
+      const entity = this.getEntity(uuid);
+      if (entity && !data[entity.uuid]) {
+        data[entity.uuid] = entity;
+
+        // entities can have several dependencies, like textures on materials,
+        // or a Mesh's geometry
+        for (let value of Object.values(entity)) {
+          if (isUUID(value)) {
+            uuids.push(value);
+          }
+        }
+      }
+    }
+
+    console.log(`dependencies of ${rootUUID}: ${Object.keys(data)}`);
+    return data;
   }
 
   getResourcesOverview(type) {
@@ -165,6 +189,7 @@ export default class ContentBridge extends EventTarget {
         }));
         break;
       case 'entity':
+        debugger;
         if (data.type === 'renderer') {
           this[$renderers].set(data.id, data);
           this.dispatchEvent(new CustomEvent('renderer-update', {
