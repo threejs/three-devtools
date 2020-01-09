@@ -87,7 +87,6 @@ export default class ContentBridge extends EventTarget {
       }
     }
 
-    console.log(`dependencies of ${rootUUID}: ${Object.keys(data)}`);
     return data;
   }
 
@@ -189,7 +188,6 @@ export default class ContentBridge extends EventTarget {
         }));
         break;
       case 'entity':
-        debugger;
         if (data.type === 'renderer') {
           this[$renderers].set(data.id, data);
           this.dispatchEvent(new CustomEvent('renderer-update', {
