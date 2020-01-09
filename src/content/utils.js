@@ -39,11 +39,9 @@ const utils = {
    * @param {Object} options 
    * @param {Function} options.recursive [false] whether or not an object should recursively iterate over
    *                                     Object3D children and their dependencies.
-   * @param {Function} options.filter a function that receives an entity, and returns
-   *                                  a boolean indicating whether or not this object should continue descent.
    */
   forEachDependency(entity, fn, options={}) {
-    const shouldDescend = fn(entity);
+    fn(entity);
 
     if (entity.isObject3D) {
       if (entity.material && entity.material.isMaterial) {
@@ -56,7 +54,7 @@ const utils = {
         utils.forEachDependency(entity.background, fn, options);
       }
 
-      if (shouldDescend && entity.children && entity.children.length > 0) {
+      if (options.recursive && entity.children && entity.children.length > 0) {
         for (let child of entity.children) {
           utils.forEachDependency(child, fn, options);
         }

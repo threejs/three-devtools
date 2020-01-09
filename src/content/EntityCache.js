@@ -110,8 +110,6 @@ return class EntityCache extends EventTarget {
           if (valid && !entitiesAdded.has(entity.uuid)) {
             addEntity(entity);
           }
-
-          return true;
         }, {
           recursive: true,
         });
@@ -174,6 +172,12 @@ return class EntityCache extends EventTarget {
         serializeChildren: !entity.isObject3D,
       },
     }
+
+    // Register all dependencies, as they may not have
+    // been patched with a custom toJSON yet.
+    utils.forEachDependency(entity, dep => {
+      this._registerEntity(dep);
+    });
 
     let entitiesAdded = new Set();
     let serializedEntity = this._serializeEntity(entity, meta);
