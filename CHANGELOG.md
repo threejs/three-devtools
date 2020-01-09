@@ -1,3 +1,11 @@
+## 0.3.0
+
+* Add several views to filter entities: Scene graph, geometry, materials, textures, and renderer.
+* Improved heuristics on displaying all available entities in overviews, rather than needing to refresh often.
+* Significant improvement to scenes with large assets/data (textures, geometry).
+* Entity dependencies are now shown as links in the parameter view -- select a Mesh's material, or geometry, for example.
+* Add ability to modify vectors in the parameters view, like position and scale.
+
 ## 0.2.1
 
 * Rejoice! Extensions now support [major.minor.patch] format in versions.
