@@ -206,7 +206,7 @@ export default class KeyValueElement extends LitElement {
         value = target.value ? cssStringToHexNumber(target.value) : 0;
         dataType = 'color';
         break;
-      case 'checkbox':
+      case 'boolean':
         value = !!target.checked;
         dataType = 'boolean';
         break;
