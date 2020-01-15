@@ -1,3 +1,7 @@
+## 0.3.1
+
+* Fix the setting of boolean properties from an entity's parameter view.
+
 ## 0.3.0
 
 * Add several views to filter entities: Scene graph, geometry, materials, textures, and renderer.
