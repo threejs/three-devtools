@@ -1,5 +1,6 @@
 import { LitElement, html } from '../../../web_modules/lit-element.js'
 import ObjectTypes from '../data/objects.js';
+import LightTypes from '../data/lights.js';
 import MaterialTypes from '../data/materials.js';
 import GeometryTypes from '../data/geometry.js';
 import TextureTypes from '../data/textures.js';
@@ -114,6 +115,7 @@ export default class ParametersViewElement extends LitElement {
 
     if (entityData) {
       let definition = ObjectTypes[entityData.baseType] ||
+                        LightTypes[entityData.baseType] ||
                         MaterialTypes[entityData.baseType] ||
                         GeometryTypes[entityData.baseType] ||
                         TextureTypes[entityData.baseType];

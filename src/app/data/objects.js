@@ -27,11 +27,6 @@ const GeometryRenderable = {
   ]
 }
 
-const Light = {
-  type: 'light',
-  props: object,
-}
-
 const Scene = {
   type: 'scene',
   props: object,
@@ -60,14 +55,6 @@ export default {
   LineSegments: GeometryRenderable,
   Points: GeometryRenderable,
 
-  AmbientLight: Light,
-  DirectionalLight: Light,
-  HemisphereLight: Light,
-  PointLight: Light,
-  RectAreaLight: Light,
-  SpotLight: Light,
-
-  ArrowHelper: Helper,
   AxesHelper: Helper,
   BoxHelper: Helper,
   Box3Helper: Helper,
