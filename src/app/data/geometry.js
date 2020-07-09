@@ -64,45 +64,64 @@ const Geometry = {
 // boundingBox
 // boundingSphere
 // morphAttributes
+const bufferGeometryProps = [{
+  name: 'Index',
+  type: 'attribute',
+  prop: 'data.index',
+}, {
+  name: 'Groups',
+  type: 'array', // { start, count, materialIndex }
+  prop: 'data.groups',
+},
+/*
+{
+  name: 'Draw Range',
+  type: 'group',
+  props: [{
+    name: 'Start',
+    type: 'number',
+    prop: 'drawRange.start',
+    default: 0,
+  }, {
+    name: 'Count',
+    type: 'number',
+    prop: 'drawRange.count',
+    default: Infinity,
+  }]
+},
+*/
+{
+  name: 'Morph Targets Relative',
+  type: 'boolean',
+  prop: 'data.morphTargetsRelative',
+  default: false,
+}];
+
 const BufferGeometry = {
   type: 'geometry',
-  props: [{
-    name: 'Index',
-    type: 'attribute',
-    prop: 'data.index',
-  }, {
-    name: 'Groups',
-    type: 'array', // { start, count, materialIndex }
-    prop: 'data.groups',
-  },
+  props: [
+    ...bufferGeometryProps
+  ],
   BufferAttributes,
-  {
-    /*
-    name: 'Draw Range',
-    type: 'group',
-    props: [{
-      name: 'Start',
-      type: 'number',
-      prop: 'drawRange.start',
-      default: 0,
-    }, {
-      name: 'Count',
-      type: 'number',
-      prop: 'drawRange.count',
-      default: Infinity,
-    }]
-  }, {
-    */
-    name: 'Morph Targets Relative',
-    type: 'boolean',
-    prop: 'data.morphTargetsRelative',
-    default: false,
-  }]
+}
+
+const InstancedBufferGeometry = {
+  type: 'geometry',
+  props: [
+    ...bufferGeometryProps, {
+      name: 'Instance Count',
+      type: 'int',
+      prop: 'instanceCount',
+    }
+  ],
+  BufferAttributes,
 }
 
 export default {
   BufferGeometry: BufferGeometry,
   Geometry: Geometry,
+
+  InstancedBufferGeometry: InstancedBufferGeometry,
 
   BoxBufferGeometry: BufferGeometry,
   BoxGeometry: Geometry,
