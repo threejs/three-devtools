@@ -6,6 +6,22 @@ import GeometryTypes from '../data/geometry.js';
 import TextureTypes from '../data/textures.js';
 import { getEntityName } from '../utils.js';
 
+// https://stackoverflow.com/a/6491621
+const propByString = function(o, s) {
+    s = s.replace(/\[(\w+)\]/g, '.$1'); // convert indexes to properties
+    s = s.replace(/^\./, '');           // strip a leading dot
+    var a = s.split('.');
+    for (var i = 0, n = a.length; i < n; ++i) {
+        var k = a[i];
+        if (k in o) {
+            o = o[k];
+        } else {
+            return;
+        }
+    }
+    return o;
+}
+
 const $onRefresh = Symbol('onRefresh');
 const commonProps = [{
   name: 'Type',
@@ -41,20 +57,12 @@ function propsToElements(entity, elements, props, entities) {
       </accordion-view>`);
       continue;
     } else {
-      const { name, type, prop: propName, default: def } = prop;
-      let path = propName.split('.');
-      let target = entity;
-      let key = path.shift();
-      // Support nested properties, like 'data.attributes'
-      while (path.length) {
-        if (!(key in target)) {
-          break;
-        }
-        target = target[key];
-        key = path.shift();
-      }
+      const { name, type, prop: propName, enumType, default: def } = prop;
 
-      const value = (key in target ) ? target[key] : def;
+      let value = propByString(entity, propName);
+      if (value === undefined) {
+        value = def;
+      }
 
       // For number/int types
       let min = 'min' in prop ? prop.min : -Infinity;
@@ -76,6 +84,7 @@ function propsToElements(entity, elements, props, entities) {
           .value="${value}"
           type="${type}"
           property="${propName}"
+          enumType="${enumType || ''}"
           .min="${min}"
           .max="${max}"
           .step="${step}"

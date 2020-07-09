@@ -200,8 +200,6 @@ const ConstantTypes = {
 // Copy some over since the constant type is found
 // by property name.
 ConstantTypes.shadowSide = ConstantTypes.side;
-ConstantTypes.wrapS = ConstantTypes.wrapping;
-ConstantTypes.wrapT = ConstantTypes.wrapping;
 ConstantTypes.blendSrcAlpha = ['null', ...ConstantTypes.blendSrc];
 ConstantTypes.blendDstAlpha = ['null', ...ConstantTypes.blendDst];
 ConstantTypes.blendEquationAlpha = ['null', ...ConstantTypes.blendEquation];

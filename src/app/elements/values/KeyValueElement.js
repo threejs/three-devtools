@@ -15,6 +15,7 @@ export default class KeyValueElement extends LitElement {
       keyName: { type: String, reflect: true, attribute: 'key-name'},
       value: { type: String, reflect: true },
       type: { type: String, reflect: true },
+      enumType: { type: String, reflect: true },
       property: { type: String, reflect: true },
       // For number types only
       min: { type: Number, reflect: true },
@@ -74,7 +75,8 @@ export default class KeyValueElement extends LitElement {
           }
           break;
         case 'enum':
-          valueElement = html`<enum-value .uuid="${this.uuid}" .type="${this.property}" .value="${this.value}"></enum-value>`;
+	  let enumType = this.enumType || this.property;
+          valueElement = html`<enum-value .uuid="${this.uuid}" .type="${enumType}" .value="${this.value}"></enum-value>`;
           break;
         case 'vec2':
         case 'vec3':

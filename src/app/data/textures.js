@@ -15,21 +15,19 @@ const Filters = {
 const Wrapping = object => ({
   name: 'Wrapping',
   type: 'group',
+  // wrapR is currently used with DataTexture3D but not serialized,
+  // let's not display it for now.
   props: [{
     name: 'Wrap S',
-    prop: 'wrapS',
+    prop: 'wrap[0]',
     type: 'enum',
+    enumType: 'wrapping',
   }, {
     name: 'Wrap T',
-    prop: 'wrapT',
+    prop: 'wrap[1]',
     type: 'enum',
-  }, {
-    name: 'Wrap R',
-    prop: 'wrapR',
-    type: 'enum',
-  }].filter(p => p.prop === 'wrapR' ?
-    object.textureType === 'DepthTexture' :
-    true)
+    enumType: 'wrapping',
+  }]
 });
 
 const Transform = {
