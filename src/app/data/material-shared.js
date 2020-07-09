@@ -138,7 +138,7 @@ export const envMap = {
 
 export const envMapIntensity = {
   name: 'Environment Intensity',
-  type: 'texture',
+  type: 'number',
   prop: 'envMapIntensity',
 };
 
@@ -240,10 +240,12 @@ export const wireframe = {
     name: 'Line Cap',
     type: 'string',
     prop: 'wireframeLinecap',
+    default: 'round',
   }, {
     name: 'Line Join',
     type: 'string',
     prop: 'wireframeLinejoin',
+    default: 'round',
   }]
 }
 
