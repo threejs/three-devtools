@@ -59,9 +59,10 @@ function propsToElements(entity, elements, props, entities) {
       // For number/int types
       let min = 'min' in prop ? prop.min : -Infinity;
       let max = 'max' in prop ? prop.max : Infinity;
-      let step = 'step' in prop ? prop.step : 0.01;
+      let step = 'step' in prop ? prop.step :
+                 type === 'int' ? 1 : 0.01;
       let precision = 'precision' in prop ? prop.precision :
-                      type === 'int' ? 1 : 3; 
+                      type === 'int' ? 0 : 3; 
 
       // For object types (geometry, material, texture)
       let associatedData = {};
