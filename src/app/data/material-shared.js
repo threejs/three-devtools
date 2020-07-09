@@ -19,7 +19,7 @@ export const combine = {
 export const depthPacking = {
   name: 'Depth Packing',
   prop: 'depthPacking',
-  type: 'boolean',
+  type: 'enum',
 };
 
 export const alphaMap = {
@@ -169,6 +169,7 @@ export const morphTargets = {
   name: 'Morph Targets',
   type: 'boolean',
   prop: 'morphTargets',
+  default: false,
 }
 
 export const reflectivity = {
@@ -229,6 +230,7 @@ export const wireframe = {
     name: 'Enabled',
     type: 'boolean',
     prop: 'wireframe',
+    default: false,
   }, {
     name: 'Line Width',
     type: 'number',

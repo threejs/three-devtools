@@ -35,10 +35,12 @@ export default {
     name: 'Depth Test',
     prop: 'depthTest',
     type: 'boolean',
+    default: true,
   }, {
     name: 'Depth Write',
     prop: 'depthWrite',
     type: 'boolean',
+    default: true,
   }, {
     name: 'Lights',
     prop: 'lights',
