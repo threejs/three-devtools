@@ -33,7 +33,7 @@ export default class ContentBridge extends EventTarget {
       name: 'three-devtools',
     });
 
-    // @TODO I think this can be removed
+    // Notify background port that the tools panel is open
     this.port.postMessage({
       name: 'connect',
       tabId: browser.devtools.inspectedWindow.tabId,
@@ -44,7 +44,7 @@ export default class ContentBridge extends EventTarget {
     });
 
     this.port.onMessage.addListener(e => this[$onMessage](e));
-    
+   
     document.addEventListener('keydown', e => {
       let mode, space;
       switch (e.key) {
