@@ -176,7 +176,7 @@ export default class KeyValueElement extends LitElement {
   }
 
 </style>
-<label for="${this._id}">${this.keyName}</label>
+<label title="${this.keyName}" for="${this._id}">${this.keyName}</label>
 <div name="${this.keyName}" @change="${this[$onChange]}" id="value" type="${this.type}">
   ${valueElement}
 </div>
