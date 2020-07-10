@@ -22,6 +22,7 @@ const standard = [
   prop.displacement, 
   prop.ao, 
   prop.lightMap, 
+  prop.emissive,
 ];
 
 const base = [
@@ -172,7 +173,6 @@ export default {
       prop.wireframe,
       ...standard,
       clearCoat,
-      prop.emissive,
       ...base
     ],
   },
