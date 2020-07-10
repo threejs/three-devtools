@@ -140,6 +140,8 @@ export const envMapIntensity = {
   name: 'Environment Intensity',
   type: 'number',
   prop: 'envMapIntensity',
+  default: 1,
+  min: 0,
 };
 
 export const lightMap = {
