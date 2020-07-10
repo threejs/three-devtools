@@ -30,6 +30,15 @@ const base = [
   polygonOffset
 ];
 
+const lineBase = [
+  // Remove 'side', 'shadowSide' from line materials
+  Object.assign({}, common, {
+    props: [...common.props.filter(({ prop }) => ['side', 'shadowSide'].indexOf(prop) === -1)],
+  }),
+  blending,
+  polygonOffset
+];
+
 const GenericMaterial = {
   type: 'material',
   props: base,
@@ -253,7 +262,7 @@ export default {
     props: [
       prop.color,
       line,
-      ...base
+      ...lineBase
     ],
   },
   LineDashedMaterial: {
@@ -262,7 +271,7 @@ export default {
       prop.color,
       line,
       ...lineDashed,
-      ...base
+      ...lineBase
     ],
   },
 };
