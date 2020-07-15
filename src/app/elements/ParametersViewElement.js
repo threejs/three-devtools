@@ -84,7 +84,7 @@ function propsToElements(entity, elements, props, entities) {
           .value="${value}"
           type="${type}"
           property="${propName}"
-          enumType="${enumType || ''}"
+          .enumType="${enumType || ''}"
           .min="${min}"
           .max="${max}"
           .step="${step}"

@@ -5,6 +5,7 @@ export default {
     name: 'Side',
     prop: 'side',
     type: 'enum',
+    default: 0,
   }, {
     name: 'Transparent',
     prop: 'transparent',
@@ -75,6 +76,7 @@ export default {
     name: 'Shadow Side',
     prop: 'shadowSide',
     type: 'enum',
+    default: 0,
   }, {
     name: 'Tone Mapped',
     prop: 'toneMapped',
