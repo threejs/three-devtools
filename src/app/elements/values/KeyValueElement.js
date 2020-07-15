@@ -15,7 +15,7 @@ export default class KeyValueElement extends LitElement {
       keyName: { type: String, reflect: true, attribute: 'key-name'},
       value: { type: String, reflect: true },
       type: { type: String, reflect: true },
-      enumType: { type: String, reflect: true },
+      enumType: { type: String, reflect: true, attribute: 'enum-type' },
       property: { type: String, reflect: true },
       // For number types only
       min: { type: Number, reflect: true },
@@ -214,6 +214,7 @@ export default class KeyValueElement extends LitElement {
         dataType = 'boolean';
         break;
       case 'number':
+      case 'radians':
         dataType = 'number';
         value = target.value;
         break;
