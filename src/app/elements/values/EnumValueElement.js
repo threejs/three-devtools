@@ -59,14 +59,10 @@ ${ChromeSelectStyle}
     const value = +selected.value;
 
     if (value !== null) {
-      this.dispatchEvent(new CustomEvent('command', { detail: {
-        type: 'update-property',
-
-        uuid: this.uuid,
-        property: this.type,
-        dataType: 'enum',
-        value,
-      },
+      this.dispatchEvent(new CustomEvent('change', {
+        detail: {
+          value,
+        },
         bubbles: true,
         composed: true,
       }));

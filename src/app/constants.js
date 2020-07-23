@@ -195,6 +195,20 @@ const ConstantTypes = {
     'LinearFilter',
     'LinearMipMapNearestFilter',
   ],
+  toneMapping: [
+    'NoToneMapping',
+    'LinearToneMapping',
+    'ReinhardToneMapping',
+    'Uncharted2ToneMapping',
+    'CineonToneMapping',
+    'ACESFilmicToneMapping',
+  ],
+  shadowMap: [
+    'BasicShadowMap',
+    'PCFShadowMap',
+    'PCFSoftShadowMap',
+    'VSMShadowMap',
+  ],
 };
 
 // Copy some over since the constant type is found
