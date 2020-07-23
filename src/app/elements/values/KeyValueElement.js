@@ -17,6 +17,7 @@ export default class KeyValueElement extends LitElement {
       type: { type: String, reflect: true },
       enumType: { type: String, reflect: true, attribute: 'enum-type' },
       property: { type: String, reflect: true },
+      readonly: { type: Boolean },
       // For number types only
       min: { type: Number, reflect: true },
       max: { type: Number, reflect: true },
@@ -61,6 +62,8 @@ export default class KeyValueElement extends LitElement {
 
     if (this.value == null) {
       valueElement = html``;
+    } else if (this.readonly) {
+      valueElement = this.value;
     } else {
       switch (this.type) {
         case 'array':
