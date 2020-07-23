@@ -128,21 +128,33 @@ return class EntityCache extends EventTarget {
     return entities;
   }
 
-  get(id) {
-    const entity = this.entityMap.get(id);
+  getRenderingInfo(id) {
+    const entity = this.getEntity(id);
+    if (!entity || !/renderer/.test(id)) {
+      return;
+    }
+
+    return {
+      type: 'renderer',
+      id,
+      info: {
+        render: entity.info.render,
+        memory: entity.info.memory,
+      }
+    };
+  }
+
+  getSerializedEntity(id) {
+    const entity = this.getEntity(id);
     if (!entity) {
       return;
     }
 
     if (/renderer/.test(id)) {
-      return {
-        type: 'renderer',
-        id,
-        info: {
-          render: entity.info.render,
-          memory: entity.info.memory,
-        },
-      };
+      const data = InstrumentedToJSON.call(entity);
+      data.type = 'renderer';
+      data.id = id;
+      return data;
     }
 
     // The observe call for our own internal scene

@@ -9,6 +9,7 @@ const $log = Symbol('log');
 const $eval = Symbol('eval');
 const $dispatchToContent = Symbol('dispatchToContent');
 const $renderers = Symbol('renderers');
+const $renderingInfo = Symbol('renderingInfo');
 
 const VERBOSE_CONTENT_BRIDGE = false;
 
@@ -16,10 +17,11 @@ export default class ContentBridge extends EventTarget {
   /**
    * Events:
    * 'load'
-   * 'entity-update' { object, uuid }
+   * 'entity-update' { entity, uuid }
    * 'scene-graph-update' { uuid, graph }
    * 'overview-update' { type, entities }
-   * 'renderer-update' {}
+   * 'rendering-info-update' {}
+   * 'renderer-update' { renderer, id }
    */
   constructor() {
     super();
@@ -28,6 +30,7 @@ export default class ContentBridge extends EventTarget {
     this[$overviews] = new Map();
     this[$sceneGraphs] = new Map();
     this[$renderers] = new Map();
+    this[$renderingInfo] = new Map();
 
     this.port = browser.runtime.connect({
       name: 'three-devtools',
@@ -74,8 +77,11 @@ export default class ContentBridge extends EventTarget {
     while (uuids.length) {
       const uuid = uuids.shift();
       const entity = this.getEntity(uuid);
-      if (entity && !data[entity.uuid]) {
-        data[entity.uuid] = entity;
+      // In renderers case, uuid is an id.
+      // @TODO should probably abstract away the differences
+      // between UUID and synthesized renderer ids.
+      if (entity && !data[uuid]) {
+        data[uuid] = entity;
 
         // entities can have several dependencies, like textures on materials,
         // or a Mesh's geometry
@@ -88,6 +94,10 @@ export default class ContentBridge extends EventTarget {
     }
 
     return data;
+  }
+
+  getRenderingInfo(uuid) {
+    return this[$renderingInfo].get(uuid);
   }
 
   getResourcesOverview(type) {
@@ -132,6 +142,10 @@ export default class ContentBridge extends EventTarget {
     this[$dispatchToContent]('_request-scene-graph', { uuid });
   }
 
+  requestRenderingInfo(uuid) {
+    this[$dispatchToContent]('_request-rendering-info', { uuid });
+  }
+
   select(uuid) {
     if (!uuid) {
       return;
@@ -158,6 +172,7 @@ export default class ContentBridge extends EventTarget {
         this[$overviews].clear();
         this[$sceneGraphs].clear();
         this[$renderers].clear();
+        this[$renderingInfo].clear();
 
         this[$eval](injection);
         this.dispatchEvent(new CustomEvent('load'));
@@ -187,11 +202,20 @@ export default class ContentBridge extends EventTarget {
           },
         }));
         break;
+      case 'rendering-info':
+        this.dispatchEvent(new CustomEvent('rendering-info-update', {
+          detail: data,
+        }));
+        this[$renderingInfo].set(data.id, data);
+        break;
       case 'entity':
         if (data.type === 'renderer') {
           this[$renderers].set(data.id, data);
           this.dispatchEvent(new CustomEvent('renderer-update', {
-            detail: data,
+            detail: {
+              renderer: data,
+              id: data.id,
+            },
           }));
         } else if (Array.isArray(data)) {
           for (let entity of data) {

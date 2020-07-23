@@ -25,13 +25,13 @@ return function InstrumentedToJSON (meta) {
 
   // Short circuit if this is something other than the devtools
   // serializing.
-  if (!isDevtoolsSerialization(meta)) {
+  if (toJSON && !isDevtoolsSerialization(meta)) {
     return toJSON.apply(this, arguments);
   }
 
   // Store our custom flags that are passed in via
   // the resources.
-  const serializeChildren = meta.devtoolsConfig.serializeChildren === false ? false : true;
+  const serializeChildren = meta && meta.devtoolsConfig.serializeChildren === false ? false : true;
 
   // First, discover the `baseType`, which for most
   // entities in three.js core, this is the same as
@@ -108,6 +108,46 @@ return function InstrumentedToJSON (meta) {
     data.itemSize = this.itemSize;
     data.offset = this.offset;
     data.normalized = this.normalized;
+  }
+  // Handle renderer serialization
+  else if (baseType === 'WebGLRenderer' || baseType === 'WebGL1Renderer') {
+    const shadowMap = this.shadowMap;
+    const capabilities = this.capabilities;
+    data.name = ('name' in this) ? this.name : '';
+    data.physicallyCorrectLights = ('physicallyCorrectLights' in this) ? this.physicallyCorrectLights : false;
+    data.gammaFactor = ('gammaFactor' in this) ? this.gammaFactor: 2;
+    data.outputEncoding = ('outputEncoding' in this) ? this.outputEncoding : 0; // default?
+    data.toneMapping = ('toneMapping' in this) ? this.toneMapping : 0; // default?
+    data.toneMappingExposure = ('toneMappingExposure' in this) ? this.toneMappingExposure : 1;
+    data.autoClear = ('autoClear' in this) ? this.autoClear : true;
+    data.autoClearColor = ('autoClearColor' in this) ? this.autoClearColor : true;
+    data.autoClearDepth = ('autoClearDepth' in this) ? this.autoClearDepth : true;
+    data.autoClearStencil = ('autoClearStencil' in this) ? this.autoClearStencil : true;
+    if (shadowMap) {
+      data.shadowMap = {};
+      data.shadowMap.enabled = ('enabled' in shadowMap) ? shadowMap.enabled : false;
+      data.shadowMap.autoUpdate = ('autoUpdate' in shadowMap) ? shadowMap.autoUpdate : true;
+      data.shadowMap.type = ('type' in shadowMap) ? shadowMap.type : 0; // default?
+    }
+    if (capabilities) {
+      data.capabilities = {};
+      data.capabilities.isWebGL2 = capabilities.isWebGL2;
+      data.capabilities.precision = capabilities.precision;
+      data.capabilities.floatFragmentTextures = capabilities.floatFragmentTextures;
+      data.capabilities.floatVertexTextures = capabilities.floatVertexTextures;
+      data.capabilities.logarithmicDepthBuffer = capabilities.logarithmicDepthBuffer;
+      data.capabilities.maxAnisotropy = capabilities.getMaxAnisotropy();
+      data.capabilities.maxPrecision = capabilities.getMaxPrecision();
+      data.capabilities.maxAttributes = capabilities.maxAttributes;
+      data.capabilities.maxCubemapSize = capabilities.maxCubemapSize;
+      data.capabilities.maxFragmentUniforms = capabilities.maxFragmentUniforms;
+      data.capabilities.maxTextureSize = capabilities.maxTextureSize;
+      data.capabilities.maxTextures = capabilities.maxTextures;
+      data.capabilities.maxVaryings = capabilities.maxVaryings;
+      data.capabilities.maxVertexTextures = capabilities.maxVertexTextures;
+      data.capabilities.maxVertexUniforms = capabilities.maxVertexUniforms;
+      data.capabilities.vertexTextures = capabilities.vertexTextures;
+    }
   }
 
   if (data.object) {

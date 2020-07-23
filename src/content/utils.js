@@ -85,7 +85,7 @@ const utils = {
     else if (entity.isTexture) {
       if (entity.image && entity.image.uuid) {
         // maybe don't cache images as an entity
-          //Object.prototype.toString.call(this.image) === '[object Object]';
+        //Object.prototype.toString.call(this.image) === '[object Object]';
       }
     }
   },
@@ -102,8 +102,9 @@ const utils = {
    * @return {String}
    */
   getBaseType: (entity) => {
+    let type =
            // objects
-    return entity.isScene ? 'Scene' :
+           entity.isScene ? 'Scene' :
            entity.isGroup ? 'Group' :
            entity.isLOD ? 'LOD' :
            entity.isBone ? 'Bone' :
@@ -187,8 +188,20 @@ const utils = {
 
            // Not yet supported fully, but tag it accordingly
            entity.isWebGLRenderTarget ? 'WebGLRenderTarget' :
+
+           // renderers
+           // `WebGLRenderer` does not have a boolean prop,
+	   // test for that below.
+           entity.isWebGL1Renderer ? 'WebGL1Renderer' :
+
            // If nothing matches...
            'Unknown';
+
+    if (type === 'Unknown' && typeof entity.render === 'function' && typeof entity.setPixelRatio === 'function') {
+      type = 'WebGLRenderer';
+    }
+
+    return type;
   },
 };
 

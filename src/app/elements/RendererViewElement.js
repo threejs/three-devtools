@@ -7,7 +7,7 @@ export default class RendererViewElement extends LitElement {
   static get properties() {
     return {
       rendererId: { type: String, },
-      rendererData: { type: Object, },
+      renderingInfo: { type: Object, },
       enabled: { type: Boolean, reflect: true },
     };
   }
@@ -28,7 +28,7 @@ export default class RendererViewElement extends LitElement {
     if (this.rendererId) {
       this.dispatchEvent(new CustomEvent('command', {
         detail: {
-          type: 'request-entity',
+          type: 'request-rendering-info',
           uuid: this.rendererId,
         },
         bubbles: true,
@@ -50,9 +50,9 @@ export default class RendererViewElement extends LitElement {
 
   render() {
     const activeRenderer = this.rendererId;
-    const hasRenderData = !!this.rendererData;
+    const hasRenderingInfo = !!this.renderingInfo;
 
-    const info = this.rendererData ? this.rendererData.info : {
+    const info = hasRenderingInfo ? this.renderingInfo.info : {
       render: {
         frame: 0,
         calls: 0,
@@ -91,7 +91,7 @@ export default class RendererViewElement extends LitElement {
   }
 </style>
 <title-bar title="Renderer"></title-bar>
-<table class="properties${hasRenderData ? ' show-render-data' : ''}">
+<table class="properties${hasRenderingInfo ? ' show-render-data' : ''}">
   <tbody>
     <tr>
       <td>frame</td><td>${info.render.frame}</td>
