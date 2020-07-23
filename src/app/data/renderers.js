@@ -15,7 +15,8 @@ const PBR = {
     // @TODO
     name: 'Output Encoding',
     prop: 'outputEncoding',
-    type: 'enum'
+    type: 'enum',
+    enumType: 'encoding',
   }]
 };
 
@@ -27,6 +28,7 @@ const ToneMapping = {
     name: 'Type',
     prop: 'toneMapping',
     type: 'enum',
+    enumType: 'toneMapping',
   }, {
     name: 'Exposure',
     prop: 'toneMappingExposure',
@@ -52,7 +54,8 @@ const ShadowMap = {
     // @TODO enum 
     name: 'Shadow Type',
     prop: 'shadowMap.type',
-    type: 'enum'
+    type: 'enum',
+    enumType: 'shadowMap',
   }],
 };
 
