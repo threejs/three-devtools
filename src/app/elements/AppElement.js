@@ -150,7 +150,7 @@ export default class AppElement extends LitElement {
         break;
       case 'rendering-info-update':
         // If renderer data was returned and viewing on the rendering panel, rerender
-        if (this.panel === 'rendering' && this.activeRenderer === e.detail.id) {
+        if (this.panel === 'rendering' && this.activeRenderer === e.detail.uuid) {
           this.requestUpdate();
         }
         break;
@@ -159,7 +159,7 @@ export default class AppElement extends LitElement {
         this.requestUpdate();
         break;
       case 'renderer-update':
-        if (this.panel === 'rendering' && this.activeRenderer === e.detail.id) {
+        if (this.panel === 'rendering' && this.activeRenderer === e.detail.uuid) {
           this.requestUpdate();
         }
         break;
