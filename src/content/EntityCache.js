@@ -136,7 +136,7 @@ return class EntityCache extends EventTarget {
 
     return {
       type: 'renderer',
-      id,
+      uuid: id,
       info: {
         render: entity.info.render,
         memory: entity.info.memory,
@@ -153,7 +153,7 @@ return class EntityCache extends EventTarget {
     if (/renderer/.test(id)) {
       const data = InstrumentedToJSON.call(entity);
       data.type = 'renderer';
-      data.id = id;
+      data.uuid = id;
       return data;
     }
 

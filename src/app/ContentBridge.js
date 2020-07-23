@@ -206,15 +206,15 @@ export default class ContentBridge extends EventTarget {
         this.dispatchEvent(new CustomEvent('rendering-info-update', {
           detail: data,
         }));
-        this[$renderingInfo].set(data.id, data);
+        this[$renderingInfo].set(data.uuid, data);
         break;
       case 'entity':
         if (data.type === 'renderer') {
-          this[$renderers].set(data.id, data);
+          this[$renderers].set(data.uuid, data);
           this.dispatchEvent(new CustomEvent('renderer-update', {
             detail: {
               renderer: data,
-              id: data.id,
+              uuid: data.uuid,
             },
           }));
         } else if (Array.isArray(data)) {
