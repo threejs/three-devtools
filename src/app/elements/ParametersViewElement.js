@@ -1,4 +1,5 @@
 import { LitElement, html } from '../../../web_modules/lit-element.js'
+import RendererTypes from '../data/renderers.js';
 import ObjectTypes from '../data/objects.js';
 import LightTypes from '../data/lights.js';
 import MaterialTypes from '../data/materials.js';
@@ -23,19 +24,23 @@ const propByString = function(o, s) {
 }
 
 const $onRefresh = Symbol('onRefresh');
-const commonProps = [{
-  name: 'Type',
-  type: 'string',
-  prop: 'baseType',
-}, {
-  name: 'UUID',
-  type: 'string',
-  prop: 'uuid',
-}, {
-  name: 'Name',
-  type: 'string',
-  prop: 'name',
-}];
+const CommonProps = {
+  Type: {
+    name: 'Type',
+    type: 'string',
+    prop: 'baseType',
+  },
+  UUID: {
+    name: 'UUID',
+    type: 'string',
+    prop: 'uuid',
+  },
+  Name: {
+    name: 'Name',
+    type: 'string',
+    prop: 'name',
+  }
+};
 
 function propsToElements(entity, elements, props, entities) {
   for (let prop of props) {
@@ -124,15 +129,18 @@ export default class ParametersViewElement extends LitElement {
     const elements = [];
 
     if (entityData) {
-      let definition = ObjectTypes[entityData.baseType] ||
-                        LightTypes[entityData.baseType] ||
-                        MaterialTypes[entityData.baseType] ||
-                        GeometryTypes[entityData.baseType] ||
-                        TextureTypes[entityData.baseType];
+      let definition = RendererTypes[entityData.baseType] ||
+                       ObjectTypes[entityData.baseType] ||
+                       LightTypes[entityData.baseType] ||
+                       MaterialTypes[entityData.baseType] ||
+                       GeometryTypes[entityData.baseType] ||
+                       TextureTypes[entityData.baseType];
       if (!definition) {
         definition = ObjectTypes.Object3D;
       }
 
+      const commonProps = entityData.type === 'renderer' ? [CommonProps.Type, CommonProps.Name] :
+		                                           [CommonProps.Type, CommonProps.UUID, CommonProps.Name];
       propsToElements(entityData, elements, [...commonProps, ...definition.props], this.entities);
     }
 

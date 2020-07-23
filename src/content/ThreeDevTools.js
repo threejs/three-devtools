@@ -31,6 +31,7 @@ return class ThreeDevTools {
     window.ctor = this.target.constructor;
 
     // Underscored events are intended to be private.
+    this.target.addEventListener('_request-rendering-info', e => this.requestRenderingInfo(e.detail && e.detail.uuid));
     this.target.addEventListener('_request-entity', e => this.requestEntity(e.detail && e.detail.uuid));
     this.target.addEventListener('_request-overview', e => this.requestOverview(e.detail && e.detail.type));
     this.target.addEventListener('_request-scene-graph', e => this.requestSceneGraph(e.detail && e.detail.uuid));
@@ -155,7 +156,7 @@ return class ThreeDevTools {
   requestEntity(uuid) {
     this.log('requestEntity', uuid);
     try {
-      let data = this.entityCache.get(uuid);
+      let data = this.entityCache.getSerializedEntity(uuid);
       if (data) {
         this.send('entity', data);
       }
@@ -163,6 +164,14 @@ return class ThreeDevTools {
       // Why must this be wrapped in a try/catch
       // to report errors? Where's the async??
       console.error(e);
+    }
+  }
+
+  requestRenderingInfo(uuid) {
+    this.log('requestRenderingInfo', uuid);
+    let data = this.entityCache.getRenderingInfo(uuid);
+    if (data) {
+      this.send('rendering-info', data);
     }
   }
 
@@ -180,7 +189,7 @@ return class ThreeDevTools {
     // Batch up multiple scenes added in the same tick.
     if (this.entitiesRecentlyObserved.size === 0) {
       requestAnimationFrame(() => {
-	      this.send('observe', {
+        this.send('observe', {
           uuids: [...this.entitiesRecentlyObserved],
         });
         this.entitiesRecentlyObserved.clear();

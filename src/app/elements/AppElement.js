@@ -63,8 +63,9 @@ export default class AppElement extends LitElement {
 
     this.content.addEventListener('load', this[$onContentLoad]);
     this.content.addEventListener('error', this[$onContentError]);
-    this.content.addEventListener('renderer-update', this[$onContentUpdate]);
+    this.content.addEventListener('rendering-info-update', this[$onContentUpdate]);
     this.content.addEventListener('entity-update', this[$onContentUpdate]);
+    this.content.addEventListener('renderer-update', this[$onContentUpdate]);
     this.content.addEventListener('scene-graph-update', this[$onContentUpdate]);
     this.content.addEventListener('overview-update', this[$onContentUpdate]);
     this.content.addEventListener('observe', this[$onContentUpdate]);
@@ -117,6 +118,9 @@ export default class AppElement extends LitElement {
     if (config.activeEntity !== false && this.activeEntity && this.panel !== 'rendering') {
       this.content.requestEntity(this.activeEntity);
     }
+    if (this.panel === 'rendering' && this.activeRenderer) {
+      this.content.requestEntity(this.activeRenderer);
+    }
   }
 
   /**
@@ -144,7 +148,7 @@ export default class AppElement extends LitElement {
         }
         this.refreshData({ activeEntity: false });
         break;
-      case 'renderer-update':
+      case 'rendering-info-update':
         // If renderer data was returned and viewing on the rendering panel, rerender
         if (this.panel === 'rendering' && this.activeRenderer === e.detail.id) {
           this.requestUpdate();
@@ -153,6 +157,11 @@ export default class AppElement extends LitElement {
       case 'entity-update':
         // @TODO figure out when this should be updated
         this.requestUpdate();
+        break;
+      case 'renderer-update':
+        if (this.panel === 'rendering' && this.activeRenderer === e.detail.id) {
+          this.requestUpdate();
+        }
         break;
       case 'scene-graph-update':
         if (this.panel === 'scene' && this.activeScene === e.detail.uuid) {
@@ -216,6 +225,9 @@ export default class AppElement extends LitElement {
       case 'request-scene-graph':
         this.content.requestSceneGraph(e.detail.uuid);
         break;
+      case 'request-rendering-info':
+        this.content.requestRenderingInfo(e.detail.uuid);
+        break;
       case 'update-property':
         const { uuid, property, value, dataType } = e.detail;
         this.content.updateProperty(uuid, property, value, dataType);
@@ -235,11 +247,11 @@ export default class AppElement extends LitElement {
     const showResourceView = !!(panelDef.resource && panel !== 'scene');
     const resources = showResourceView ? this.content.getResourcesOverview(panelDef.resource) : [];
 
-    const showInspector = this.activeEntity && panel !== 'rendering';
-    const activeEntityData = showInspector ? this.content.getEntity(this.activeEntity) : void 0;
-    const associatedEntityData = showInspector ? this.content.getEntityAndDependencies(this.activeEntity) : void 0;
+    const showInspector = panel === 'rendering' ? (!!this.activeRenderer) : (!!this.activeEntity);
+    const inspectedEntity = panel === 'rendering' ? this.activeRenderer : this.activeEntity;
+    const inspectedEntityData = showInspector ? this.content.getEntityAndDependencies(inspectedEntity) : void 0;
 
-    const rendererData = panel === 'rendering' && this.activeRenderer ? this.content.getEntity(this.activeRenderer) : void 0;
+    const renderingInfo = panel === 'rendering' && this.activeRenderer ? this.content.getRenderingInfo(this.activeRenderer) : void 0;
 
     return html`
 <style>
@@ -395,15 +407,15 @@ export default class AppElement extends LitElement {
       ></resources-view>
     <renderer-view
       .rendererId="${this.activeRenderer}"
-      .rendererData="${rendererData}"
+      .renderingInfo="${renderingInfo}"
       ?enabled=${panel === 'rendering'}
       ></renderer-view>
   </div>
   <div ?show-inspector=${showInspector} class="inspector-frame frame flex inverse"
     visible-when='ready'>
       <parameters-view ?enabled=${showInspector}
-        .uuid="${this.activeEntity}"
-        .entities="${associatedEntityData}">
+        .uuid="${inspectedEntity}"
+        .entities="${inspectedEntityData}">
       </parameters-view>
   </div>
   <title-bar title="${errorText}" class="error ${errorText ? 'show-error' : ''}"></title-bar>
