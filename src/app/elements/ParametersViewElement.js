@@ -62,7 +62,7 @@ function propsToElements(entity, elements, props, entities) {
       </accordion-view>`);
       continue;
     } else {
-      const { name, type, prop: propName, enumType, default: def } = prop;
+      const { name, type, prop: propName, enumType, default: def, readonly } = prop;
 
       let value = propByString(entity, propName);
       if (value === undefined) {
@@ -94,6 +94,7 @@ function propsToElements(entity, elements, props, entities) {
           .max="${max}"
           .step="${step}"
           .precision="${precision}"
+          .readonly="${readonly === true}"
           .data="${associatedData}"
           >
         </key-value>`);
