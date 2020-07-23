@@ -88,7 +88,7 @@ const Capabilities = {
   name: 'Capabilities',
   type: 'group',
   props: [{
-    name: 'WebGL2',
+    name: 'Is WebGL2',
     prop: 'capabilities.isWebGL2',
     type: 'boolean',
     readonly: true,
