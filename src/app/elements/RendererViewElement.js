@@ -61,9 +61,10 @@ export default class RendererViewElement extends LitElement {
         lines: 0,
       },
       memory: {
-        geometry: 0,
+        geometries: 0,
         textures: 0,
-      }
+      },
+      programs: 0,
     };
 
     return html`
@@ -73,49 +74,42 @@ export default class RendererViewElement extends LitElement {
     flex-direction: column;
     width: 100%;
   }
-
-  .properties {
-    flex: 1;
-    font-size: 1em;
-    box-sizing: border-box;
-    width: 100%;
-    overflow-y: auto;
-    overflow-x: hidden;
-    display: none;
+  /* quick hack, need to rethink title components */
+  title-bar[title="Memory"] {
+    border-top: 1px solid var(--title-border-color);
   }
-  .properties td:last-child {
-    text-align: right;
+  ul {
+    list-style-type: none;
+    padding-left: 0.8em;
+    margin: 0.4em 0;
   }
-  .properties.show-render-data {
-    display: table;
+  ul li {
+    margin: 0.2em 0;
+  }
+  ul li span:first-child {
+    font-weight: bold;
+    padding-right: 0.5em;
+  }
+  ul li span:first-child::after {
+    content: ':';
   }
 </style>
 <title-bar title="Renderer"></title-bar>
-<table class="properties${hasRenderingInfo ? ' show-render-data' : ''}">
-  <tbody>
-    <tr>
-      <td>frame</td><td>${info.render.frame}</td>
-    </tr>
-    <tr>
-      <td>calls</td><td>${info.render.calls}</td>
-    </tr>
-    <tr>
-      <td>triangles</td><td>${info.render.triangles}</td>
-    </tr>
-    <tr>
-      <td>points</td><td>${info.render.points}</td>
-    </tr>
-    <tr>
-      <td>lines</td><td>${info.render.lines}</td>
-    </tr>
-    <tr>
-      <td>geometries</td><td>${info.memory.geometries}</td>
-    </tr>
-    <tr>
-      <td>textures</td><td>${info.memory.textures}</td>
-    </tr>
-  </tbody>
-</table>
+<ul>
+  <li><span>frame</span><span>${info.render.frame}</span></li>
+  <li><span>draw calls</span><span>${info.render.calls}</span></li>
+  <li><span>triangles</span><span>${info.render.triangles}</span></li>
+  <li><span>points</span><span>${info.render.points}</span></li>
+  <li><span>lines</span><span>${info.render.lines}</span></li>
+</ul>
+
+<title-bar title="Memory"></title-bar>
+
+<ul>
+  <li><span>geometries</span><span>${info.memory.geometries || 0}</span></li>
+  <li><span>textures</span><span>${info.memory.textures || 0}</span></li>
+  <li><span>programs</span><span>${info.programs || 0}</span></li>
+</ul>
 `;
   }
 }

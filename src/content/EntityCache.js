@@ -140,6 +140,7 @@ return class EntityCache extends EventTarget {
       info: {
         render: entity.info.render,
         memory: entity.info.memory,
+        programs: entity.info.programs.length,
       }
     };
   }
