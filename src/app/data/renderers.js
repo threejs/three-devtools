@@ -1,25 +1,3 @@
-const PBR = {
-  name: 'Physically-based Rendering',
-  type: 'group',
-  props: [{
-    name: 'Physically Correct Lights',
-    prop: 'physicallyCorrectLights',
-    type: 'boolean',
-    default: false,
-  }, {
-    name: 'Gamma',
-    prop: 'gammaFactor',
-    type: 'number',
-    default: 2,
-  }, {
-    // @TODO
-    name: 'Output Encoding',
-    prop: 'outputEncoding',
-    type: 'enum',
-    enumType: 'encoding',
-  }]
-};
-
 const ToneMapping = {
   name: 'Tone Mapping',
   type: 'group',
@@ -224,8 +202,22 @@ const WebGLRenderer = {
     prop: 'debug.checkShaderErrors',
     type: 'boolean',
     default: true,
+  }, {
+    name: 'Physically Correct Lights',
+    prop: 'physicallyCorrectLights',
+    type: 'boolean',
+    default: false,
+  }, {
+    name: 'Gamma',
+    prop: 'gammaFactor',
+    type: 'number',
+    default: 2,
+  }, {
+    name: 'Output Encoding',
+    prop: 'outputEncoding',
+    type: 'enum',
+    enumType: 'encoding',
   },
-    PBR,
     ToneMapping,
     ShadowMap,
     BufferClearing,
