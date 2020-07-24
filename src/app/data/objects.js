@@ -54,6 +54,8 @@ export default {
   LineLoop: GeometryRenderable,
   LineSegments: GeometryRenderable,
   Points: GeometryRenderable,
+  SkinnedMesh: GeometryRenderable,
+  InstancedMesh: GeometryRenderable,
 
   AxesHelper: Helper,
   BoxHelper: Helper,
