@@ -1,6 +1,7 @@
 export default (() => {
 
 const isDevtoolsSerialization = meta => !!(meta && meta.devtoolsConfig);
+const isObject = o => Object.prototype.toString.call(o) === '[object Object]';
 const tempPosition = new THREE.Vector3();
 const tempRotation = new THREE.Quaternion();
 const tempScale = new THREE.Vector3();
@@ -44,16 +45,15 @@ return function InstrumentedToJSON (meta) {
 
   let textureData;
   if (this.isTexture) {
-    // If `image` is a plain object, probably from DataTexture
-    // or a texture from a render target, hide it during serialization
-    // so an attempt to turn it into a data URL doesn't throw.
+    // If `image` is a plain object (via DataTexture or WebGLRenderTarget)
+    // or an array of plain objects (via CompressedTexture) hide it during
+    // serialization so an attempt to turn it into a data URL doesn't throw.
     // Patch for DataTexture.toJSON (https://github.com/mrdoob/three.js/pull/17745)
-    if (Object.prototype.toString.call(this.image) === '[object Object]') {
+    if (isObject(this.image) || (Array.isArray(this.image) && this.image.some(isObject))) {
       textureData = this.image;
       this.image = undefined;
     }
   }
-  
 
   let children;
   if (this.isObject3D && !serializeChildren) {
