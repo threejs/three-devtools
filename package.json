@@ -1,7 +1,7 @@
 {
   "name": "three-devtools",
   "private": true,
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "three.js developer tools web extension",
   "scripts": {
     "build:source": "./scripts/build-source.sh",
