@@ -8,8 +8,8 @@ browser.runtime.onConnect.addListener((port) => {
   let tabId;
   const onMessage = (message) => {
     tabId = message.tabId;
-    console.log("onConnect", tabId, message.name);
-    if (message.name === "connect") {
+    console.log('onConnect', tabId, message.name);
+    if (message.name === 'connect') {
       connections.set(tabId, port);
     }
   };
@@ -45,11 +45,11 @@ browser.webNavigation.onDOMContentLoaded.addListener(({ tabId, frameId }) => {
   if (frameId !== 0) {
     return;
   }
-  console.log("onDOMContentLoaded", tabId, connections.has(tabId));
+  console.log('onDOMContentLoaded', tabId, connections.has(tabId));
   if (connections.has(tabId)) {
     connections.get(tabId).postMessage({
-      type: "committed",
-      id: "three-devtools",
+      type: 'committed',
+      id: 'three-devtools',
     });
   }
 });
