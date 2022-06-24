@@ -4,7 +4,7 @@ const connections = new Map();
  * When opening the three-devtools panel, store
  * a connection to communicate later.
  */
-browser.runtime.onConnect.addListener((port) => {
+browser.runtime.onConnect.addListener(port => {
   let tabId;
   const onMessage = (message) => {
     tabId = message.tabId;
@@ -16,7 +16,7 @@ browser.runtime.onConnect.addListener((port) => {
 
   port.onMessage.addListener(onMessage);
 
-  port.onDisconnect.addListener((port) => {
+  port.onDisconnect.addListener(port => {
     port.onMessage.removeListener(onMessage);
     connections.delete(tabId);
   });
