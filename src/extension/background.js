@@ -1,6 +1,3 @@
-import browser from '../../web_modules/webextension-polyfill/dist/browser-polyfill.js';
-globalThis.browser = browser;
-
 const connections = new Map();
 
 /**

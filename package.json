@@ -27,7 +27,7 @@
     "lit-element": "2.2.1",
     "lit-html": "1.1.2",
     "three": "0.137.0",
-    "webextension-polyfill": "0.4.0"
+    "webextension-polyfill": "^0.9.0"
   },
   "devDependencies": {
     "http-server": "^0.12.0",
