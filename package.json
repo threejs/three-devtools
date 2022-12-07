@@ -30,7 +30,7 @@
     "webextension-polyfill": "0.4.0"
   },
   "devDependencies": {
-    "http-server": "^0.12.0",
+    "http-server": "^0.12.3",
     "json": "10.0.0"
   },
   "@pika/web": {
