@@ -1,6 +1,3 @@
-import browser from '../../web_modules/webextension-polyfill/dist/browser-polyfill.js';
-globalThis.browser = browser;
-
 if (browser.devtools.inspectedWindow.tabId) {
   // As of now, only inspect content windows, not when
   // debugging a devtools panel for example.

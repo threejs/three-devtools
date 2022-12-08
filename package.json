@@ -1,7 +1,7 @@
 {
   "name": "three-devtools",
   "private": true,
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "three.js developer tools web extension",
   "scripts": {
     "build:source": "./scripts/build-source.sh",
@@ -27,7 +27,7 @@
     "lit-element": "2.2.1",
     "lit-html": "1.1.2",
     "three": "0.137.0",
-    "webextension-polyfill": "0.4.0"
+    "webextension-polyfill": "^0.9.0"
   },
   "devDependencies": {
     "http-server": "^14.1.1",

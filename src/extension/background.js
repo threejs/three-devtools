@@ -1,6 +1,3 @@
-import browser from '../../web_modules/webextension-polyfill/dist/browser-polyfill.js';
-globalThis.browser = browser;
-
 const connections = new Map();
 
 /**
@@ -15,7 +12,7 @@ browser.runtime.onConnect.addListener(port => {
     if (message.name === 'connect') {
       connections.set(tabId, port);
     }
-  }
+  };
 
   port.onMessage.addListener(onMessage);
 
@@ -43,12 +40,12 @@ browser.runtime.onMessage.addListener((request, sender) => {
  * When a page has reloaded; if three-devtools are open, notify
  * the devtools panel so it can inject the content-side of the tools.
  */
-browser.webNavigation.onCommitted.addListener(({tabId, frameId}) => {
+browser.webNavigation.onDOMContentLoaded.addListener(({ tabId, frameId }) => {
   // Only support top-level frame for now
   if (frameId !== 0) {
     return;
   }
-  console.log('onCommitted', tabId, connections.has(tabId));
+  console.log('onDOMContentLoaded', tabId, connections.has(tabId));
   if (connections.has(tabId)) {
     connections.get(tabId).postMessage({
       type: 'committed',
